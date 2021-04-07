@@ -40,6 +40,17 @@ putt_san_antonio=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_4
 
 
 st.write('riviera', riviera.head())
+# # riviera
+# cols = riviera.columns.to_list()
+# st.write(cols)
+
+# riviera.columns=cols
+# st.write(riviera.columns)
+# riviera.columns = [x.str.strip() for x in riviera.columns]
+# st.write('after clean',riviera.head())
+# riviera=riviera.rename(columns={'RANK THIS WEEK':'other'})
+
+# st.write('to test',riviera.head())
 # st.write('concession', concession.head())
 # st.write('bay_hill', bay_hill.head())
 # st.write('sawgrass', sawgrass.head())
@@ -47,46 +58,65 @@ st.write('riviera', riviera.head())
 # st.write('san_antonio', san_antonio.head())
 
 st.write('riviera', putt_riviera.head())
+# st.write(putt_riviera.columns)
 # st.write('concession', putt_concession.head())
 # st.write('bay_hill', putt_bay_hill.head())
 # st.write('sawgrass', putt_sawgrass.head())
 # st.write('honda', putt_honda.head())
 # st.write('san_antonio', putt_san_antonio.head())
 
-def merge_golf(a,b):
-    return pd.merge(a, b, on=['PLAYER NAME', 'ROUNDS', 'MEASURED ROUNDS'])
+def merge_golf(tee_to_green_stats,putting_stats, name_of_tournament):
+    # tee_to_green_stats= tee_to_green_stats.dropna(thresh=(len(tee_to_green_stats) - 6))
+    # putting_stats = putting_stats.dropna(thresh=(len(putting_stats) - 4))
+    tee_to_green_stats = tee_to_green_stats.loc[:,['MEASURED ROUNDS','PLAYER NAME','ROUNDS','SG:APR','SG:ARG','SG:OTT']].copy()
+    putting_stats = putting_stats.loc[:,['MEASURED ROUNDS','PLAYER NAME','ROUNDS','TOTAL SG:PUTTING']].copy()
+    # st.write('tee green', tee_to_green_stats.head())
+    # non_putting_stats=non_putting_stats.drop(['RANK LAST WEEK','AVERAGE'], axis=1)
+    # puttings_stats=puttings_stats.drop(['RANK LAST WEEK'], axis=1).rename(columns={'AVERAGE': 'average_sg_putt_per_round'})
+    df = pd.merge(tee_to_green_stats, putting_stats, on=['PLAYER NAME', 'ROUNDS', 'MEASURED ROUNDS'])
+    df['tournament']=name_of_tournament
+    df=df.iloc[1:].copy()
+    return df
 
-riviera_stats=merge_golf(riviera, putt_riviera)
-concession_stats=merge_golf(concession, putt_concession)
-bay_hill_stats=merge_golf(bay_hill, putt_bay_hill)
-sawgrass_stats=merge_golf(sawgrass, putt_sawgrass)
+riviera_stats=merge_golf(riviera, putt_riviera, 'riviera')
+concession_stats=merge_golf(concession, putt_concession,'concession')
+bay_hill_stats=merge_golf(bay_hill, putt_bay_hill,'bay_hill')
+sawgrass_stats=merge_golf(sawgrass, putt_sawgrass,'sawgrass')
+honda_stats=merge_golf(honda, putt_honda,'pga_national')
+san_antonio_stats=merge_golf(san_antonio, putt_san_antonio,'tpc_san_antonio')
 
-
-
+st.write('riviera after clean', riviera_stats.head())
+# st.write(riviera_stats['RANK THIS WEEK_x'])
 
 def clean_golf_tee(df):
-    df['SG:OTT']=df['SG:OTT']*df['MEASURED ROUNDS']
-    df['SG:APR']=df['SG:APR']*df['MEASURED ROUNDS']
-    df['SG:ARG']=df['SG:ARG']*df['MEASURED ROUNDS']
-    col_list=['SG:OTT','SG:APR','SG:ARG','TOTAL SG:PUTTING']
+    df['TOTAL SG:OTT']=df['SG:OTT']*df['MEASURED ROUNDS']
+    df['TOTAL SG:APR']=df['SG:APR']*df['MEASURED ROUNDS']
+    df['TOTAL SG:ARG']=df['SG:ARG']*df['MEASURED ROUNDS']
+    col_list=['TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG','TOTAL SG:PUTTING']
     df['SG: TOTAL']=df[col_list].sum(axis=1)
     df['SG: TOTAL_AVG']=df['SG: TOTAL'] / df['MEASURED ROUNDS']
-    df['Tee_Rank']= (df['SG:OTT']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
-    df['Appr_Rank']=(df['SG:APR']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
-    df['ARG_Rank']=(df['SG:ARG']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
+    df['Tee_Rank']= (df['TOTAL SG:OTT']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
+    df['Appr_Rank']=(df['TOTAL SG:APR']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
+    df['ARG_Rank']=(df['TOTAL SG:ARG']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
     df['PUTT_Rank']=(df['TOTAL SG:PUTTING']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
     df['SG_Rank']=(df['SG: TOTAL_AVG']).rank(method='dense', ascending=False)
+    df['Rev_SG_Tot']=df['TOTAL SG:OTT']*0.28 + df['TOTAL SG:APR']*0.4 + df['TOTAL SG:ARG']*0.17 + df['TOTAL SG:PUTTING']*0.15
+    df['Rev_SG_Rank']=(df['Rev_SG_Tot']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
+    # df['Revised_Rev_SG_Tot']=df['TOTAL SG:OTT']*0.28 + df['TOTAL SG:APR']*0.4 + df['TOTAL SG:ARG']*0.17 + df['TOTAL SG:PUTT']*0.15
     rank_list=['Tee_Rank','Appr_Rank','ARG_Rank','PUTT_Rank']
     df['Rank_Rank']=df[rank_list].mean(axis=1).rank(method='dense', ascending=True)
-    cols_to_move = ['PLAYER NAME','MEASURED ROUNDS','ROUNDS','SG:OTT','SG:APR','SG:ARG','TOTAL SG:PUTTING',
-    'SG: TOTAL', 'SG: TOTAL_AVG', 'SG_Rank']
+    cols_to_move = ['PLAYER NAME','MEASURED ROUNDS','ROUNDS','TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG','TOTAL SG:PUTTING',
+    'SG: TOTAL', 'SG: TOTAL_AVG', 'SG_Rank','SG:OTT','SG:APR','SG:ARG']
     cols = cols_to_move + [col for col in df if col not in cols_to_move]
-    df=df[cols]
-    st.write('1. Week 1 Pickle')
-    st.table( df.sort_values(by='SG: TOTAL_AVG', ascending=False).head())
+    # df=df[cols]
+    # st.write('1. Week 1 Pickle')
+    return df.sort_values(by='SG: TOTAL_AVG', ascending=False)
 
+riviera_stats = clean_golf_tee(riviera_stats)
+st.write('riviera after function', riviera_stats.head())
 
-
+format_dict = {'SG:OTT':'{0:,.1f}', 'SG:APR':'{0:,.1f}' , 'SG:ARG':'{0:,.1f}', 
+'SG:PUTT':'{0:,.1f}' , 'SG: TOTAL':'{0:,.1f}' , 'SG: TOTAL_AVG':'{0:,.1f}', 'Rev_SG_Tot':'{0:,.1f}'  }
 
 
 
