@@ -5,6 +5,8 @@ import requests
 from bs4 import BeautifulSoup
 import json
 
+st.set_page_config(layout="wide")
+
 # headers = {
 #     "accept": "application/json, text/javascript, */*; q=0.01",
 #     "accept-encoding": "gzip, deflate, br",
@@ -36,57 +38,27 @@ putt_sawgrass=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_11_p
 putt_honda=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_10_honda_classic.pkl')
 putt_san_antonio=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_41_valero_texas.pkl')
 
+# st.write('riviera', san_antonio)
 
+# st.write('riviera', putt_riviera.head())
 
-
-st.write('riviera', riviera.head())
-# # riviera
-# cols = riviera.columns.to_list()
-# st.write(cols)
-
-# riviera.columns=cols
-# st.write(riviera.columns)
-# riviera.columns = [x.str.strip() for x in riviera.columns]
-# st.write('after clean',riviera.head())
-# riviera=riviera.rename(columns={'RANK THIS WEEK':'other'})
-
-# st.write('to test',riviera.head())
-# st.write('concession', concession.head())
-# st.write('bay_hill', bay_hill.head())
-# st.write('sawgrass', sawgrass.head())
-# st.write('honda', honda.head())
-# st.write('san_antonio', san_antonio.head())
-
-st.write('riviera', putt_riviera.head())
-# st.write(putt_riviera.columns)
-# st.write('concession', putt_concession.head())
-# st.write('bay_hill', putt_bay_hill.head())
-# st.write('sawgrass', putt_sawgrass.head())
-# st.write('honda', putt_honda.head())
-# st.write('san_antonio', putt_san_antonio.head())
-
-def merge_golf(tee_to_green_stats,putting_stats, name_of_tournament):
-    # tee_to_green_stats= tee_to_green_stats.dropna(thresh=(len(tee_to_green_stats) - 6))
-    # putting_stats = putting_stats.dropna(thresh=(len(putting_stats) - 4))
+def merge_golf(tee_to_green_stats,putting_stats, name_of_tournament,date):
     tee_to_green_stats = tee_to_green_stats.loc[:,['MEASURED ROUNDS','PLAYER NAME','ROUNDS','SG:APR','SG:ARG','SG:OTT']].copy()
     putting_stats = putting_stats.loc[:,['MEASURED ROUNDS','PLAYER NAME','ROUNDS','TOTAL SG:PUTTING']].copy()
-    # st.write('tee green', tee_to_green_stats.head())
-    # non_putting_stats=non_putting_stats.drop(['RANK LAST WEEK','AVERAGE'], axis=1)
-    # puttings_stats=puttings_stats.drop(['RANK LAST WEEK'], axis=1).rename(columns={'AVERAGE': 'average_sg_putt_per_round'})
     df = pd.merge(tee_to_green_stats, putting_stats, on=['PLAYER NAME', 'ROUNDS', 'MEASURED ROUNDS'])
     df['tournament']=name_of_tournament
+    df['date']=date
     df=df.iloc[1:].copy()
     return df
 
-riviera_stats=merge_golf(riviera, putt_riviera, 'riviera')
-concession_stats=merge_golf(concession, putt_concession,'concession')
-bay_hill_stats=merge_golf(bay_hill, putt_bay_hill,'bay_hill')
-sawgrass_stats=merge_golf(sawgrass, putt_sawgrass,'sawgrass')
-honda_stats=merge_golf(honda, putt_honda,'pga_national')
-san_antonio_stats=merge_golf(san_antonio, putt_san_antonio,'tpc_san_antonio')
+riviera_stats=merge_golf(riviera, putt_riviera, 'riviera',1)
+concession_stats=merge_golf(concession, putt_concession,'concession',2)
+bay_hill_stats=merge_golf(bay_hill, putt_bay_hill,'bay_hill',3)
+sawgrass_stats=merge_golf(sawgrass, putt_sawgrass,'sawgrass',4)
+honda_stats=merge_golf(honda, putt_honda,'pga_national',5)
+san_antonio_stats=merge_golf(san_antonio, putt_san_antonio,'tpc_san_antonio',6)
 
-st.write('riviera after clean', riviera_stats.head())
-# st.write(riviera_stats['RANK THIS WEEK_x'])
+# st.write('riviera after clean', riviera_stats.head())
 
 def clean_golf_tee(df):
     df['TOTAL SG:OTT']=df['SG:OTT']*df['MEASURED ROUNDS']
@@ -102,28 +74,59 @@ def clean_golf_tee(df):
     df['SG_Rank']=(df['SG: TOTAL_AVG']).rank(method='dense', ascending=False)
     df['Rev_SG_Tot']=df['TOTAL SG:OTT']*0.28 + df['TOTAL SG:APR']*0.4 + df['TOTAL SG:ARG']*0.17 + df['TOTAL SG:PUTTING']*0.15
     df['Rev_SG_Rank']=(df['Rev_SG_Tot']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
+    df['Rev_Rank_Var'] = df['Rev_SG_Rank'] - df['SG_Rank']
     # df['Revised_Rev_SG_Tot']=df['TOTAL SG:OTT']*0.28 + df['TOTAL SG:APR']*0.4 + df['TOTAL SG:ARG']*0.17 + df['TOTAL SG:PUTT']*0.15
     rank_list=['Tee_Rank','Appr_Rank','ARG_Rank','PUTT_Rank']
-    df['Rank_Rank']=df[rank_list].mean(axis=1).rank(method='dense', ascending=True)
-    cols_to_move = ['PLAYER NAME','MEASURED ROUNDS','ROUNDS','TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG','TOTAL SG:PUTTING',
-    'SG: TOTAL', 'SG: TOTAL_AVG', 'SG_Rank','SG:OTT','SG:APR','SG:ARG']
+    df['Rank_Equal']=df[rank_list].mean(axis=1).rank(method='dense', ascending=True)
+    cols_to_move = ['PLAYER NAME','tournament','date','SG_Rank','TOTAL SG:OTT','Tee_Rank','TOTAL SG:APR','Appr_Rank','TOTAL SG:ARG','ARG_Rank','TOTAL SG:PUTTING','PUTT_Rank',
+    'SG: TOTAL', 'SG: TOTAL_AVG','SG:OTT','SG:APR','SG:ARG','MEASURED ROUNDS','ROUNDS']
     cols = cols_to_move + [col for col in df if col not in cols_to_move]
-    # df=df[cols]
-    # st.write('1. Week 1 Pickle')
+    df=df[cols]
+    df=df.reset_index().set_index('PLAYER NAME').drop(['index'],axis=1)
+    df['ROUNDS']=df['ROUNDS'].astype(int)
+    df['MEASURED ROUNDS']=df['MEASURED ROUNDS'].astype(int)
+    df['SG_Rank']=df['SG_Rank'].astype(int)
+    df['Appr_Rank']=df['Appr_Rank'].astype(int)
+    df['ARG_Rank']=df['ARG_Rank'].astype(int)
+    df['PUTT_Rank']=df['PUTT_Rank'].astype(int)
+    df['Tee_Rank']=df['Tee_Rank'].astype(int)
+    df['Rev_SG_Rank']=df['Rev_SG_Rank'].astype(int)
+    df['Rev_Rank_Var']=df['Rev_Rank_Var'].astype(int)
+    df['Rank_Equal']=df['Rank_Equal'].astype(int)
+    # df=df.reset_index()
     return df.sort_values(by='SG: TOTAL_AVG', ascending=False)
 
 riviera_stats = clean_golf_tee(riviera_stats)
-st.write('riviera after function', riviera_stats.head())
+concession_stats=clean_golf_tee(concession_stats)
+bay_hill_stats=clean_golf_tee(bay_hill_stats)
+sawgrass_stats=clean_golf_tee(sawgrass_stats)
+pga_national_stats=clean_golf_tee(honda_stats)
+san_antonio_stats=clean_golf_tee(san_antonio_stats)
 
-format_dict = {'SG:OTT':'{0:,.1f}', 'SG:APR':'{0:,.1f}' , 'SG:ARG':'{0:,.1f}', 
-'SG:PUTT':'{0:,.1f}' , 'SG: TOTAL':'{0:,.1f}' , 'SG: TOTAL_AVG':'{0:,.1f}', 'Rev_SG_Tot':'{0:,.1f}'  }
+# st.write('riviera after function', riviera_stats)
+
+format_dict = {'TOTAL SG:OTT':'{0:,.1f}','SG:OTT':'{0:,.1f}', 'SG:APR':'{0:,.1f}' ,'TOTAL SG:APR':'{0:,.1f}' ,'TOTAL SG:ARG':'{0:,.1f}', 'SG:ARG':'{0:,.1f}', 
+'SG:PUTT':'{0:,.1f}' , 'SG: TOTAL':'{0:,.1f}' , 'SG: TOTAL_AVG':'{0:,.1f}', 'Rev_SG_Tot':'{0:,.1f}', 'TOTAL SG:PUTTING':'{0:,.1f}','sg_rank':'{0:,.0f}',
+'app_sg_rank':'{0:,.0f}','ott_rank':'{0:,.0f}','arg_rank':'{0:,.0f}','putt_rank':'{0:,.0f}','tee_to_green_rank':'{0:,.0f}','tee_green_rank':'{0:,.0f}'  }
+
+combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats])
+combined = combined.reset_index()
+st.write(combined.sort_values(by='SG: TOTAL_AVG',ascending=False).head().style.format(format_dict))
 
 
 
+st.write('who has the best average approach the green rank?')
+filtered = combined.groupby('PLAYER NAME').agg(total_rounds=('MEASURED ROUNDS','sum'),sg_rank=('SG_Rank','mean'),app_sg_rank=('Appr_Rank','mean'),
+ott_rank=('Tee_Rank','mean'),arg_rank=('ARG_Rank','mean'),putt_rank=('PUTT_Rank','mean'))
+rank_list=['app_sg_rank','ott_rank','arg_rank']
+filtered['tee_to_green_rank']=filtered[rank_list].mean(axis=1).rank(method='dense', ascending=True)
+filtered['tee_green_rank']=filtered['ott_rank']*0.28 + filtered['app_sg_rank']*0.4 + filtered['arg_rank']*0.17 
+st.write('SG Rank',filtered.sort_values(by='sg_rank', ascending=True).query('`total_rounds`>4').style.format(format_dict))
+st.write('Approach the Green [Irons] Rank',filtered.sort_values(by='app_sg_rank', ascending=True).query('`total_rounds`>4').style.format(format_dict))
+st.write('Normalised Tee to Green Rank',filtered.sort_values(by='tee_green_rank', ascending=True).query('`total_rounds`>4').style.format(format_dict))
+st.write('Equal amount for driving/irons/short game Tee to Green Rank',filtered.sort_values(by='tee_to_green_rank', ascending=True).query('`total_rounds`>4').style.format(format_dict))
 
-
-
-
+st.write(combined[combined['PLAYER NAME'].str.contains('Collin')])
 
 
 
