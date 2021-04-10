@@ -14,15 +14,16 @@ st.set_page_config(layout="wide")
 #     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.99 Safari/537.36",
 #     "x-requested-with": "XMLHttpRequest",
 # }
-
-# url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t041.html"
+# # https://stackoverflow.com/questions/64501788/api-web-data-capture
+# url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t536.html"
+# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t536.html"
 # html = requests.get(url).text
 
 # df = pd.read_html(html, flavor="html5lib")
 # df = pd.concat(df).drop([0, 1, 2], axis=1)
 # st.write(df.head())
 # # df.to_csv("golf.csv", index=False)
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_41_valero_texas.pkl')
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_536_masters.pkl')
 
 riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_007_riviera_gc.pkl')
 concession=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_473_wgc_concession.pkl')
@@ -30,6 +31,7 @@ bay_hill=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_09_palmer_bay_h
 sawgrass=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_11_players_sawgrass.pkl')
 honda=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_10_honda_classic.pkl')
 san_antonio=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_41_valero_texas.pkl')
+masters=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_536_masters.pkl')
 
 putt_riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_007_riviera_gc.pkl')
 putt_concession=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_473_wgc_concession.pkl')
@@ -37,10 +39,11 @@ putt_bay_hill=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_09_p
 putt_sawgrass=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_11_players_sawgrass.pkl')
 putt_honda=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_10_honda_classic.pkl')
 putt_san_antonio=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_41_valero_texas.pkl')
+# putt_masters=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_536_masters.pkl')
 
-# st.write('riviera', san_antonio)
+st.write('masters', masters)
 
-# st.write('riviera', putt_riviera.head())
+# st.write('masters', putt_masters.head())
 
 def merge_golf(tee_to_green_stats,putting_stats, name_of_tournament,date):
     tee_to_green_stats = tee_to_green_stats.loc[:,['MEASURED ROUNDS','PLAYER NAME','ROUNDS','SG:APR','SG:ARG','SG:OTT']].copy()
