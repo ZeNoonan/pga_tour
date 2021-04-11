@@ -120,23 +120,37 @@ st.write(combined.sort_values(by='SG: TOTAL_AVG',ascending=False).head().style.f
 
 st.write('who has the best average approach the green rank?')
 filtered = combined.groupby('PLAYER NAME').agg(total_rounds=('MEASURED ROUNDS','sum'),sg_rank=('SG_Rank','mean'),app_sg_rank=('Appr_Rank','mean'),
-ott_rank=('Tee_Rank','mean'),arg_rank=('ARG_Rank','mean'),putt_rank=('PUTT_Rank','mean'))
+ott_rank=('Tee_Rank','mean'),arg_rank=('ARG_Rank','mean'),putt_rank=('PUTT_Rank','mean'),normal_sg_no_putt=('Rev_SG_Tot','sum'))
 rank_list=['app_sg_rank','ott_rank','arg_rank']
 filtered['tee_to_green_rank']=filtered[rank_list].mean(axis=1).rank(method='dense', ascending=True)
 filtered['tee_green_rank']=filtered['ott_rank']*0.28 + filtered['app_sg_rank']*0.4 + filtered['arg_rank']*0.17 
+filtered['tee_green_normalised_sg'] = filtered['normal_sg_no_putt'] / filtered['total_rounds']
+# filtered['tee_green_normalised_sg_rank'] = filtered['tee_green_normalised_sg'].rank(method='dense', ascending=True) 
 st.write('SG Rank',filtered.sort_values(by='sg_rank', ascending=True).query('`total_rounds`>4').style.format(format_dict))
-st.write('Approach the Green [Irons] Rank',filtered.sort_values(by='app_sg_rank', ascending=True).query('`total_rounds`>4').style.format(format_dict))
-st.write('Normalised Tee to Green Rank',filtered.sort_values(by='tee_green_rank', ascending=True).query('`total_rounds`>4').style.format(format_dict))
-st.write('Equal amount for driving/irons/short game Tee to Green Rank',filtered.sort_values(by='tee_to_green_rank', ascending=True).query('`total_rounds`>4').style.format(format_dict))
+st.write('Approach the Green [Irons] Rank',filtered.sort_values(by='app_sg_rank', ascending=True).query('`total_rounds`>1').style.format(format_dict))
+st.write('Normalised Tee to Green Rank',filtered.sort_values(by='tee_green_rank', ascending=True).query('`total_rounds`>1').style.format(format_dict))
+st.write('Normalised Tee to Green Rank New Calc',filtered.sort_values(by='tee_green_normalised_sg', ascending=False).query('`total_rounds`>1').style.format(format_dict))
+st.write('Equal amount for driving/irons/short game Tee to Green Rank',filtered.sort_values(by='tee_to_green_rank', ascending=True).query('`total_rounds`>1').style.format(format_dict))
 
-st.write(combined[combined['PLAYER NAME'].str.contains('Collin')])
+st.write(combined[combined['PLAYER NAME'].str.contains('Si Woo')])
+
+# Cross check against SG Average total here
+# https://www.pgatour.com/stats/stat.02675.html
 
 
+a=(pd.DataFrame(pd.read_html('https://www.pgatour.com/stats/stat.02674.html')[1]).drop(['RANK LAST WEEK'], axis=1))
+st.write('test 1',a.head())
+b=pd.DataFrame(pd.read_html('https://www.pgatour.com/stats/stat.02564.html')[1]).drop(['RANK LAST WEEK'], axis=1)
+st.write('test 2',b.head())
+df=pd.merge(a, b, on=['PLAYER NAME'], how='outer')    
+# df=df.drop(df.columns[[0,8,3,9]], axis=1)
+# st.table(df.head(2))
+df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_san_antonio_1.pkl')
 
-
-
-
-
+full_stats_overall=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_san_antonio_1.pkl')
+st.write(full_stats_overall.sort_values(by='SG:APR', ascending=False))
+# test=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/week_before_masters.pkl')
+# st.write('test',test.sort_values(by='SG:APR', ascending=False))
 
 
 # leaderboard_response = requests.get('https://lbdata.pgatour.com/2019/r/027/leaderboard.json').json()
