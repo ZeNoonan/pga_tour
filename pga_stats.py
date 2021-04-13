@@ -15,15 +15,14 @@ st.set_page_config(layout="wide")
 #     "x-requested-with": "XMLHttpRequest",
 # }
 # # https://stackoverflow.com/questions/64501788/api-web-data-capture
-# url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t536.html"
-# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t536.html"
+# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t536.html"
+# url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t536.html"
 # html = requests.get(url).text
 
 # df = pd.read_html(html, flavor="html5lib")
 # df = pd.concat(df).drop([0, 1, 2], axis=1)
 # st.write(df.head())
-# # df.to_csv("golf.csv", index=False)
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_536_masters.pkl')
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_536_masters.pkl')
 
 riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_007_riviera_gc.pkl')
 concession=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_473_wgc_concession.pkl')
@@ -31,7 +30,7 @@ bay_hill=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_09_palmer_bay_h
 sawgrass=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_11_players_sawgrass.pkl')
 honda=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_10_honda_classic.pkl')
 san_antonio=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_41_valero_texas.pkl')
-masters=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_536_masters.pkl')
+# masters=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_536_masters.pkl')
 
 putt_riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_007_riviera_gc.pkl')
 putt_concession=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_473_wgc_concession.pkl')
@@ -41,7 +40,7 @@ putt_honda=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_10_hond
 putt_san_antonio=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_41_valero_texas.pkl')
 # putt_masters=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_536_masters.pkl')
 
-st.write('masters', masters)
+# st.write('masters', masters)
 
 # st.write('masters', putt_masters.head())
 
@@ -138,17 +137,23 @@ st.write(combined[combined['PLAYER NAME'].str.contains('Si Woo')])
 # https://www.pgatour.com/stats/stat.02675.html
 
 
-a=(pd.DataFrame(pd.read_html('https://www.pgatour.com/stats/stat.02674.html')[1]).drop(['RANK LAST WEEK'], axis=1))
-st.write('test 1',a.head())
-b=pd.DataFrame(pd.read_html('https://www.pgatour.com/stats/stat.02564.html')[1]).drop(['RANK LAST WEEK'], axis=1)
-st.write('test 2',b.head())
-df=pd.merge(a, b, on=['PLAYER NAME'], how='outer')    
-# df=df.drop(df.columns[[0,8,3,9]], axis=1)
-# st.table(df.head(2))
-df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_san_antonio_1.pkl')
+# a=(pd.DataFrame(pd.read_html('https://www.pgatour.com/stats/stat.02674.html')[1]).drop(['RANK LAST WEEK'], axis=1))
+# st.write('test 1',a.head())
+# b=pd.DataFrame(pd.read_html('https://www.pgatour.com/stats/stat.02564.html')[1]).drop(['RANK LAST WEEK'], axis=1)
+# st.write('test 2',b.head())
+# df=pd.merge(a, b, on=['PLAYER NAME'], how='outer')    
+# # df=df.drop(df.columns[[0,8,3,9]], axis=1)
+# # st.table(df.head(2))
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_masters.pkl')
 
-full_stats_overall=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_san_antonio_1.pkl')
-st.write(full_stats_overall.sort_values(by='SG:APR', ascending=False))
+with st.beta_expander('Run the above again in a day or two to see if Masters strokes gained is updated look at measured rounds'):
+    full_stats_overall=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_san_antonio_1.pkl')
+    st.write('after san antonio')
+    st.write(full_stats_overall.sort_values(by='SG:APR', ascending=False))
+    full_stats_overall=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_masters.pkl')
+    st.write('after masters')
+    st.write(full_stats_overall.sort_values(by='SG:APR', ascending=False))
+
 # test=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/week_before_masters.pkl')
 # st.write('test',test.sort_values(by='SG:APR', ascending=False))
 
