@@ -15,14 +15,15 @@ st.set_page_config(layout="wide")
 #     "x-requested-with": "XMLHttpRequest",
 # }
 # # https://stackoverflow.com/questions/64501788/api-web-data-capture
-# url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t012.html"
-# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t012.html"
+# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t012.html"
+# url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t012.html"
 # html = requests.get(url).text
 
 # df = pd.read_html(html, flavor="html5lib")
 # df = pd.concat(df).drop([0, 1, 2], axis=1)
-# st.write(df.head())
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_012_harbour_town.pkl')
+# # st.write(df.head())
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_012_harbour_town.pkl')
+# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_012_harbour_town.pkl')
 
 riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_007_riviera_gc.pkl')
 concession=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_473_wgc_concession.pkl')
@@ -42,9 +43,9 @@ putt_san_antonio=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_4
 # putt_masters=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_536_masters.pkl')
 putt_harbour_town=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_012_harbour_town.pkl')
 
-st.write('harbour_town', harbour_town)
+# st.write('harbour_town stats', harbour_town.head())
 
-st.write('harbour_town', putt_harbour_town.head())
+# st.write('harbour_town putt', putt_harbour_town.head())
 
 def merge_golf(tee_to_green_stats,putting_stats, name_of_tournament,date):
     tee_to_green_stats = tee_to_green_stats.loc[:,['MEASURED ROUNDS','PLAYER NAME','ROUNDS','SG:APR','SG:ARG','SG:OTT']].copy()
@@ -61,7 +62,7 @@ bay_hill_stats=merge_golf(bay_hill, putt_bay_hill,'bay_hill',3)
 sawgrass_stats=merge_golf(sawgrass, putt_sawgrass,'sawgrass',4)
 honda_stats=merge_golf(honda, putt_honda,'pga_national',5)
 san_antonio_stats=merge_golf(san_antonio, putt_san_antonio,'tpc_san_antonio',6)
-# harbour_town_stats=merge_golf(harbour_town, putt_harbour_town,'harbour_town',7)
+harbour_town_stats=merge_golf(harbour_town, putt_harbour_town,'harbour_town',7)
 
 # st.write('riviera after clean', riviera_stats.head())
 
@@ -71,20 +72,24 @@ def clean_golf_tee(df):
     df['TOTAL SG:ARG']=df['SG:ARG']*df['MEASURED ROUNDS']
     col_list=['TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG','TOTAL SG:PUTTING']
     df['SG: TOTAL']=df[col_list].sum(axis=1)
+    sg_tee_to_green=['TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG']
+    df['TOTAL SG:TEE_ARG']=df[sg_tee_to_green].mean(axis=1)
     df['SG: TOTAL_AVG']=df['SG: TOTAL'] / df['MEASURED ROUNDS']
+    df['SG: Tee_Arg_AVG']=df['TOTAL SG:TEE_ARG'] / df['MEASURED ROUNDS']
     df['Tee_Rank']= (df['TOTAL SG:OTT']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
     df['Appr_Rank']=(df['TOTAL SG:APR']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
     df['ARG_Rank']=(df['TOTAL SG:ARG']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
     df['PUTT_Rank']=(df['TOTAL SG:PUTTING']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
     df['SG_Rank']=(df['SG: TOTAL_AVG']).rank(method='dense', ascending=False)
+    df['Tee_ARG_Rank']=(df['SG: Tee_Arg_AVG']).rank(method='dense', ascending=False)
     df['Rev_SG_Tot']=df['TOTAL SG:OTT']*0.28 + df['TOTAL SG:APR']*0.4 + df['TOTAL SG:ARG']*0.17 + df['TOTAL SG:PUTTING']*0.15
     df['Rev_SG_Rank']=(df['Rev_SG_Tot']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
-    df['Rev_Rank_Var'] = df['Rev_SG_Rank'] - df['SG_Rank']
+    df['Rev_Rank_Var'] = df['Tee_ARG_Rank'] - df['SG_Rank']
     # df['Revised_Rev_SG_Tot']=df['TOTAL SG:OTT']*0.28 + df['TOTAL SG:APR']*0.4 + df['TOTAL SG:ARG']*0.17 + df['TOTAL SG:PUTT']*0.15
     rank_list=['Tee_Rank','Appr_Rank','ARG_Rank','PUTT_Rank']
     df['Rank_Equal']=df[rank_list].mean(axis=1).rank(method='dense', ascending=True)
-    cols_to_move = ['PLAYER NAME','tournament','date','SG_Rank','TOTAL SG:OTT','Tee_Rank','TOTAL SG:APR','Appr_Rank','TOTAL SG:ARG','ARG_Rank','TOTAL SG:PUTTING','PUTT_Rank',
-    'SG: TOTAL', 'SG: TOTAL_AVG','SG:OTT','SG:APR','SG:ARG','MEASURED ROUNDS','ROUNDS']
+    cols_to_move = ['PLAYER NAME','tournament','date','MEASURED ROUNDS','SG_Rank','SG: TOTAL','TOTAL SG:OTT','Tee_Rank','TOTAL SG:APR','Appr_Rank','TOTAL SG:ARG','ARG_Rank','TOTAL SG:PUTTING','PUTT_Rank',
+    'SG: TOTAL_AVG','SG:OTT','SG:APR','SG:ARG','ROUNDS']
     cols = cols_to_move + [col for col in df if col not in cols_to_move]
     df=df[cols]
     df=df.reset_index().set_index('PLAYER NAME').drop(['index'],axis=1)
@@ -107,7 +112,7 @@ bay_hill_stats=clean_golf_tee(bay_hill_stats)
 sawgrass_stats=clean_golf_tee(sawgrass_stats)
 pga_national_stats=clean_golf_tee(honda_stats)
 san_antonio_stats=clean_golf_tee(san_antonio_stats)
-# harbour_town_stats=clean_golf_tee(harbour_town_stats)
+harbour_town_stats=clean_golf_tee(harbour_town_stats)
 
 # st.write('riviera after function', riviera_stats)
 
@@ -116,22 +121,55 @@ format_dict = {'TOTAL SG:OTT':'{0:,.1f}','SG:OTT':'{0:,.1f}', 'SG:APR':'{0:,.1f}
 'app_sg_rank':'{0:,.0f}','ott_rank':'{0:,.0f}','arg_rank':'{0:,.0f}','normal_sg_no_putt':'{0:,.1f}','tee_green_normalised_sg':'{0:,.2f}',
 'putt_rank':'{0:,.0f}','tee_to_green_rank':'{0:,.0f}','tee_green_rank':'{0:,.0f}'  }
 
-# combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats,harbour_town_stats])
-combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats])
+combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats,harbour_town_stats])
+# combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats])
 combined = combined.reset_index()
-st.write('this is combined database of the tournaments')
-st.write(combined.sort_values(by='SG: TOTAL_AVG',ascending=False).head().style.format(format_dict))
+
+st.write('this is combined database of the tournaments sorted by SG: TOTAL_AVG')
+with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putting for each Tournament'):
+    st.write('This database gives an idea of who performed best across different tournaments')
+    st.write(combined.sort_values(by='SG: TOTAL_AVG',ascending=False).style.format(format_dict))
+
+
+def analysis(combined):
+    filtered = combined.groupby('PLAYER NAME').agg(total_rounds=('MEASURED ROUNDS','sum'),SG_Total=('SG: TOTAL','sum'),SG_OTT=('TOTAL SG:OTT','sum'),
+    SG_APR=('TOTAL SG:APR','sum'),SG_ARG=('TOTAL SG:ARG','sum'),SG_PUTT=('TOTAL SG:PUTTING','sum'))
+    filtered['SG_Total_Avg'] = filtered['SG_Total'] / filtered['total_rounds']
+    filtered['SG_Total_Avg_Rank']=(filtered['SG_Total_Avg']).rank(method='dense', ascending=False)
+    tee_green_list =['SG_OTT', 'SG_APR','SG_ARG']
+    filtered['SG_Tee_Arg'] = filtered[tee_green_list].sum(axis=1)
+    # filtered['SG_Tee_Arg_Rank']=(filtered['SG_Tee_Arg']).rank(method='dense', ascending=False)
+    filtered['SG_OTT_Avg'] = filtered['SG_OTT'] / filtered['total_rounds']
+    filtered['SG_OTT_Avg_Rank']=(filtered['SG_OTT_Avg']).rank(method='dense', ascending=False)
+    filtered['SG_APR_Avg'] = filtered['SG_APR'] / filtered['total_rounds']
+    filtered['SG_APR_Avg_Rank']=(filtered['SG_APR_Avg']).rank(method='dense', ascending=False)
+    filtered['SG_ARG_Avg'] = filtered['SG_ARG'] / filtered['total_rounds']
+    filtered['SG_ARG_Avg_Rank']=(filtered['SG_ARG_Avg']).rank(method='dense', ascending=False)
+    filtered['SG_PUTT_Avg'] = filtered['SG_PUTT'] / filtered['total_rounds']
+    filtered['SG_PUTT_Avg_Rank']=(filtered['SG_PUTT_Avg']).rank(method='dense', ascending=False)
+    filtered['SG_Tee_Arg_Avg'] = filtered['SG_Tee_Arg'] / filtered['total_rounds']
+    filtered['SG_Tee_Arg_Avg_Rank']=(filtered['SG_Tee_Arg_Avg']).rank(method='dense', ascending=False)
+    return filtered
+
+grouped_database_players = analysis(combined)
+with st.beta_expander('Database grouped by Player over all tournaments'):
+    # st.write('This database gives an idea of who performed best across different tournaments')
+    st.write(grouped_database_players.sort_values(by='SG_Total_Avg',ascending=False).style.format(format_dict))
 
 
 
 st.write('who has the best average approach the green rank?')
-filtered = combined.groupby('PLAYER NAME').agg(total_rounds=('MEASURED ROUNDS','sum'),sg_rank=('SG_Rank','mean'),app_sg_rank=('Appr_Rank','mean'),
-ott_rank=('Tee_Rank','mean'),arg_rank=('ARG_Rank','mean'),putt_rank=('PUTT_Rank','mean'),normal_sg_no_putt=('Rev_SG_Tot','sum'))
-rank_list=['app_sg_rank','ott_rank','arg_rank']
-filtered['tee_to_green_rank']=filtered[rank_list].mean(axis=1).rank(method='dense', ascending=True)
-filtered['tee_green_rank']=filtered['ott_rank']*0.28 + filtered['app_sg_rank']*0.4 + filtered['arg_rank']*0.17 
-filtered['tee_green_normalised_sg'] = filtered['normal_sg_no_putt'] / filtered['total_rounds']
-# filtered['tee_green_normalised_sg_rank'] = filtered['tee_green_normalised_sg'].rank(method='dense', ascending=True) 
+def update_analysis(combined):
+    filtered = combined.groupby('PLAYER NAME').agg(total_rounds=('MEASURED ROUNDS','sum'),sg_rank=('SG_Rank','mean'),app_sg_rank=('Appr_Rank','mean'),
+    ott_rank=('Tee_Rank','mean'),arg_rank=('ARG_Rank','mean'),putt_rank=('PUTT_Rank','mean'),normal_sg_no_putt=('Rev_SG_Tot','sum'))
+    rank_list=['app_sg_rank','ott_rank','arg_rank']
+    filtered['tee_to_green_rank']=filtered[rank_list].mean(axis=1).rank(method='dense', ascending=True)
+    filtered['tee_green_rank']=filtered['ott_rank']*0.28 + filtered['app_sg_rank']*0.4 + filtered['arg_rank']*0.17 
+    filtered['tee_green_normalised_sg'] = filtered['normal_sg_no_putt'] / filtered['total_rounds']
+    # filtered['tee_green_normalised_sg_rank'] = filtered['tee_green_normalised_sg'].rank(method='dense', ascending=True)
+    return filtered 
+
+filtered=update_analysis(combined)
 st.write('SG Rank',filtered.sort_values(by='sg_rank', ascending=True).query('`total_rounds`>4').style.format(format_dict))
 st.write('Approach the Green [Irons] Rank',filtered.sort_values(by='app_sg_rank', ascending=True).query('`total_rounds`>1').style.format(format_dict))
 st.write('Normalised Tee to Green Rank',filtered.sort_values(by='tee_green_rank', ascending=True).query('`total_rounds`>1').style.format(format_dict))
@@ -143,23 +181,24 @@ st.write(combined[combined['PLAYER NAME'].str.contains('Si Woo')])
 # Cross check against SG Average total here
 # https://www.pgatour.com/stats/stat.02675.html
 
-
+# st.write('overall stats')
 # a=(pd.DataFrame(pd.read_html('https://www.pgatour.com/stats/stat.02674.html')[1]).drop(['RANK LAST WEEK'], axis=1))
 # st.write('test 1',a.head())
 # b=pd.DataFrame(pd.read_html('https://www.pgatour.com/stats/stat.02564.html')[1]).drop(['RANK LAST WEEK'], axis=1)
 # st.write('test 2',b.head())
 # df=pd.merge(a, b, on=['PLAYER NAME'], how='outer')    
 # # df=df.drop(df.columns[[0,8,3,9]], axis=1)
-# # st.table(df.head(2))
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_masters.pkl')
+# st.table(df.head(10))
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_harbour_town_19April2021.pkl')
 
 with st.beta_expander('Run the above again in a day or two to see if Masters strokes gained is updated look at measured rounds'):
-    full_stats_overall=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_san_antonio_1.pkl')
-    st.write('after san antonio')
-    st.write(full_stats_overall.sort_values(by='SG:APR', ascending=False))
-    full_stats_overall=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_masters.pkl')
-    st.write('after masters')
-    st.write(full_stats_overall.sort_values(by='SG:APR', ascending=False))
+    pass
+    # full_stats_overall=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_san_antonio_1.pkl')
+    # st.write('after san antonio')
+    # st.write(full_stats_overall.sort_values(by='SG:APR', ascending=False))
+    # full_stats_overall=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_masters.pkl')
+    # st.write('after masters')
+    # st.write(full_stats_overall.sort_values(by='SG:APR', ascending=False))
     # full_stats_overall=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_012_harbour_town.pkl')
     # st.write('harbour town')
     # st.write(full_stats_overall.sort_values(by='SG:APR', ascending=False))
