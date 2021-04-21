@@ -116,10 +116,13 @@ harbour_town_stats=clean_golf_tee(harbour_town_stats)
 
 # st.write('riviera after function', riviera_stats)
 
-format_dict = {'TOTAL SG:OTT':'{0:,.1f}','SG:OTT':'{0:,.1f}', 'SG:APR':'{0:,.1f}' ,'TOTAL SG:APR':'{0:,.1f}' ,'TOTAL SG:ARG':'{0:,.1f}', 'SG:ARG':'{0:,.1f}', 
-'SG:PUTT':'{0:,.1f}' , 'SG: TOTAL':'{0:,.1f}' , 'SG: TOTAL_AVG':'{0:,.1f}', 'Rev_SG_Tot':'{0:,.1f}', 'TOTAL SG:PUTTING':'{0:,.1f}','sg_rank':'{0:,.0f}',
+format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}' ,'TOTAL SG:APR':'{0:,.0f}' ,'TOTAL SG:ARG':'{0:,.0f}', 'SG:ARG':'{0:,.0f}', 
+'SG:PUTT':'{0:,.0f}' , 'SG: TOTAL':'{0:,.0f}' , 'SG: TOTAL_AVG':'{0:,.0f}', 'Rev_SG_Tot':'{0:,.1f}', 'TOTAL SG:PUTTING':'{0:,.0f}','sg_rank':'{0:,.0f}',
 'app_sg_rank':'{0:,.0f}','ott_rank':'{0:,.0f}','arg_rank':'{0:,.0f}','normal_sg_no_putt':'{0:,.1f}','tee_green_normalised_sg':'{0:,.2f}',
-'putt_rank':'{0:,.0f}','tee_to_green_rank':'{0:,.0f}','tee_green_rank':'{0:,.0f}'  }
+'putt_rank':'{0:,.0f}','tee_to_green_rank':'{0:,.0f}','tee_green_rank':'{0:,.0f}','SG_Total':'{0:,.0f}','SG_Tee_Arg_Avg':'{0:,.1f}',
+'SG_OTT':'{0:,.0f}','SG_APR':'{0:,.0f}','SG_ARG':'{0:,.0f}','SG_PUTT':'{0:,.0f}','SG_Total_Avg':'{0:,.1f}','SG_Tee_Arg_Avg_Rank':'{0:,.0f}',
+'SG_Total_Avg_Rank':'{0:,.0f}','SG_Tee_Arg':'{0:,.0f}','SG_OTT_Avg':'{0:,.1f}','SG_APR_Avg':'{0:,.1f}','SG_ARG_Avg':'{0:,.1f}','SG_PUTT_Avg':'{0:,.1f}',
+'SG_PUTT_Avg_Rank':'{0:,.0f}','SG_OTT_Avg_Rank':'{0:,.0f}','SG_APR_Avg_Rank':'{0:,.0f}','SG_ARG_Avg_Rank':'{0:,.0f}'  }
 
 combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats,harbour_town_stats])
 # combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats])
@@ -129,6 +132,7 @@ st.write('this is combined database of the tournaments sorted by SG: TOTAL_AVG')
 with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putting for each Tournament'):
     st.write('This database gives an idea of who performed best across different tournaments')
     st.write(combined.sort_values(by='SG: TOTAL_AVG',ascending=False).style.format(format_dict))
+    st.write(combined[combined['PLAYER NAME'].str.contains('Lahiri')])
 
 
 def analysis(combined):
@@ -149,34 +153,46 @@ def analysis(combined):
     filtered['SG_PUTT_Avg_Rank']=(filtered['SG_PUTT_Avg']).rank(method='dense', ascending=False)
     filtered['SG_Tee_Arg_Avg'] = filtered['SG_Tee_Arg'] / filtered['total_rounds']
     filtered['SG_Tee_Arg_Avg_Rank']=(filtered['SG_Tee_Arg_Avg']).rank(method='dense', ascending=False)
-    return filtered
+    cols_to_move = ['total_rounds','SG_Total_Avg','SG_Total_Avg_Rank','SG_Tee_Arg_Avg','SG_Tee_Arg_Avg_Rank','SG_OTT_Avg','SG_OTT_Avg_Rank','SG_APR_Avg','SG_APR_Avg_Rank','SG_ARG_Avg','SG_ARG_Avg_Rank',
+    'SG_PUTT_Avg','SG_PUTT_Avg_Rank']
+    cols = cols_to_move + [col for col in filtered if col not in cols_to_move]
+    return filtered[cols]
+    # return filtered
 
 grouped_database_players = analysis(combined)
 with st.beta_expander('Database grouped by Player over all tournaments'):
     # st.write('This database gives an idea of who performed best across different tournaments')
     st.write(grouped_database_players.sort_values(by='SG_Total_Avg',ascending=False).style.format(format_dict))
 
+with st.beta_expander('Find Player for Tournament Stats'):
+    player_names=combined['PLAYER NAME'].unique()
+    names_selected = st.multiselect('Select Player',player_names)
+    st.write(names_selected)
+    st.write(combined[combined['PLAYER NAME'].str.contains('Lahiri')])
+    st.write(combined.set_index('PLAYER NAME').loc[names_selected,:])
+    # st.write(combined[combined['PLAYER NAME'].str.contains('Lahiri')])
+    # st.write('This database gives an idea of who performed best across different tournaments')
 
 
-st.write('who has the best average approach the green rank?')
-def update_analysis(combined):
-    filtered = combined.groupby('PLAYER NAME').agg(total_rounds=('MEASURED ROUNDS','sum'),sg_rank=('SG_Rank','mean'),app_sg_rank=('Appr_Rank','mean'),
-    ott_rank=('Tee_Rank','mean'),arg_rank=('ARG_Rank','mean'),putt_rank=('PUTT_Rank','mean'),normal_sg_no_putt=('Rev_SG_Tot','sum'))
-    rank_list=['app_sg_rank','ott_rank','arg_rank']
-    filtered['tee_to_green_rank']=filtered[rank_list].mean(axis=1).rank(method='dense', ascending=True)
-    filtered['tee_green_rank']=filtered['ott_rank']*0.28 + filtered['app_sg_rank']*0.4 + filtered['arg_rank']*0.17 
-    filtered['tee_green_normalised_sg'] = filtered['normal_sg_no_putt'] / filtered['total_rounds']
-    # filtered['tee_green_normalised_sg_rank'] = filtered['tee_green_normalised_sg'].rank(method='dense', ascending=True)
-    return filtered 
+# st.write('who has the best average approach the green rank?')
+# def update_analysis(combined):
+#     filtered = combined.groupby('PLAYER NAME').agg(total_rounds=('MEASURED ROUNDS','sum'),sg_rank=('SG_Rank','mean'),app_sg_rank=('Appr_Rank','mean'),
+#     ott_rank=('Tee_Rank','mean'),arg_rank=('ARG_Rank','mean'),putt_rank=('PUTT_Rank','mean'),normal_sg_no_putt=('Rev_SG_Tot','sum'))
+#     rank_list=['app_sg_rank','ott_rank','arg_rank']
+#     filtered['tee_to_green_rank']=filtered[rank_list].mean(axis=1).rank(method='dense', ascending=True)
+#     filtered['tee_green_rank']=filtered['ott_rank']*0.28 + filtered['app_sg_rank']*0.4 + filtered['arg_rank']*0.17 
+#     filtered['tee_green_normalised_sg'] = filtered['normal_sg_no_putt'] / filtered['total_rounds']
+#     # filtered['tee_green_normalised_sg_rank'] = filtered['tee_green_normalised_sg'].rank(method='dense', ascending=True)
+#     return filtered 
 
-filtered=update_analysis(combined)
-st.write('SG Rank',filtered.sort_values(by='sg_rank', ascending=True).query('`total_rounds`>4').style.format(format_dict))
-st.write('Approach the Green [Irons] Rank',filtered.sort_values(by='app_sg_rank', ascending=True).query('`total_rounds`>1').style.format(format_dict))
-st.write('Normalised Tee to Green Rank',filtered.sort_values(by='tee_green_rank', ascending=True).query('`total_rounds`>1').style.format(format_dict))
-st.write('Normalised Tee to Green Rank New Calc',filtered.sort_values(by='tee_green_normalised_sg', ascending=False).query('`total_rounds`>1').style.format(format_dict))
-st.write('Equal amount for driving/irons/short game Tee to Green Rank',filtered.sort_values(by='tee_to_green_rank', ascending=True).query('`total_rounds`>1').style.format(format_dict))
+# filtered=update_analysis(combined)
+# st.write('SG Rank',filtered.sort_values(by='sg_rank', ascending=True).query('`total_rounds`>4').style.format(format_dict))
+# st.write('Approach the Green [Irons] Rank',filtered.sort_values(by='app_sg_rank', ascending=True).query('`total_rounds`>1').style.format(format_dict))
+# st.write('Normalised Tee to Green Rank',filtered.sort_values(by='tee_green_rank', ascending=True).query('`total_rounds`>1').style.format(format_dict))
+# st.write('Normalised Tee to Green Rank New Calc',filtered.sort_values(by='tee_green_normalised_sg', ascending=False).query('`total_rounds`>1').style.format(format_dict))
+# st.write('Equal amount for driving/irons/short game Tee to Green Rank',filtered.sort_values(by='tee_to_green_rank', ascending=True).query('`total_rounds`>1').style.format(format_dict))
 
-st.write(combined[combined['PLAYER NAME'].str.contains('Si Woo')])
+# st.write(combined[combined['PLAYER NAME'].str.contains('Si Woo')])
 
 # Cross check against SG Average total here
 # https://www.pgatour.com/stats/stat.02675.html
