@@ -82,12 +82,12 @@ def clean_golf_tee(df):
     df['PUTT_Rank']=(df['TOTAL SG:PUTTING']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
     df['SG_Rank']=(df['SG: TOTAL_AVG']).rank(method='dense', ascending=False)
     df['Tee_ARG_Rank']=(df['SG: Tee_Arg_AVG']).rank(method='dense', ascending=False)
-    df['Rev_SG_Tot']=df['TOTAL SG:OTT']*0.28 + df['TOTAL SG:APR']*0.4 + df['TOTAL SG:ARG']*0.17 + df['TOTAL SG:PUTTING']*0.15
-    df['Rev_SG_Rank']=(df['Rev_SG_Tot']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
+    # df['Rev_SG_Tot']=df['TOTAL SG:OTT']*0.28 + df['TOTAL SG:APR']*0.4 + df['TOTAL SG:ARG']*0.17 + df['TOTAL SG:PUTTING']*0.15
+    # df['Rev_SG_Rank']=(df['Rev_SG_Tot']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
     df['Rev_Rank_Var'] = df['Tee_ARG_Rank'] - df['SG_Rank']
     # df['Revised_Rev_SG_Tot']=df['TOTAL SG:OTT']*0.28 + df['TOTAL SG:APR']*0.4 + df['TOTAL SG:ARG']*0.17 + df['TOTAL SG:PUTT']*0.15
     rank_list=['Tee_Rank','Appr_Rank','ARG_Rank','PUTT_Rank']
-    df['Rank_Equal']=df[rank_list].mean(axis=1).rank(method='dense', ascending=True)
+    # df['Rank_Equal']=df[rank_list].mean(axis=1).rank(method='dense', ascending=True)
     cols_to_move = ['PLAYER NAME','tournament','date','MEASURED ROUNDS','SG_Rank','SG: TOTAL','TOTAL SG:OTT','Tee_Rank','TOTAL SG:APR','Appr_Rank','TOTAL SG:ARG','ARG_Rank','TOTAL SG:PUTTING','PUTT_Rank',
     'SG: TOTAL_AVG','SG:OTT','SG:APR','SG:ARG','ROUNDS']
     cols = cols_to_move + [col for col in df if col not in cols_to_move]
@@ -100,9 +100,9 @@ def clean_golf_tee(df):
     df['ARG_Rank']=df['ARG_Rank'].astype(int)
     df['PUTT_Rank']=df['PUTT_Rank'].astype(int)
     df['Tee_Rank']=df['Tee_Rank'].astype(int)
-    df['Rev_SG_Rank']=df['Rev_SG_Rank'].astype(int)
+    df['Tee_ARG_Rank']=df['Tee_ARG_Rank'].astype(int)
     df['Rev_Rank_Var']=df['Rev_Rank_Var'].astype(int)
-    df['Rank_Equal']=df['Rank_Equal'].astype(int)
+    # df['Rank_Equal']=df['Rank_Equal'].astype(int)
     # df=df.reset_index()
     return df.sort_values(by='SG: TOTAL_AVG', ascending=False)
 
@@ -122,17 +122,27 @@ format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}
 'putt_rank':'{0:,.0f}','tee_to_green_rank':'{0:,.0f}','tee_green_rank':'{0:,.0f}','SG_Total':'{0:,.0f}','SG_Tee_Arg_Avg':'{0:,.1f}',
 'SG_OTT':'{0:,.0f}','SG_APR':'{0:,.0f}','SG_ARG':'{0:,.0f}','SG_PUTT':'{0:,.0f}','SG_Total_Avg':'{0:,.1f}','SG_Tee_Arg_Avg_Rank':'{0:,.0f}',
 'SG_Total_Avg_Rank':'{0:,.0f}','SG_Tee_Arg':'{0:,.0f}','SG_OTT_Avg':'{0:,.1f}','SG_APR_Avg':'{0:,.1f}','SG_ARG_Avg':'{0:,.1f}','SG_PUTT_Avg':'{0:,.1f}',
-'SG_PUTT_Avg_Rank':'{0:,.0f}','SG_OTT_Avg_Rank':'{0:,.0f}','SG_APR_Avg_Rank':'{0:,.0f}','SG_ARG_Avg_Rank':'{0:,.0f}'  }
+'SG_PUTT_Avg_Rank':'{0:,.0f}','SG_OTT_Avg_Rank':'{0:,.0f}','SG_APR_Avg_Rank':'{0:,.0f}','SG_ARG_Avg_Rank':'{0:,.0f}','TOTAL SG:TEE:ARG':'{0:,.0f}',
+'SG :Tee_Arg_AVG':'{0:,.1f}','Tee_Arg_Rank':'{0:,.0f}','SG_Rank_less_Rank':'{0:,.0f}'  }
 
 combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats,harbour_town_stats])
 # combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats])
 combined = combined.reset_index()
 
-st.write('this is combined database of the tournaments sorted by SG: TOTAL_AVG')
+# st.write('this is combined database of the tournaments sorted by SG: TOTAL_AVG')
 with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putting for each Tournament'):
     st.write('This database gives an idea of who performed best across different tournaments')
     st.write(combined.sort_values(by='SG: TOTAL_AVG',ascending=False).style.format(format_dict))
-    st.write(combined[combined['PLAYER NAME'].str.contains('Lahiri')])
+    
+    st.write('Find a player')
+    player_names=combined['PLAYER NAME'].unique()
+    names_selected = st.multiselect('Select Player',player_names)
+    st.write((combined.set_index('PLAYER NAME').loc[names_selected,:]).reset_index().style.format(format_dict))
+
+    st.write('Find a tournament')
+    tournament_name=combined['tournament'].unique()
+    tournament_names = st.multiselect('Select Tournament',tournament_name)
+    st.write((combined.set_index('tournament').loc[tournament_names,:]).set_index('PLAYER NAME').style.format(format_dict))
 
 
 def analysis(combined):
@@ -153,6 +163,7 @@ def analysis(combined):
     filtered['SG_PUTT_Avg_Rank']=(filtered['SG_PUTT_Avg']).rank(method='dense', ascending=False)
     filtered['SG_Tee_Arg_Avg'] = filtered['SG_Tee_Arg'] / filtered['total_rounds']
     filtered['SG_Tee_Arg_Avg_Rank']=(filtered['SG_Tee_Arg_Avg']).rank(method='dense', ascending=False)
+    filtered['SG_Rank_less_Rank'] = filtered['SG_Tee_Arg_Avg_Rank'] - filtered['SG_Total_Avg_Rank']
     cols_to_move = ['total_rounds','SG_Total_Avg','SG_Total_Avg_Rank','SG_Tee_Arg_Avg','SG_Tee_Arg_Avg_Rank','SG_OTT_Avg','SG_OTT_Avg_Rank','SG_APR_Avg','SG_APR_Avg_Rank','SG_ARG_Avg','SG_ARG_Avg_Rank',
     'SG_PUTT_Avg','SG_PUTT_Avg_Rank']
     cols = cols_to_move + [col for col in filtered if col not in cols_to_move]
@@ -163,13 +174,14 @@ grouped_database_players = analysis(combined)
 with st.beta_expander('Database grouped by Player over all tournaments'):
     # st.write('This database gives an idea of who performed best across different tournaments')
     st.write(grouped_database_players.sort_values(by='SG_Total_Avg',ascending=False).style.format(format_dict))
+    st.write('Find a player')
+    grouped_database_players_index=grouped_database_players.reset_index()
+    player_names_data=grouped_database_players_index['PLAYER NAME'].unique()
+    names_selected_data = st.multiselect('Select Player',player_names_data)
+    st.write((grouped_database_players_index.set_index('PLAYER NAME').loc[names_selected_data,:]).style.format(format_dict))
 
-with st.beta_expander('Find Player for Tournament Stats'):
-    player_names=combined['PLAYER NAME'].unique()
-    names_selected = st.multiselect('Select Player',player_names)
-    st.write(names_selected)
-    st.write(combined[combined['PLAYER NAME'].str.contains('Lahiri')])
-    st.write(combined.set_index('PLAYER NAME').loc[names_selected,:])
+# with st.beta_expander('Find Player for Tournament Stats'):
+
     # st.write(combined[combined['PLAYER NAME'].str.contains('Lahiri')])
     # st.write('This database gives an idea of who performed best across different tournaments')
 
@@ -207,8 +219,8 @@ with st.beta_expander('Find Player for Tournament Stats'):
 # st.table(df.head(10))
 # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_harbour_town_19April2021.pkl')
 
-with st.beta_expander('Run the above again in a day or two to see if Masters strokes gained is updated look at measured rounds'):
-    pass
+# with st.beta_expander('Run the above again in a day or two to see if Masters strokes gained is updated look at measured rounds'):
+#     pass
     # full_stats_overall=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_san_antonio_1.pkl')
     # st.write('after san antonio')
     # st.write(full_stats_overall.sort_values(by='SG:APR', ascending=False))
