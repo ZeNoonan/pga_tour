@@ -25,6 +25,7 @@ st.set_page_config(layout="wide")
 # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_012_harbour_town.pkl')
 # # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_012_harbour_town.pkl')
 
+
 riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_007_riviera_gc.pkl')
 concession=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_473_wgc_concession.pkl')
 bay_hill=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_09_palmer_bay_hill.pkl')
@@ -88,7 +89,9 @@ def clean_golf_tee(df):
     # df['Revised_Rev_SG_Tot']=df['TOTAL SG:OTT']*0.28 + df['TOTAL SG:APR']*0.4 + df['TOTAL SG:ARG']*0.17 + df['TOTAL SG:PUTT']*0.15
     rank_list=['Tee_Rank','Appr_Rank','ARG_Rank','PUTT_Rank']
     # df['Rank_Equal']=df[rank_list].mean(axis=1).rank(method='dense', ascending=True)
-    cols_to_move = ['PLAYER NAME','tournament','date','MEASURED ROUNDS','SG_Rank','SG: TOTAL','TOTAL SG:OTT','Tee_Rank','TOTAL SG:APR','Appr_Rank','TOTAL SG:ARG','ARG_Rank','TOTAL SG:PUTTING','PUTT_Rank',
+    cols_to_move = ['PLAYER NAME','tournament','date','MEASURED ROUNDS','SG_Rank','SG: TOTAL','TOTAL SG:TEE_ARG','Tee_ARG_Rank','TOTAL SG:PUTTING','PUTT_Rank',
+    'TOTAL SG:OTT','Tee_Rank','TOTAL SG:APR','Appr_Rank',
+    'TOTAL SG:ARG','ARG_Rank',
     'SG: TOTAL_AVG','SG:OTT','SG:APR','SG:ARG','ROUNDS']
     cols = cols_to_move + [col for col in df if col not in cols_to_move]
     df=df[cols]
@@ -123,7 +126,7 @@ format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}
 'SG_OTT':'{0:,.0f}','SG_APR':'{0:,.0f}','SG_ARG':'{0:,.0f}','SG_PUTT':'{0:,.0f}','SG_Total_Avg':'{0:,.1f}','SG_Tee_Arg_Avg_Rank':'{0:,.0f}',
 'SG_Total_Avg_Rank':'{0:,.0f}','SG_Tee_Arg':'{0:,.0f}','SG_OTT_Avg':'{0:,.1f}','SG_APR_Avg':'{0:,.1f}','SG_ARG_Avg':'{0:,.1f}','SG_PUTT_Avg':'{0:,.1f}',
 'SG_PUTT_Avg_Rank':'{0:,.0f}','SG_OTT_Avg_Rank':'{0:,.0f}','SG_APR_Avg_Rank':'{0:,.0f}','SG_ARG_Avg_Rank':'{0:,.0f}','TOTAL SG:TEE:ARG':'{0:,.0f}',
-'SG :Tee_Arg_AVG':'{0:,.1f}','Tee_Arg_Rank':'{0:,.0f}','SG_Rank_less_Rank':'{0:,.0f}'  }
+'SG :Tee_Arg_AVG':'{0:,.1f}','Tee_Arg_Rank':'{0:,.0f}','SG_Rank_less_Rank':'{0:,.0f}','TOTAL SG:TEE_ARG':'{0:,.0f}'  }
 
 combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats,harbour_town_stats])
 # combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats])
@@ -143,6 +146,10 @@ with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putti
     tournament_name=combined['tournament'].unique()
     tournament_names = st.multiselect('Select Tournament',tournament_name)
     st.write((combined.set_index('tournament').loc[tournament_names,:]).set_index('PLAYER NAME').style.format(format_dict))
+
+    last_tournament_played = combined.sort_values('date', ascending=False).drop_duplicates('PLAYER NAME').sort_values(by='SG: TOTAL_AVG',ascending=False)
+    st.write('Last tournament played by Player')
+    st.write(last_tournament_played.style.format(format_dict))
 
 
 def analysis(combined):
@@ -164,8 +171,8 @@ def analysis(combined):
     filtered['SG_Tee_Arg_Avg'] = filtered['SG_Tee_Arg'] / filtered['total_rounds']
     filtered['SG_Tee_Arg_Avg_Rank']=(filtered['SG_Tee_Arg_Avg']).rank(method='dense', ascending=False)
     filtered['SG_Rank_less_Rank'] = filtered['SG_Tee_Arg_Avg_Rank'] - filtered['SG_Total_Avg_Rank']
-    cols_to_move = ['total_rounds','SG_Total_Avg','SG_Total_Avg_Rank','SG_Tee_Arg_Avg','SG_Tee_Arg_Avg_Rank','SG_OTT_Avg','SG_OTT_Avg_Rank','SG_APR_Avg','SG_APR_Avg_Rank','SG_ARG_Avg','SG_ARG_Avg_Rank',
-    'SG_PUTT_Avg','SG_PUTT_Avg_Rank']
+    cols_to_move = ['total_rounds','SG_Total_Avg','SG_Total_Avg_Rank','SG_Tee_Arg_Avg','SG_Tee_Arg_Avg_Rank','SG_Rank_less_Rank','SG_PUTT_Avg','SG_PUTT_Avg_Rank',
+    'SG_OTT_Avg','SG_OTT_Avg_Rank','SG_APR_Avg','SG_APR_Avg_Rank','SG_ARG_Avg','SG_ARG_Avg_Rank']
     cols = cols_to_move + [col for col in filtered if col not in cols_to_move]
     return filtered[cols]
     # return filtered
