@@ -15,15 +15,15 @@ st.set_page_config(layout="wide")
 #     "x-requested-with": "XMLHttpRequest",
 # }
 # # https://stackoverflow.com/questions/64501788/api-web-data-capture
-# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t012.html"
-# url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t012.html"
+# url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t475.html"
+# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t475.html"
 # html = requests.get(url).text
 
 # df = pd.read_html(html, flavor="html5lib")
 # df = pd.concat(df).drop([0, 1, 2], axis=1)
 # # st.write(df.head())
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_012_harbour_town.pkl')
-# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_012_harbour_town.pkl')
+# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_475_innisbrook.pkl')
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_475_innisbrook.pkl')
 
 
 riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_007_riviera_gc.pkl')
@@ -34,6 +34,7 @@ honda=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_10_honda_classic.p
 san_antonio=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_41_valero_texas.pkl')
 # masters=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_536_masters.pkl')
 harbour_town=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_012_harbour_town.pkl')
+innisbrook=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_475_innisbrook.pkl')
 
 putt_riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_007_riviera_gc.pkl')
 putt_concession=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_473_wgc_concession.pkl')
@@ -43,6 +44,7 @@ putt_honda=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_10_hond
 putt_san_antonio=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_41_valero_texas.pkl')
 # putt_masters=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_536_masters.pkl')
 putt_harbour_town=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_012_harbour_town.pkl')
+putt_innisbrook=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_475_innisbrook.pkl')
 
 # st.write('harbour_town stats', harbour_town.head())
 
@@ -64,6 +66,7 @@ sawgrass_stats=merge_golf(sawgrass, putt_sawgrass,'sawgrass',4)
 honda_stats=merge_golf(honda, putt_honda,'pga_national',5)
 san_antonio_stats=merge_golf(san_antonio, putt_san_antonio,'tpc_san_antonio',6)
 harbour_town_stats=merge_golf(harbour_town, putt_harbour_town,'harbour_town',7)
+innisbrook_stats=merge_golf(innisbrook, putt_innisbrook,'innisbrook',8)
 
 # st.write('riviera after clean', riviera_stats.head())
 
@@ -74,7 +77,7 @@ def clean_golf_tee(df):
     col_list=['TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG','TOTAL SG:PUTTING']
     df['SG: TOTAL']=df[col_list].sum(axis=1)
     sg_tee_to_green=['TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG']
-    df['TOTAL SG:TEE_ARG']=df[sg_tee_to_green].mean(axis=1)
+    df['TOTAL SG:TEE_ARG']=df[sg_tee_to_green].sum(axis=1)
     df['SG: TOTAL_AVG']=df['SG: TOTAL'] / df['MEASURED ROUNDS']
     df['SG: Tee_Arg_AVG']=df['TOTAL SG:TEE_ARG'] / df['MEASURED ROUNDS']
     df['Tee_Rank']= (df['TOTAL SG:OTT']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
@@ -116,6 +119,7 @@ sawgrass_stats=clean_golf_tee(sawgrass_stats)
 pga_national_stats=clean_golf_tee(honda_stats)
 san_antonio_stats=clean_golf_tee(san_antonio_stats)
 harbour_town_stats=clean_golf_tee(harbour_town_stats)
+innisbrook_stats=clean_golf_tee(innisbrook_stats)
 
 # st.write('riviera after function', riviera_stats)
 
@@ -128,7 +132,7 @@ format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}
 'SG_PUTT_Avg_Rank':'{0:,.0f}','SG_OTT_Avg_Rank':'{0:,.0f}','SG_APR_Avg_Rank':'{0:,.0f}','SG_ARG_Avg_Rank':'{0:,.0f}','TOTAL SG:TEE:ARG':'{0:,.0f}',
 'SG :Tee_Arg_AVG':'{0:,.1f}','Tee_Arg_Rank':'{0:,.0f}','SG_Rank_less_Rank':'{0:,.0f}','TOTAL SG:TEE_ARG':'{0:,.0f}'  }
 
-combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats,harbour_town_stats])
+combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats,harbour_town_stats,innisbrook_stats])
 # combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats])
 combined = combined.reset_index()
 
