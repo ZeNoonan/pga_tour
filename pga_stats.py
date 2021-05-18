@@ -15,15 +15,15 @@ st.set_page_config(layout="wide")
 #     "x-requested-with": "XMLHttpRequest",
 # }
 # # https://stackoverflow.com/questions/64501788/api-web-data-capture
-# url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t475.html"
-# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t475.html"
+# url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t019.html"
+# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t019.html"
 # html = requests.get(url).text
 
 # df = pd.read_html(html, flavor="html5lib")
 # df = pd.concat(df).drop([0, 1, 2], axis=1)
 # # st.write(df.head())
-# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_475_innisbrook.pkl')
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_475_innisbrook.pkl')
+# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_019_craig_ranch.pkl')
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_019_craig_ranch.pkl')
 
 
 riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_007_riviera_gc.pkl')
@@ -35,6 +35,8 @@ san_antonio=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_41_valero_te
 # masters=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_536_masters.pkl')
 harbour_town=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_012_harbour_town.pkl')
 innisbrook=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_475_innisbrook.pkl')
+quail_hollow=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_480_quail_hollow.pkl')
+craig_ranch=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_019_craig_ranch.pkl')
 
 putt_riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_007_riviera_gc.pkl')
 putt_concession=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_473_wgc_concession.pkl')
@@ -45,6 +47,8 @@ putt_san_antonio=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_4
 # putt_masters=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_536_masters.pkl')
 putt_harbour_town=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_012_harbour_town.pkl')
 putt_innisbrook=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_475_innisbrook.pkl')
+putt_quail_hollow=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_480_quail_hollow.pkl')
+putt_craig_ranch=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_019_craig_ranch.pkl')
 
 # st.write('harbour_town stats', harbour_town.head())
 
@@ -67,6 +71,8 @@ honda_stats=merge_golf(honda, putt_honda,'pga_national',5)
 san_antonio_stats=merge_golf(san_antonio, putt_san_antonio,'tpc_san_antonio',6)
 harbour_town_stats=merge_golf(harbour_town, putt_harbour_town,'harbour_town',7)
 innisbrook_stats=merge_golf(innisbrook, putt_innisbrook,'innisbrook',8)
+quail_hollow_stats=merge_golf(quail_hollow, putt_quail_hollow,'quail_hollow',9)
+craig_ranch_stats=merge_golf(craig_ranch, putt_craig_ranch,'craig_ranch',10)
 
 # st.write('riviera after clean', riviera_stats.head())
 
@@ -120,6 +126,8 @@ pga_national_stats=clean_golf_tee(honda_stats)
 san_antonio_stats=clean_golf_tee(san_antonio_stats)
 harbour_town_stats=clean_golf_tee(harbour_town_stats)
 innisbrook_stats=clean_golf_tee(innisbrook_stats)
+quail_hollow_stats=clean_golf_tee(quail_hollow_stats)
+craig_ranch_stats=clean_golf_tee(craig_ranch_stats)
 
 # st.write('riviera after function', riviera_stats)
 
@@ -132,7 +140,8 @@ format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}
 'SG_PUTT_Avg_Rank':'{0:,.0f}','SG_OTT_Avg_Rank':'{0:,.0f}','SG_APR_Avg_Rank':'{0:,.0f}','SG_ARG_Avg_Rank':'{0:,.0f}','TOTAL SG:TEE:ARG':'{0:,.0f}',
 'SG :Tee_Arg_AVG':'{0:,.1f}','Tee_Arg_Rank':'{0:,.0f}','SG_Rank_less_Rank':'{0:,.0f}','TOTAL SG:TEE_ARG':'{0:,.0f}'  }
 
-combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats,harbour_town_stats,innisbrook_stats])
+combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,
+san_antonio_stats,harbour_town_stats,innisbrook_stats,quail_hollow_stats,craig_ranch_stats])
 # combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats])
 combined = combined.reset_index()
 
@@ -151,10 +160,13 @@ with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putti
     tournament_names = st.multiselect('Select Tournament',tournament_name)
     st.write((combined.set_index('tournament').loc[tournament_names,:]).set_index('PLAYER NAME').style.format(format_dict))
 
+with st.beta_expander('Last Tournament Played'):
     last_tournament_played = combined.sort_values('date', ascending=False).drop_duplicates('PLAYER NAME').sort_values(by='SG: TOTAL_AVG',ascending=False)
     st.write('Last tournament played by Player')
     st.write(last_tournament_played.style.format(format_dict))
-
+    player_names_tour=last_tournament_played['PLAYER NAME'].unique()
+    names_selected_tour = st.multiselect('Select Player',player_names_tour)
+    st.write((last_tournament_played.set_index('PLAYER NAME').loc[names_selected_tour,:]).reset_index().style.format(format_dict))
 
 def analysis(combined):
     filtered = combined.groupby('PLAYER NAME').agg(total_rounds=('MEASURED ROUNDS','sum'),SG_Total=('SG: TOTAL','sum'),SG_OTT=('TOTAL SG:OTT','sum'),
