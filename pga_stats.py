@@ -86,18 +86,22 @@ def clean_golf_tee(df):
     col_list=['TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG','TOTAL SG:PUTTING']
     df['SG: TOTAL']=df[col_list].sum(axis=1)
     sg_tee_to_green=['TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG']
+    sg_tee_appr=['TOTAL SG:OTT','TOTAL SG:APR']
     df['TOTAL SG:TEE_ARG']=df[sg_tee_to_green].sum(axis=1)
+    df['TOTAL SG:TEE_APR']=df[sg_tee_appr].sum(axis=1)
     df['SG: TOTAL_AVG']=df['SG: TOTAL'] / df['MEASURED ROUNDS']
     df['SG: Tee_Arg_AVG']=df['TOTAL SG:TEE_ARG'] / df['MEASURED ROUNDS']
+    df['SG: Tee_App_AVG']=df['TOTAL SG:TEE_APR'] / df['MEASURED ROUNDS']
     df['Tee_Rank']= (df['TOTAL SG:OTT']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
     df['Appr_Rank']=(df['TOTAL SG:APR']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
     df['ARG_Rank']=(df['TOTAL SG:ARG']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
     df['PUTT_Rank']=(df['TOTAL SG:PUTTING']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
     df['SG_Rank']=(df['SG: TOTAL_AVG']).rank(method='dense', ascending=False)
     df['Tee_ARG_Rank']=(df['SG: Tee_Arg_AVG']).rank(method='dense', ascending=False)
+    df['Tee_App_Rank']=(df['SG: Tee_App_AVG']).rank(method='dense', ascending=False)
     # df['Rev_SG_Tot']=df['TOTAL SG:OTT']*0.28 + df['TOTAL SG:APR']*0.4 + df['TOTAL SG:ARG']*0.17 + df['TOTAL SG:PUTTING']*0.15
     # df['Rev_SG_Rank']=(df['Rev_SG_Tot']/df['MEASURED ROUNDS']).rank(method='dense', ascending=False)
-    df['Rev_Rank_Var'] = df['Tee_ARG_Rank'] - df['SG_Rank']
+    df['Rev_Rank_Var'] = df['Tee_App_Rank'] - df['SG_Rank']
     # df['Revised_Rev_SG_Tot']=df['TOTAL SG:OTT']*0.28 + df['TOTAL SG:APR']*0.4 + df['TOTAL SG:ARG']*0.17 + df['TOTAL SG:PUTT']*0.15
     rank_list=['Tee_Rank','Appr_Rank','ARG_Rank','PUTT_Rank']
     # df['Rank_Equal']=df[rank_list].mean(axis=1).rank(method='dense', ascending=True)
@@ -116,6 +120,7 @@ def clean_golf_tee(df):
     df['PUTT_Rank']=df['PUTT_Rank'].astype(int)
     df['Tee_Rank']=df['Tee_Rank'].astype(int)
     df['Tee_ARG_Rank']=df['Tee_ARG_Rank'].astype(int)
+    df['Tee_App_Rank']=df['Tee_App_Rank'].astype(int)
     df['Rev_Rank_Var']=df['Rev_Rank_Var'].astype(int)
     # df['Rank_Equal']=df['Rank_Equal'].astype(int)
     # df=df.reset_index()
@@ -172,7 +177,7 @@ with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putti
 with st.beta_expander('Last Tournament Played'):
     last_tournament_played = combined.sort_values('date', ascending=False).drop_duplicates('PLAYER NAME').sort_values(by='SG: TOTAL_AVG',ascending=False)
     st.write('Last tournament played by Player')
-    cols_to_move = ['PLAYER NAME','tournament','date','Tee_ARG_Rank','PUTT_Rank','Appr_Rank','Tee_Rank','ARG_Rank','SG_Rank',
+    cols_to_move = ['PLAYER NAME','tournament','date','Tee_App_Rank','PUTT_Rank','Appr_Rank','Tee_Rank','ARG_Rank','SG_Rank',
     'SG: TOTAL','TOTAL SG:TEE_ARG','TOTAL SG:PUTTING','TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG',
     'SG: TOTAL_AVG','SG:OTT','SG:APR','SG:ARG','ROUNDS','MEASURED ROUNDS']
     cols = cols_to_move + [col for col in last_tournament_played if col not in cols_to_move]
