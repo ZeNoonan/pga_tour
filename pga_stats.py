@@ -15,15 +15,15 @@ st.set_page_config(layout="wide")
 #     "x-requested-with": "XMLHttpRequest",
 # }
 # # https://stackoverflow.com/questions/64501788/api-web-data-capture
-# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t033.html"
-# url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t033.html"
+# url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t021.html"
+# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t021.html"
 # html = requests.get(url).text
 
 # df = pd.read_html(html, flavor="html5lib")
 # df = pd.concat(df).drop([0, 1, 2], axis=1)
 # # st.write(df.head())
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_033_kiawah_island.pkl')
-# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_033_kiawah_island.pkl')
+# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_021_colonial.pkl')
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_021_colonial.pkl')
 
 
 riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_007_riviera_gc.pkl')
@@ -38,6 +38,7 @@ innisbrook=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_475_inn
 quail_hollow=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_480_quail_hollow.pkl')
 craig_ranch=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_019_craig_ranch.pkl')
 kiawah_island=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_033_kiawah_island.pkl')
+colonial=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_021_colonial.pkl')
 
 putt_riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_007_riviera_gc.pkl')
 putt_concession=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_473_wgc_concession.pkl')
@@ -51,6 +52,7 @@ putt_innisbrook=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_47
 putt_quail_hollow=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_480_quail_hollow.pkl')
 putt_craig_ranch=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_019_craig_ranch.pkl')
 putt_kiawah_island=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_033_kiawah_island.pkl')
+putt_colonial=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_021_colonial.pkl')
 
 # st.write('harbour_town stats', harbour_town.head())
 
@@ -76,6 +78,7 @@ innisbrook_stats=merge_golf(innisbrook, putt_innisbrook,'innisbrook',8)
 quail_hollow_stats=merge_golf(quail_hollow, putt_quail_hollow,'quail_hollow',9)
 craig_ranch_stats=merge_golf(craig_ranch, putt_craig_ranch,'craig_ranch',10)
 kiawah_island_stats=merge_golf(kiawah_island, putt_kiawah_island,'kiawah_island',11)
+colonial_stats=merge_golf(colonial, putt_colonial,'colonial',12)
 
 # st.write('riviera after clean', riviera_stats.head())
 
@@ -137,6 +140,7 @@ innisbrook_stats=clean_golf_tee(innisbrook_stats)
 quail_hollow_stats=clean_golf_tee(quail_hollow_stats)
 craig_ranch_stats=clean_golf_tee(craig_ranch_stats)
 kiawah_island_stats=clean_golf_tee(kiawah_island_stats)
+colonial_stats=clean_golf_tee(colonial_stats)
 
 # st.write('riviera after function', riviera_stats)
 
@@ -150,7 +154,7 @@ format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}
 'SG :Tee_Arg_AVG':'{0:,.1f}','Tee_Arg_Rank':'{0:,.0f}','SG_Rank_less_Rank':'{0:,.0f}','TOTAL SG:TEE_ARG':'{0:,.0f}'  }
 
 combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,
-san_antonio_stats,harbour_town_stats,innisbrook_stats,quail_hollow_stats,craig_ranch_stats,kiawah_island_stats])
+san_antonio_stats,harbour_town_stats,innisbrook_stats,quail_hollow_stats,craig_ranch_stats,kiawah_island_stats,colonial_stats])
 # combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats])
 combined = combined.reset_index()
 
