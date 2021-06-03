@@ -148,10 +148,10 @@ format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}
 'SG:PUTT':'{0:,.0f}' , 'SG: TOTAL':'{0:,.0f}' , 'SG: TOTAL_AVG':'{0:,.0f}', 'Rev_SG_Tot':'{0:,.1f}', 'TOTAL SG:PUTTING':'{0:,.0f}','sg_rank':'{0:,.0f}',
 'app_sg_rank':'{0:,.0f}','ott_rank':'{0:,.0f}','arg_rank':'{0:,.0f}','normal_sg_no_putt':'{0:,.1f}','tee_green_normalised_sg':'{0:,.2f}',
 'putt_rank':'{0:,.0f}','tee_to_green_rank':'{0:,.0f}','tee_green_rank':'{0:,.0f}','SG_Total':'{0:,.0f}','SG_Tee_Arg_Avg':'{0:,.1f}',
-'SG_OTT':'{0:,.0f}','SG_APR':'{0:,.0f}','SG_ARG':'{0:,.0f}','SG_PUTT':'{0:,.0f}','SG_Total_Avg':'{0:,.1f}','SG_Tee_Arg_Avg_Rank':'{0:,.0f}',
+'SG_OTT':'{0:,.0f}','SG_APR':'{0:,.0f}','SG_ARG':'{0:,.0f}','SG_PUTT':'{0:,.0f}','SG_Total_Avg':'{0:,.1f}','Tee_Rank':'{0:,.0f}',
 'SG_Total_Avg_Rank':'{0:,.0f}','SG_Tee_Arg':'{0:,.0f}','SG_OTT_Avg':'{0:,.1f}','SG_APR_Avg':'{0:,.1f}','SG_ARG_Avg':'{0:,.1f}','SG_PUTT_Avg':'{0:,.1f}',
-'SG_PUTT_Avg_Rank':'{0:,.0f}','SG_OTT_Avg_Rank':'{0:,.0f}','SG_APR_Avg_Rank':'{0:,.0f}','SG_ARG_Avg_Rank':'{0:,.0f}','TOTAL SG:TEE:ARG':'{0:,.0f}',
-'SG :Tee_Arg_AVG':'{0:,.1f}','Tee_Arg_Rank':'{0:,.0f}','SG_Rank_less_Rank':'{0:,.0f}','TOTAL SG:TEE_ARG':'{0:,.0f}'  }
+'PUTT_Rank':'{0:,.0f}','SG_OTT_Avg_Rank':'{0:,.0f}','Tee_App_Rank':'{0:,.0f}','ARG_Rank':'{0:,.0f}','TOTAL SG:TEE:ARG':'{0:,.0f}',
+'SG :Tee_Arg_AVG':'{0:,.1f}','Tee_Arg_Rank':'{0:,.0f}','SG_Rank_less_Rank':'{0:,.0f}','TOTAL SG:TEE_ARG':'{0:,.0f}','Appr_Rank':'{0:,.0f}'  }
 
 combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,
 san_antonio_stats,harbour_town_stats,innisbrook_stats,quail_hollow_stats,craig_ranch_stats,kiawah_island_stats,colonial_stats])
@@ -161,7 +161,7 @@ combined = combined.reset_index()
 # st.write('this is combined database of the tournaments sorted by SG: TOTAL_AVG')
 with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putting for each Tournament'):
     st.write('This database gives an idea of who performed best across different tournaments')
-    cols_to_move = ['PLAYER NAME','tournament','date','Tee_ARG_Rank','PUTT_Rank','Appr_Rank','Tee_Rank','ARG_Rank','SG_Rank',
+    cols_to_move = ['PLAYER NAME','tournament','date','Tee_App_Rank','Appr_Rank','Tee_Rank','ARG_Rank','PUTT_Rank','SG_Rank',
     'SG: TOTAL','TOTAL SG:TEE_ARG','TOTAL SG:PUTTING','TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG',
     'SG: TOTAL_AVG','SG:OTT','SG:APR','SG:ARG','ROUNDS','MEASURED ROUNDS']
     cols = cols_to_move + [col for col in combined if col not in cols_to_move]
@@ -197,27 +197,33 @@ def analysis(combined):
     filtered['SG_Total_Avg'] = filtered['SG_Total'] / filtered['total_rounds']
     filtered['SG_Total_Avg_Rank']=(filtered['SG_Total_Avg']).rank(method='dense', ascending=False)
     tee_green_list =['SG_OTT', 'SG_APR','SG_ARG']
+    sg_tee_appr=['SG_OTT', 'SG_APR']
     filtered['SG_Tee_Arg'] = filtered[tee_green_list].sum(axis=1)
+    filtered['SG:Tee_Appr']=filtered[sg_tee_appr].sum(axis=1)
     # filtered['SG_Tee_Arg_Rank']=(filtered['SG_Tee_Arg']).rank(method='dense', ascending=False)
     filtered['SG_OTT_Avg'] = filtered['SG_OTT'] / filtered['total_rounds']
-    filtered['SG_OTT_Avg_Rank']=(filtered['SG_OTT_Avg']).rank(method='dense', ascending=False)
+    filtered['Tee_Rank']=(filtered['SG_OTT_Avg']).rank(method='dense', ascending=False)
     filtered['SG_APR_Avg'] = filtered['SG_APR'] / filtered['total_rounds']
-    filtered['SG_APR_Avg_Rank']=(filtered['SG_APR_Avg']).rank(method='dense', ascending=False)
+    filtered['Appr_Rank']=(filtered['SG_APR_Avg']).rank(method='dense', ascending=False)
     filtered['SG_ARG_Avg'] = filtered['SG_ARG'] / filtered['total_rounds']
-    filtered['SG_ARG_Avg_Rank']=(filtered['SG_ARG_Avg']).rank(method='dense', ascending=False)
+    filtered['ARG_Rank']=(filtered['SG_ARG_Avg']).rank(method='dense', ascending=False)
     filtered['SG_PUTT_Avg'] = filtered['SG_PUTT'] / filtered['total_rounds']
-    filtered['SG_PUTT_Avg_Rank']=(filtered['SG_PUTT_Avg']).rank(method='dense', ascending=False)
+    filtered['PUTT_Rank']=(filtered['SG_PUTT_Avg']).rank(method='dense', ascending=False)
     filtered['SG_Tee_Arg_Avg'] = filtered['SG_Tee_Arg'] / filtered['total_rounds']
     filtered['SG_Tee_Arg_Avg_Rank']=(filtered['SG_Tee_Arg_Avg']).rank(method='dense', ascending=False)
+    filtered['SG_Tee_Appr_Avg'] = filtered['SG:Tee_Appr'] / filtered['total_rounds']
+    filtered['Tee_App_Rank']=(filtered['SG_Tee_Appr_Avg']).rank(method='dense', ascending=False)
+
     filtered['SG_Rank_less_Rank'] = filtered['SG_Tee_Arg_Avg_Rank'] - filtered['SG_Total_Avg_Rank']
-    cols_to_move = ['total_rounds','SG_Total_Avg','SG_Total_Avg_Rank','SG_Tee_Arg_Avg','SG_Tee_Arg_Avg_Rank','SG_Rank_less_Rank','SG_PUTT_Avg','SG_PUTT_Avg_Rank',
-    'SG_OTT_Avg','SG_OTT_Avg_Rank','SG_APR_Avg','SG_APR_Avg_Rank','SG_ARG_Avg','SG_ARG_Avg_Rank']
+    cols_to_move = ['total_rounds','SG_Total_Avg_Rank','Tee_App_Rank','Appr_Rank','Tee_Rank','ARG_Rank','PUTT_Rank','SG_Tee_Arg_Avg','SG_Tee_Arg_Avg_Rank','SG_Rank_less_Rank','SG_PUTT_Avg',
+    'SG_OTT_Avg','SG_APR_Avg','SG_ARG_Avg','SG_Total_Avg']
     cols = cols_to_move + [col for col in filtered if col not in cols_to_move]
     return filtered[cols]
     # return filtered
 
-grouped_database_players = analysis(combined)
+
 with st.beta_expander('Database grouped by Player over all tournaments'):
+    grouped_database_players = analysis(combined)
     # st.write('This database gives an idea of who performed best across different tournaments')
     st.write(grouped_database_players.sort_values(by='SG_Total_Avg',ascending=False).style.format(format_dict))
     st.write('Find a player')
