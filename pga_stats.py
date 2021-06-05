@@ -225,7 +225,9 @@ def analysis(combined):
 with st.beta_expander('Database grouped by Player over all tournaments'):
     grouped_database_players = analysis(combined)
     # st.write('This database gives an idea of who performed best across different tournaments')
-    st.write(grouped_database_players.sort_values(by='SG_Total_Avg',ascending=False).style.format(format_dict))
+    min_rounds_played = st.number_input('Min Number of rounds played',min_value=0,step=4)
+    st.write(grouped_database_players[grouped_database_players['total_rounds']>min_rounds_played].sort_values(by='SG_Total_Avg',ascending=False).style.format(format_dict))
+    # st.write(grouped_database_players.sort_values(by='SG_Total_Avg',ascending=False).style.format(format_dict))
     st.write('Find a player')
     grouped_database_players_index=grouped_database_players.reset_index()
     player_names_data=grouped_database_players_index['PLAYER NAME'].unique()
