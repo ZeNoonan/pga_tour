@@ -15,15 +15,18 @@ st.set_page_config(layout="wide")
 #     "x-requested-with": "XMLHttpRequest",
 # }
 # # https://stackoverflow.com/questions/64501788/api-web-data-capture
-# url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t021.html"
-# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t021.html"
+# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t023.html"
+# url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t023.html"
 # html = requests.get(url).text
 
 # df = pd.read_html(html, flavor="html5lib")
 # df = pd.concat(df).drop([0, 1, 2], axis=1)
 # # st.write(df.head())
-# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_021_colonial.pkl')
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_021_colonial.pkl')
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_023_memorial.pkl')
+# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_023_memorial.pkl')
+
+# table=pd.read_html('https://datagolf.com/live-tournament-stats')
+# st.write(table[1])
 
 
 riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_007_riviera_gc.pkl')
@@ -39,6 +42,7 @@ quail_hollow=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_480_q
 craig_ranch=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_019_craig_ranch.pkl')
 kiawah_island=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_033_kiawah_island.pkl')
 colonial=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_021_colonial.pkl')
+memorial=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_023_memorial.pkl')
 
 putt_riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_007_riviera_gc.pkl')
 putt_concession=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_473_wgc_concession.pkl')
@@ -53,6 +57,7 @@ putt_quail_hollow=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_
 putt_craig_ranch=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_019_craig_ranch.pkl')
 putt_kiawah_island=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_033_kiawah_island.pkl')
 putt_colonial=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_021_colonial.pkl')
+putt_memorial=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_023_memorial.pkl')
 
 # st.write('harbour_town stats', harbour_town.head())
 
@@ -79,6 +84,7 @@ quail_hollow_stats=merge_golf(quail_hollow, putt_quail_hollow,'quail_hollow',9)
 craig_ranch_stats=merge_golf(craig_ranch, putt_craig_ranch,'craig_ranch',10)
 kiawah_island_stats=merge_golf(kiawah_island, putt_kiawah_island,'kiawah_island',11)
 colonial_stats=merge_golf(colonial, putt_colonial,'colonial',12)
+memorial_stats=merge_golf(memorial, putt_memorial,'memorial',13)
 
 # st.write('riviera after clean', riviera_stats.head())
 
@@ -141,6 +147,7 @@ quail_hollow_stats=clean_golf_tee(quail_hollow_stats)
 craig_ranch_stats=clean_golf_tee(craig_ranch_stats)
 kiawah_island_stats=clean_golf_tee(kiawah_island_stats)
 colonial_stats=clean_golf_tee(colonial_stats)
+memorial_stats=clean_golf_tee(memorial_stats)
 
 # st.write('riviera after function', riviera_stats)
 
@@ -151,10 +158,10 @@ format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}
 'SG_OTT':'{0:,.0f}','SG_APR':'{0:,.0f}','SG_ARG':'{0:,.0f}','SG_PUTT':'{0:,.0f}','SG_Total_Avg':'{0:,.1f}','Tee_Rank':'{0:,.0f}',
 'SG_Total_Avg_Rank':'{0:,.0f}','SG_Tee_Arg':'{0:,.0f}','SG_OTT_Avg':'{0:,.1f}','SG_APR_Avg':'{0:,.1f}','SG_ARG_Avg':'{0:,.1f}','SG_PUTT_Avg':'{0:,.1f}',
 'PUTT_Rank':'{0:,.0f}','SG_OTT_Avg_Rank':'{0:,.0f}','Tee_App_Rank':'{0:,.0f}','ARG_Rank':'{0:,.0f}','TOTAL SG:TEE:ARG':'{0:,.0f}',
-'SG :Tee_Arg_AVG':'{0:,.1f}','Tee_Arg_Rank':'{0:,.0f}','SG_Rank_less_Rank':'{0:,.0f}','TOTAL SG:TEE_ARG':'{0:,.0f}','Appr_Rank':'{0:,.0f}'  }
+'SG :Tee_Arg_AVG':'{0:,.1f}','Tee_Arg_Rank':'{0:,.0f}','SG_Rank_less_Rank':'{0:,.0f}','TOTAL SG:TEE_APR':'{0:,.0f}','TOTAL SG:TEE_ARG':'{0:,.0f}','Appr_Rank':'{0:,.0f}'  }
 
 combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,
-san_antonio_stats,harbour_town_stats,innisbrook_stats,quail_hollow_stats,craig_ranch_stats,kiawah_island_stats,colonial_stats])
+san_antonio_stats,harbour_town_stats,innisbrook_stats,quail_hollow_stats,craig_ranch_stats,kiawah_island_stats,colonial_stats,memorial_stats])
 # combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats])
 combined = combined.reset_index()
 
@@ -162,7 +169,7 @@ combined = combined.reset_index()
 with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putting for each Tournament'):
     st.write('This database gives an idea of who performed best across different tournaments')
     cols_to_move = ['PLAYER NAME','tournament','date','Tee_App_Rank','Appr_Rank','Tee_Rank','ARG_Rank','PUTT_Rank','SG_Rank',
-    'SG: TOTAL','TOTAL SG:TEE_ARG','TOTAL SG:PUTTING','TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG',
+    'TOTAL SG:TEE_APR','TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG','TOTAL SG:PUTTING','SG: TOTAL',
     'SG: TOTAL_AVG','SG:OTT','SG:APR','SG:ARG','ROUNDS','MEASURED ROUNDS']
     cols = cols_to_move + [col for col in combined if col not in cols_to_move]
     combined=combined[cols]
@@ -182,11 +189,11 @@ with st.beta_expander('Last Tournament Played'):
     last_tournament_played = combined.sort_values('date', ascending=False).drop_duplicates('PLAYER NAME').sort_values(by='SG: TOTAL_AVG',ascending=False)
     st.write('Last tournament played by Player')
     cols_to_move = ['PLAYER NAME','tournament','date','Tee_App_Rank','PUTT_Rank','Appr_Rank','Tee_Rank','ARG_Rank','SG_Rank',
-    'SG: TOTAL','TOTAL SG:TEE_ARG','TOTAL SG:PUTTING','TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG',
-    'SG: TOTAL_AVG','SG:OTT','SG:APR','SG:ARG','ROUNDS','MEASURED ROUNDS']
+    'TOTAL SG:TEE_APR','TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG','TOTAL SG:PUTTING','SG: TOTAL',
+    'SG:OTT','SG:APR','SG:ARG','ROUNDS','MEASURED ROUNDS']
     cols = cols_to_move + [col for col in last_tournament_played if col not in cols_to_move]
     last_tournament_played=last_tournament_played[cols]
-    st.write(last_tournament_played.style.format(format_dict))
+    # st.write(last_tournament_played.style.format(format_dict))
     player_names_tour=last_tournament_played['PLAYER NAME'].unique()
     names_selected_tour = st.multiselect('Select Player',player_names_tour)
     st.write((last_tournament_played.set_index('PLAYER NAME').loc[names_selected_tour,:]).reset_index().style.format(format_dict))
