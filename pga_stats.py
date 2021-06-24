@@ -92,7 +92,7 @@ colonial_stats=merge_golf(colonial, putt_colonial,'colonial',12)
 memorial_stats=merge_golf(memorial, putt_memorial,'memorial',13)
 congaree_stats=merge_golf(congaree, putt_congaree,'congaree',14)
 torrey_pines_stats=merge_golf(torrey_pines, putt_torrey_pines,'torrey_pines',15)
-
+# df=pd.concat([])
 # st.write('riviera after clean', riviera_stats.head())
 
 def clean_golf_tee(df):
