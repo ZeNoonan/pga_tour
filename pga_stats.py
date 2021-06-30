@@ -7,23 +7,23 @@ import json
 
 st.set_page_config(layout="wide")
 
-# headers = {
-#     "accept": "application/json, text/javascript, */*; q=0.01",
-#     "accept-encoding": "gzip, deflate, br",
-#     "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
-#     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.99 Safari/537.36",
-#     "x-requested-with": "XMLHttpRequest",
-# }
-# # https://stackoverflow.com/questions/64501788/api-web-data-capture
-# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t535.html"
-# url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t535.html"
-# html = requests.get(url).text
+headers = {
+    "accept": "application/json, text/javascript, */*; q=0.01",
+    "accept-encoding": "gzip, deflate, br",
+    "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.99 Safari/537.36",
+    "x-requested-with": "XMLHttpRequest",
+}
+# https://stackoverflow.com/questions/64501788/api-web-data-capture
+url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t034.html"
+# url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t034.html"
+html = requests.get(url).text
 
-# df = pd.read_html(html, flavor="html5lib")
-# df = pd.concat(df).drop([0, 1, 2], axis=1)
+df = pd.read_html(html, flavor="html5lib")
+df = pd.concat(df).drop([0, 1, 2], axis=1)
 # st.write(df.head())
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_535_torrey_pines.pkl')
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_535_torrey_pines.pkl')
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_034_river_highlands.pkl')
+df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_034_river_highlands.pkl')
 
 # table=pd.read_html('https://datagolf.com/live-tournament-stats')
 # st.write(table[1])
@@ -45,7 +45,7 @@ colonial=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_021_colon
 memorial=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_023_memorial.pkl')
 congaree=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_538_congaree.pkl')
 torrey_pines=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_535_torrey_pines.pkl')
-
+river_highlands=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_034_river_highlands.pkl')
 
 putt_riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_007_riviera_gc.pkl')
 putt_concession=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_473_wgc_concession.pkl')
@@ -63,6 +63,7 @@ putt_colonial=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_021_
 putt_memorial=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_023_memorial.pkl')
 putt_congaree=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_538_congaree.pkl')
 putt_torrey_pines=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_535_torrey_pines.pkl')
+putt_river_highlands=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_034_river_highlands.pkl')
 
 # st.write('harbour_town stats', harbour_town.head())
 
@@ -92,6 +93,7 @@ colonial_stats=merge_golf(colonial, putt_colonial,'colonial',12)
 memorial_stats=merge_golf(memorial, putt_memorial,'memorial',13)
 congaree_stats=merge_golf(congaree, putt_congaree,'congaree',14)
 torrey_pines_stats=merge_golf(torrey_pines, putt_torrey_pines,'torrey_pines',15)
+river_highlands_stats=merge_golf(river_highlands, putt_river_highlands,'river_highlands',16)
 # df=pd.concat([])
 # st.write('riviera after clean', riviera_stats.head())
 
@@ -157,6 +159,7 @@ colonial_stats=clean_golf_tee(colonial_stats)
 memorial_stats=clean_golf_tee(memorial_stats)
 congaree_stats=clean_golf_tee(congaree_stats)
 torrey_pines_stats=clean_golf_tee(torrey_pines_stats)
+river_highlands_stats=clean_golf_tee(river_highlands_stats)
 
 # st.write('riviera after function', riviera_stats)
 
@@ -171,7 +174,7 @@ format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}
 
 combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,
 san_antonio_stats,harbour_town_stats,innisbrook_stats,quail_hollow_stats,craig_ranch_stats,kiawah_island_stats,
-colonial_stats,memorial_stats,congaree_stats,torrey_pines_stats])
+colonial_stats,memorial_stats,congaree_stats,torrey_pines_stats,river_highlands_stats])
 # combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats])
 combined = combined.reset_index()
 
