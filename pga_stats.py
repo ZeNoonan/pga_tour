@@ -16,12 +16,15 @@ st.set_page_config(layout="wide")
 # }
 # # https://stackoverflow.com/questions/64501788/api-web-data-capture
 # # url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t524.html"
-# url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t524.html"
+# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t524.html"
+# url = "https://www.pgatour.com/competition/2021/the-honda-classic/leaderboard.html"
 # html = requests.get(url).text
 
 # df = pd.read_html(html, flavor="html5lib")
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/test.pkl')
+# st.write(df)
 # df = pd.concat(df).drop([0, 1, 2], axis=1)
-# # st.write(df.head())
+# st.write(df.head())
 # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_524_detroit.pkl')
 # # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_524_detroit.pkl')
 
