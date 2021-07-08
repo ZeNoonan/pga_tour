@@ -28,8 +28,11 @@ st.set_page_config(layout="wide")
 # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_524_detroit.pkl')
 # # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_524_detroit.pkl')
 
-# # table=pd.read_html('https://datagolf.com/live-tournament-stats')
-# # st.write(table[1])
+table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=8026')
+table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_riviera.pkl')
+
+
+# st.write(table[0])
 
 
 riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_007_riviera_gc.pkl')
