@@ -28,12 +28,34 @@ st.set_page_config(layout="wide")
 # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_524_detroit.pkl')
 # # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_524_detroit.pkl')
 
-table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=8026')
-table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_riviera.pkl')
+# table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=8026')
+# table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_riviera.pkl')
 
 
 # st.write(table[0])
 
+results_riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_riviera.pkl')
+results_riviera['tournament']='riviera'
+results_riviera['date']=1
+results_riviera['Adj_Pos']=results_riviera['Pos'].str.replace('T','')
+results_riviera['Adj_Pos']=pd.to_numeric(results_riviera['Adj_Pos'],errors='coerce')
+results_riviera['Adj_Pos']=results_riviera['Adj_Pos'].fillna(results_riviera['Pos'])
+# results_riviera['made_cut']=results_riviera['Adj_Pos'].where(results_riviera['Adj_Pos']<100)
+
+# results_riviera['result']=results_riviera['Agg'].rank(method='dense', ascending=True)
+st.write(results_riviera)
+
+def clean_results(file_location,name_of_tournament,date):
+    df=pd.read_pickle(file_location)
+    df['tournament']=name_of_tournament
+    df['date']=date
+    df['Adj_Pos']=df['Pos'].str.replace('T','')
+    df['Adj_Pos']=pd.to_numeric(df['Adj_Pos'],errors='coerce')
+    df['Adj_Pos']=df['Adj_Pos'].fillna(df['Pos'])
+    return df
+
+results_concession=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_concession.pkl',name_of_tournament='concession',date=2)
+st.write(results_concession)
 
 riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_007_riviera_gc.pkl')
 concession=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_473_wgc_concession.pkl')
