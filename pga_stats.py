@@ -34,16 +34,16 @@ st.set_page_config(layout="wide")
 
 # st.write(table[0])
 
-results_riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_riviera.pkl')
-results_riviera['tournament']='riviera'
-results_riviera['date']=1
-results_riviera['Adj_Pos']=results_riviera['Pos'].str.replace('T','')
-results_riviera['Adj_Pos']=pd.to_numeric(results_riviera['Adj_Pos'],errors='coerce')
-results_riviera['Adj_Pos']=results_riviera['Adj_Pos'].fillna(results_riviera['Pos'])
-# results_riviera['made_cut']=results_riviera['Adj_Pos'].where(results_riviera['Adj_Pos']<100)
+# results_riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_riviera.pkl')
+# results_riviera['tournament']='riviera'
+# results_riviera['date']=1
+# results_riviera['Adj_Pos']=results_riviera['Pos'].str.replace('T','')
+# results_riviera['Adj_Pos']=pd.to_numeric(results_riviera['Adj_Pos'],errors='coerce')
+# results_riviera['Adj_Pos']=results_riviera['Adj_Pos'].fillna(results_riviera['Pos'])
+# # results_riviera['made_cut']=results_riviera['Adj_Pos'].where(results_riviera['Adj_Pos']<100)
 
-# results_riviera['result']=results_riviera['Agg'].rank(method='dense', ascending=True)
-st.write(results_riviera)
+# # results_riviera['result']=results_riviera['Agg'].rank(method='dense', ascending=True)
+# st.write(results_riviera)
 
 def clean_results(file_location,name_of_tournament,date):
     df=pd.read_pickle(file_location)
@@ -54,8 +54,29 @@ def clean_results(file_location,name_of_tournament,date):
     df['Adj_Pos']=df['Adj_Pos'].fillna(df['Pos'])
     return df
 
+results_riviera=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_riviera.pkl',name_of_tournament='riviera',date=1)
 results_concession=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_concession.pkl',name_of_tournament='concession',date=2)
-st.write(results_concession)
+results_bay_hill=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_bay_hill.pkl',name_of_tournament='bay_hill',date=3)
+results_sawgrass=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_sawgrass.pkl',name_of_tournament='sawgrass',date=4)
+results_honda=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_honda.pkl',name_of_tournament='honda',date=5)
+results_san_antonio=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_san_antonio.pkl',name_of_tournament='san_antonio',date=6)
+results_masters=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_masters.pkl',name_of_tournament='masters',date=7)
+results_harbour_town=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_harbour_town.pkl',name_of_tournament='harbour_town',date=8)
+results_innisbrook=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_innisbrook.pkl',name_of_tournament='innisbrook',date=9)
+results_quail_hollow=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_quail_hollow.pkl',name_of_tournament='quail_hollow',date=10)
+results_craig_ranch=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_craig_ranch.pkl',name_of_tournament='craig_ranch',date=11)
+results_kiawah_island=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_kiawah_island.pkl',name_of_tournament='kiawah_island',date=12)
+results_colonial=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_colonial.pkl',name_of_tournament='colonial',date=13)
+results_memorial=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_memorial.pkl',name_of_tournament='memorial',date=14)
+results_congaree=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_congaree.pkl',name_of_tournament='congaree',date=15)
+results_torrey_pines=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_torrey_pines.pkl',name_of_tournament='torrey_pines',date=16)
+results_river_highlands=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_river_highlands.pkl',name_of_tournament='river_highlands',date=17)
+results_detroit=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_detroit.pkl',name_of_tournament='detroit',date=18)
+
+combined_results=pd.concat([results_riviera,results_concession,results_bay_hill,results_sawgrass,results_honda,results_san_antonio,results_masters,
+results_harbour_town,results_innisbrook,results_quail_hollow,results_craig_ranch,results_kiawah_island,results_colonial,results_memorial,results_congaree,
+results_torrey_pines,results_river_highlands,results_detroit])
+st.write(combined_results)
 
 riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_007_riviera_gc.pkl')
 concession=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_473_wgc_concession.pkl')
@@ -114,17 +135,17 @@ bay_hill_stats=merge_golf(bay_hill, putt_bay_hill,'bay_hill',3)
 sawgrass_stats=merge_golf(sawgrass, putt_sawgrass,'sawgrass',4)
 honda_stats=merge_golf(honda, putt_honda,'pga_national',5)
 san_antonio_stats=merge_golf(san_antonio, putt_san_antonio,'tpc_san_antonio',6)
-harbour_town_stats=merge_golf(harbour_town, putt_harbour_town,'harbour_town',7)
-innisbrook_stats=merge_golf(innisbrook, putt_innisbrook,'innisbrook',8)
-quail_hollow_stats=merge_golf(quail_hollow, putt_quail_hollow,'quail_hollow',9)
-craig_ranch_stats=merge_golf(craig_ranch, putt_craig_ranch,'craig_ranch',10)
-kiawah_island_stats=merge_golf(kiawah_island, putt_kiawah_island,'kiawah_island',11)
-colonial_stats=merge_golf(colonial, putt_colonial,'colonial',12)
-memorial_stats=merge_golf(memorial, putt_memorial,'memorial',13)
-congaree_stats=merge_golf(congaree, putt_congaree,'congaree',14)
-torrey_pines_stats=merge_golf(torrey_pines, putt_torrey_pines,'torrey_pines',15)
-river_highlands_stats=merge_golf(river_highlands, putt_river_highlands,'river_highlands',16)
-detroit_stats=merge_golf(detroit, putt_detroit,'detroit',17)
+harbour_town_stats=merge_golf(harbour_town, putt_harbour_town,'harbour_town',8)
+innisbrook_stats=merge_golf(innisbrook, putt_innisbrook,'innisbrook',9)
+quail_hollow_stats=merge_golf(quail_hollow, putt_quail_hollow,'quail_hollow',10)
+craig_ranch_stats=merge_golf(craig_ranch, putt_craig_ranch,'craig_ranch',11)
+kiawah_island_stats=merge_golf(kiawah_island, putt_kiawah_island,'kiawah_island',12)
+colonial_stats=merge_golf(colonial, putt_colonial,'colonial',13)
+memorial_stats=merge_golf(memorial, putt_memorial,'memorial',14)
+congaree_stats=merge_golf(congaree, putt_congaree,'congaree',15)
+torrey_pines_stats=merge_golf(torrey_pines, putt_torrey_pines,'torrey_pines',16)
+river_highlands_stats=merge_golf(river_highlands, putt_river_highlands,'river_highlands',17)
+detroit_stats=merge_golf(detroit, putt_detroit,'detroit',18)
 # df=pd.concat([])
 # st.write('check', detroit_stats)
 
