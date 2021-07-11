@@ -30,95 +30,30 @@ st.set_page_config(layout="wide")
 
 # table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=8026')
 # table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_riviera.pkl')
+# def clean_results(file_location,name_of_tournament,date):
+#     df=pd.read_pickle(file_location)
+#     df['tournament']=name_of_tournament
+#     df['date']=date
+#     df['Adj_Pos']=df['Pos'].str.replace('T','')
+#     df['Adj_Pos']=pd.to_numeric(df['Adj_Pos'],errors='coerce')
+#     df['Adj_Pos']=df['Adj_Pos'].fillna(df['Pos'])
+#     return df
 
+combined_results=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_combined.pkl')
+# st.write(combined_results[combined_results['tournament'].str.contains('antonio')])
+combined_results=combined_results.rename(columns={'Name':'PLAYER NAME'})
+# st.write(combined_results.head())
+combined_stats=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/combined_stats.pkl')
+# st.write(combined_stats[combined_stats['tournament'].str.contains('antonio')])
+# combined_stats['tournament']=combined_stats['tournament'].replace({'tpc_san_antonio':'san_antonio'})
+# combined_stats.to_pickle('C:/Users/Darragh/Documents/Python/Golf/combined_stats.pkl')
+# st.write(combined_stats[combined_stats['tournament'].str.contains('antonio')])
+# st.write(combined.head())
+combined = pd.merge(combined_stats, combined_results,on=['PLAYER NAME','tournament','date'],how='outer')
+# st.write(test_combine.head())
 
-# st.write(table[0])
-
-# results_riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_riviera.pkl')
-# results_riviera['tournament']='riviera'
-# results_riviera['date']=1
-# results_riviera['Adj_Pos']=results_riviera['Pos'].str.replace('T','')
-# results_riviera['Adj_Pos']=pd.to_numeric(results_riviera['Adj_Pos'],errors='coerce')
-# results_riviera['Adj_Pos']=results_riviera['Adj_Pos'].fillna(results_riviera['Pos'])
-# # results_riviera['made_cut']=results_riviera['Adj_Pos'].where(results_riviera['Adj_Pos']<100)
-
-# # results_riviera['result']=results_riviera['Agg'].rank(method='dense', ascending=True)
-# st.write(results_riviera)
-
-def clean_results(file_location,name_of_tournament,date):
-    df=pd.read_pickle(file_location)
-    df['tournament']=name_of_tournament
-    df['date']=date
-    df['Adj_Pos']=df['Pos'].str.replace('T','')
-    df['Adj_Pos']=pd.to_numeric(df['Adj_Pos'],errors='coerce')
-    df['Adj_Pos']=df['Adj_Pos'].fillna(df['Pos'])
-    return df
-
-results_riviera=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_riviera.pkl',name_of_tournament='riviera',date=1)
-results_concession=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_concession.pkl',name_of_tournament='concession',date=2)
-results_bay_hill=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_bay_hill.pkl',name_of_tournament='bay_hill',date=3)
-results_sawgrass=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_sawgrass.pkl',name_of_tournament='sawgrass',date=4)
-results_honda=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_honda.pkl',name_of_tournament='honda',date=5)
-results_san_antonio=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_san_antonio.pkl',name_of_tournament='san_antonio',date=6)
-results_masters=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_masters.pkl',name_of_tournament='masters',date=7)
-results_harbour_town=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_harbour_town.pkl',name_of_tournament='harbour_town',date=8)
-results_innisbrook=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_innisbrook.pkl',name_of_tournament='innisbrook',date=9)
-results_quail_hollow=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_quail_hollow.pkl',name_of_tournament='quail_hollow',date=10)
-results_craig_ranch=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_craig_ranch.pkl',name_of_tournament='craig_ranch',date=11)
-results_kiawah_island=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_kiawah_island.pkl',name_of_tournament='kiawah_island',date=12)
-results_colonial=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_colonial.pkl',name_of_tournament='colonial',date=13)
-results_memorial=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_memorial.pkl',name_of_tournament='memorial',date=14)
-results_congaree=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_congaree.pkl',name_of_tournament='congaree',date=15)
-results_torrey_pines=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_torrey_pines.pkl',name_of_tournament='torrey_pines',date=16)
-results_river_highlands=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_river_highlands.pkl',name_of_tournament='river_highlands',date=17)
-results_detroit=clean_results(file_location='C:/Users/Darragh/Documents/Python/Golf/results_detroit.pkl',name_of_tournament='detroit',date=18)
-
-combined_results=pd.concat([results_riviera,results_concession,results_bay_hill,results_sawgrass,results_honda,results_san_antonio,results_masters,
-results_harbour_town,results_innisbrook,results_quail_hollow,results_craig_ranch,results_kiawah_island,results_colonial,results_memorial,results_congaree,
-results_torrey_pines,results_river_highlands,results_detroit])
-st.write(combined_results)
-
-riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_007_riviera_gc.pkl')
-concession=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_473_wgc_concession.pkl')
-bay_hill=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_09_palmer_bay_hill.pkl')
-sawgrass=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_11_players_sawgrass.pkl')
-honda=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_10_honda_classic.pkl')
-san_antonio=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_41_valero_texas.pkl')
-# masters=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_536_masters.pkl')
-harbour_town=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_012_harbour_town.pkl')
-innisbrook=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_475_innisbrook.pkl')
-quail_hollow=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_480_quail_hollow.pkl')
-craig_ranch=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_019_craig_ranch.pkl')
-kiawah_island=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_033_kiawah_island.pkl')
-colonial=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_021_colonial.pkl')
-memorial=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_023_memorial.pkl')
-congaree=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_538_congaree.pkl')
-torrey_pines=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_535_torrey_pines.pkl')
-river_highlands=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_034_river_highlands.pkl')
-detroit=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_524_detroit.pkl')
-
-putt_riviera=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_007_riviera_gc.pkl')
-putt_concession=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_473_wgc_concession.pkl')
-putt_bay_hill=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_09_palmer_bay_hill.pkl')
-putt_sawgrass=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_11_players_sawgrass.pkl')
-putt_honda=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_10_honda_classic.pkl')
-putt_san_antonio=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_41_valero_texas.pkl')
-# putt_masters=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_536_masters.pkl')
-putt_harbour_town=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_012_harbour_town.pkl')
-putt_innisbrook=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_475_innisbrook.pkl')
-putt_quail_hollow=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_480_quail_hollow.pkl')
-putt_craig_ranch=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_019_craig_ranch.pkl')
-putt_kiawah_island=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_033_kiawah_island.pkl')
-putt_colonial=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_021_colonial.pkl')
-putt_memorial=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_023_memorial.pkl')
-putt_congaree=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_538_congaree.pkl')
-putt_torrey_pines=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_535_torrey_pines.pkl')
-putt_river_highlands=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_034_river_highlands.pkl')
-putt_detroit=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_524_detroit.pkl')
-
-# st.write('harbour_town stats', harbour_town.head())
-
-# st.write('harbour_town putt', putt_harbour_town.head())
+# detroit=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_524_detroit.pkl')
+# putt_detroit=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_524_detroit.pkl')
 
 def merge_golf(tee_to_green_stats,putting_stats, name_of_tournament,date):
     tee_to_green_stats = tee_to_green_stats.loc[:,['MEASURED ROUNDS','PLAYER NAME','ROUNDS','SG:APR','SG:ARG','SG:OTT']].copy()
@@ -129,25 +64,7 @@ def merge_golf(tee_to_green_stats,putting_stats, name_of_tournament,date):
     df=df.iloc[1:].copy()
     return df
 
-riviera_stats=merge_golf(riviera, putt_riviera, 'riviera',1)
-concession_stats=merge_golf(concession, putt_concession,'concession',2)
-bay_hill_stats=merge_golf(bay_hill, putt_bay_hill,'bay_hill',3)
-sawgrass_stats=merge_golf(sawgrass, putt_sawgrass,'sawgrass',4)
-honda_stats=merge_golf(honda, putt_honda,'pga_national',5)
-san_antonio_stats=merge_golf(san_antonio, putt_san_antonio,'tpc_san_antonio',6)
-harbour_town_stats=merge_golf(harbour_town, putt_harbour_town,'harbour_town',8)
-innisbrook_stats=merge_golf(innisbrook, putt_innisbrook,'innisbrook',9)
-quail_hollow_stats=merge_golf(quail_hollow, putt_quail_hollow,'quail_hollow',10)
-craig_ranch_stats=merge_golf(craig_ranch, putt_craig_ranch,'craig_ranch',11)
-kiawah_island_stats=merge_golf(kiawah_island, putt_kiawah_island,'kiawah_island',12)
-colonial_stats=merge_golf(colonial, putt_colonial,'colonial',13)
-memorial_stats=merge_golf(memorial, putt_memorial,'memorial',14)
-congaree_stats=merge_golf(congaree, putt_congaree,'congaree',15)
-torrey_pines_stats=merge_golf(torrey_pines, putt_torrey_pines,'torrey_pines',16)
-river_highlands_stats=merge_golf(river_highlands, putt_river_highlands,'river_highlands',17)
-detroit_stats=merge_golf(detroit, putt_detroit,'detroit',18)
-# df=pd.concat([])
-# st.write('check', detroit_stats)
+# detroit_stats=merge_golf(detroit, putt_detroit,'detroit',18)
 
 def clean_golf_tee(df):
     df['TOTAL SG:OTT']=df['SG:OTT']*df['MEASURED ROUNDS']
@@ -196,25 +113,7 @@ def clean_golf_tee(df):
     # df=df.reset_index()
     return df.sort_values(by='SG: TOTAL_AVG', ascending=False)
 
-riviera_stats = clean_golf_tee(riviera_stats)
-concession_stats=clean_golf_tee(concession_stats)
-bay_hill_stats=clean_golf_tee(bay_hill_stats)
-sawgrass_stats=clean_golf_tee(sawgrass_stats)
-pga_national_stats=clean_golf_tee(honda_stats)
-san_antonio_stats=clean_golf_tee(san_antonio_stats)
-harbour_town_stats=clean_golf_tee(harbour_town_stats)
-innisbrook_stats=clean_golf_tee(innisbrook_stats)
-quail_hollow_stats=clean_golf_tee(quail_hollow_stats)
-craig_ranch_stats=clean_golf_tee(craig_ranch_stats)
-kiawah_island_stats=clean_golf_tee(kiawah_island_stats)
-colonial_stats=clean_golf_tee(colonial_stats)
-memorial_stats=clean_golf_tee(memorial_stats)
-congaree_stats=clean_golf_tee(congaree_stats)
-torrey_pines_stats=clean_golf_tee(torrey_pines_stats)
-river_highlands_stats=clean_golf_tee(river_highlands_stats)
-detroit_stats=clean_golf_tee(detroit_stats)
-
-# st.write('riviera after function', riviera_stats)
+# detroit_stats=clean_golf_tee(detroit_stats).reset_index()
 
 format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}' ,'TOTAL SG:APR':'{0:,.0f}' ,'TOTAL SG:ARG':'{0:,.0f}', 'SG:ARG':'{0:,.0f}', 
 'SG:PUTT':'{0:,.0f}' , 'SG: TOTAL':'{0:,.0f}' , 'SG: TOTAL_AVG':'{0:,.0f}', 'Rev_SG_Tot':'{0:,.1f}', 'TOTAL SG:PUTTING':'{0:,.0f}','sg_rank':'{0:,.0f}',
@@ -222,19 +121,19 @@ format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}
 'putt_rank':'{0:,.0f}','tee_to_green_rank':'{0:,.0f}','tee_green_rank':'{0:,.0f}','SG_Total':'{0:,.0f}','SG_Tee_Arg_Avg':'{0:,.1f}',
 'SG_OTT':'{0:,.0f}','SG_APR':'{0:,.0f}','SG_ARG':'{0:,.0f}','SG_PUTT':'{0:,.0f}','SG_Total_Avg':'{0:,.1f}','Tee_Rank':'{0:,.0f}',
 'SG_Total_Avg_Rank':'{0:,.0f}','SG_Tee_Arg':'{0:,.0f}','SG_OTT_Avg':'{0:,.1f}','SG_APR_Avg':'{0:,.1f}','SG_ARG_Avg':'{0:,.1f}','SG_PUTT_Avg':'{0:,.1f}',
-'PUTT_Rank':'{0:,.0f}','SG_OTT_Avg_Rank':'{0:,.0f}','Tee_App_Rank':'{0:,.0f}','ARG_Rank':'{0:,.0f}','TOTAL SG:TEE:ARG':'{0:,.0f}',
+'PUTT_Rank':'{0:,.0f}','SG_OTT_Avg_Rank':'{0:,.0f}','Tee_App_Rank':'{0:,.0f}','ARG_Rank':'{0:,.0f}','TOTAL SG:TEE:ARG':'{0:,.0f}','SG_Rank':'{0:,.0f}',
 'SG :Tee_Arg_AVG':'{0:,.1f}','Tee_Arg_Rank':'{0:,.0f}','SG_Rank_less_Rank':'{0:,.0f}','TOTAL SG:TEE_APR':'{0:,.0f}','TOTAL SG:TEE_ARG':'{0:,.0f}','Appr_Rank':'{0:,.0f}'  }
 
-combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,
-san_antonio_stats,harbour_town_stats,innisbrook_stats,quail_hollow_stats,craig_ranch_stats,kiawah_island_stats,
-colonial_stats,memorial_stats,congaree_stats,torrey_pines_stats,river_highlands_stats,detroit_stats])
-# combined = pd.concat([riviera_stats,concession_stats,bay_hill_stats,sawgrass_stats,pga_national_stats,san_antonio_stats])
-combined = combined.reset_index()
+
+# combined = pd.concat([combined,detroit_stats])
+# combined = combined.reset_index()
+# combined.to_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_combined.pkl')
+
 
 # st.write('this is combined database of the tournaments sorted by SG: TOTAL_AVG')
 with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putting for each Tournament'):
     st.write('This database gives an idea of who performed best across different tournaments')
-    cols_to_move = ['PLAYER NAME','tournament','date','Tee_App_Rank','Appr_Rank','Tee_Rank','ARG_Rank','PUTT_Rank','SG_Rank',
+    cols_to_move = ['PLAYER NAME','tournament','date','Tee_App_Rank','Appr_Rank','Tee_Rank','ARG_Rank','PUTT_Rank','SG_Rank','Pos',
     'TOTAL SG:TEE_APR','TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG','TOTAL SG:PUTTING','SG: TOTAL',
     'SG: TOTAL_AVG','SG:OTT','SG:APR','SG:ARG','ROUNDS','MEASURED ROUNDS']
     cols = cols_to_move + [col for col in combined if col not in cols_to_move]
@@ -255,7 +154,7 @@ with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putti
 with st.beta_expander('Last Tournament Played'):
     last_tournament_played = combined.sort_values('date', ascending=False).drop_duplicates('PLAYER NAME').sort_values(by='SG: TOTAL_AVG',ascending=False)
     st.write('Last tournament played by Player')
-    cols_to_move = ['PLAYER NAME','tournament','date','Tee_App_Rank','Appr_Rank','Tee_Rank','PUTT_Rank','ARG_Rank','SG_Rank',
+    cols_to_move = ['PLAYER NAME','tournament','date','Tee_App_Rank','Appr_Rank','Tee_Rank','PUTT_Rank','ARG_Rank','SG_Rank','Pos',
     'TOTAL SG:TEE_APR','TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG','TOTAL SG:PUTTING','SG: TOTAL',
     'SG:OTT','SG:APR','SG:ARG','ROUNDS','MEASURED ROUNDS']
     cols = cols_to_move + [col for col in last_tournament_played if col not in cols_to_move]
@@ -308,76 +207,3 @@ with st.beta_expander('Database grouped by Player over all tournaments'):
     names_selected_data = st.multiselect('Select Player',player_names_data)
     # st.write((grouped_database_players_index.set_index('PLAYER NAME').loc[names_selected_data,:]).style.format(format_dict))
 
-# with st.beta_expander('Find Player for Tournament Stats'):
-
-    # st.write(combined[combined['PLAYER NAME'].str.contains('Lahiri')])
-    # st.write('This database gives an idea of who performed best across different tournaments')
-
-
-# st.write('who has the best average approach the green rank?')
-# def update_analysis(combined):
-#     filtered = combined.groupby('PLAYER NAME').agg(total_rounds=('MEASURED ROUNDS','sum'),sg_rank=('SG_Rank','mean'),app_sg_rank=('Appr_Rank','mean'),
-#     ott_rank=('Tee_Rank','mean'),arg_rank=('ARG_Rank','mean'),putt_rank=('PUTT_Rank','mean'),normal_sg_no_putt=('Rev_SG_Tot','sum'))
-#     rank_list=['app_sg_rank','ott_rank','arg_rank']
-#     filtered['tee_to_green_rank']=filtered[rank_list].mean(axis=1).rank(method='dense', ascending=True)
-#     filtered['tee_green_rank']=filtered['ott_rank']*0.28 + filtered['app_sg_rank']*0.4 + filtered['arg_rank']*0.17 
-#     filtered['tee_green_normalised_sg'] = filtered['normal_sg_no_putt'] / filtered['total_rounds']
-#     # filtered['tee_green_normalised_sg_rank'] = filtered['tee_green_normalised_sg'].rank(method='dense', ascending=True)
-#     return filtered 
-
-# filtered=update_analysis(combined)
-# st.write('SG Rank',filtered.sort_values(by='sg_rank', ascending=True).query('`total_rounds`>4').style.format(format_dict))
-# st.write('Approach the Green [Irons] Rank',filtered.sort_values(by='app_sg_rank', ascending=True).query('`total_rounds`>1').style.format(format_dict))
-# st.write('Normalised Tee to Green Rank',filtered.sort_values(by='tee_green_rank', ascending=True).query('`total_rounds`>1').style.format(format_dict))
-# st.write('Normalised Tee to Green Rank New Calc',filtered.sort_values(by='tee_green_normalised_sg', ascending=False).query('`total_rounds`>1').style.format(format_dict))
-# st.write('Equal amount for driving/irons/short game Tee to Green Rank',filtered.sort_values(by='tee_to_green_rank', ascending=True).query('`total_rounds`>1').style.format(format_dict))
-
-# st.write(combined[combined['PLAYER NAME'].str.contains('Si Woo')])
-
-# Cross check against SG Average total here
-# https://www.pgatour.com/stats/stat.02675.html
-
-# st.write('overall stats')
-# a=(pd.DataFrame(pd.read_html('https://www.pgatour.com/stats/stat.02674.html')[1]).drop(['RANK LAST WEEK'], axis=1))
-# st.write('test 1',a.head())
-# b=pd.DataFrame(pd.read_html('https://www.pgatour.com/stats/stat.02564.html')[1]).drop(['RANK LAST WEEK'], axis=1)
-# st.write('test 2',b.head())
-# df=pd.merge(a, b, on=['PLAYER NAME'], how='outer')    
-# # df=df.drop(df.columns[[0,8,3,9]], axis=1)
-# st.table(df.head(10))
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_harbour_town_19April2021.pkl')
-
-# with st.beta_expander('Run the above again in a day or two to see if Masters strokes gained is updated look at measured rounds'):
-#     pass
-    # full_stats_overall=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_san_antonio_1.pkl')
-    # st.write('after san antonio')
-    # st.write(full_stats_overall.sort_values(by='SG:APR', ascending=False))
-    # full_stats_overall=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_after_masters.pkl')
-    # st.write('after masters')
-    # st.write(full_stats_overall.sort_values(by='SG:APR', ascending=False))
-    # full_stats_overall=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_012_harbour_town.pkl')
-    # st.write('harbour town')
-    # st.write(full_stats_overall.sort_values(by='SG:APR', ascending=False))
-
-# test=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/week_before_masters.pkl')
-# st.write('test',test.sort_values(by='SG:APR', ascending=False))
-
-
-# leaderboard_response = requests.get('https://lbdata.pgatour.com/2019/r/027/leaderboard.json').json()
-# response =             requests.get('https://statdata.pgatour.com/r/006/2020/player_stats.json').json()
-# # https://www.reddit.com/r/programmingrequests/comments/crizxq/seeking_help_with_pga_tour_web_scraping_project/
-
-# players=pd.DataFrame(response['tournament']['players']).stats.apply(pd.Series)
-# names=pd.DataFrame(response['tournament']['players']).pn.apply(pd.Series)
-# sg_tee=pd.DataFrame(players.iloc[:,22].apply(pd.Series).loc[:,'tValue']).rename({'tValue':'sg_tee'}, axis=1)
-# sg_iron=pd.DataFrame(players.iloc[:,21].apply(pd.Series).loc[:,'tValue']).rename({'tValue':'sg_iron'}, axis=1)
-# sg_short=pd.DataFrame(players.iloc[:,20].apply(pd.Series).loc[:,'tValue']).rename({'tValue':'sg_short'}, axis=1)
-# sg_putt=pd.DataFrame(players.iloc[:,19].apply(pd.Series).loc[:,'tValue']).rename({'tValue':'sg_putt'}, axis=1)
-# sg_df=(pd.concat([names, sg_tee, sg_iron, sg_short, sg_putt], axis=1)).rename(columns={0:'player'})
-# st.write(sg_df)
-
-# st.write ( leaderboard_response)
-
-# x=pd.DataFrame( players.iloc[:,22].apply(pd.Series).rounds.apply(pd.Series) )
-# x=x.iloc[:,0].apply(pd.Series)
-# # st.write (x)
