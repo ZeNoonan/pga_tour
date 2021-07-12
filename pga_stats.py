@@ -7,6 +7,15 @@ import json
 
 st.set_page_config(layout="wide")
 
+# url = "https://www.europeantour.com/european-tour/stats/2021/leaderboard/?stats=DRIVING&type=SG_OFF_THE_TEE"
+# url="https://stats.europeantour.com/api/v2/seasons/2021/stats/strokes-gained-off-the-tee"
+# html = requests.get(url).text
+# df = pd.read_html(html, flavor="html5lib")
+# # df = pd.read_html(url)
+# st.write(df)
+
+
+
 # headers = {
 #     "accept": "application/json, text/javascript, */*; q=0.01",
 #     "accept-encoding": "gzip, deflate, br",
@@ -111,7 +120,7 @@ def clean_golf_tee(df):
     df['Rev_Rank_Var']=df['Rev_Rank_Var'].astype(int)
     # df['Rank_Equal']=df['Rank_Equal'].astype(int)
     # df=df.reset_index()
-    return df.sort_values(by='SG: TOTAL_AVG', ascending=False)
+    return df.sort_values(by='date', ascending=True)
 
 # detroit_stats=clean_golf_tee(detroit_stats).reset_index()
 
@@ -138,7 +147,7 @@ with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putti
     'SG: TOTAL_AVG','SG:OTT','SG:APR','SG:ARG','ROUNDS','MEASURED ROUNDS']
     cols = cols_to_move + [col for col in combined if col not in cols_to_move]
     combined=combined[cols]
-    combined=combined.reset_index().drop('index',axis=1)
+    combined=combined.reset_index().drop('index',axis=1).sort_values(by='date',ascending=True)
     # st.write(combined.sort_values(by='SG: TOTAL_AVG',ascending=False).style.format(format_dict))
     
     st.write('Find a player')
