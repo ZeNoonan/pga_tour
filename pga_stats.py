@@ -7,6 +7,8 @@ import json
 
 st.set_page_config(layout="wide")
 
+st.write('when adding competition add the results to the weekly compettion first before merging into main file')
+
 # url = "https://www.europeantour.com/european-tour/stats/2021/leaderboard/?stats=DRIVING&type=SG_OFF_THE_TEE"
 # url="https://stats.europeantour.com/api/v2/seasons/2021/stats/strokes-gained-off-the-tee"
 # html = requests.get(url).text
@@ -24,45 +26,92 @@ st.set_page_config(layout="wide")
 #     "x-requested-with": "XMLHttpRequest",
 # }
 # # https://stackoverflow.com/questions/64501788/api-web-data-capture
-# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t524.html"
-# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t524.html"
-# url = "https://www.pgatour.com/competition/2021/the-honda-classic/leaderboard.html"
-# html = requests.get(url).text
+# url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t030.html"
+# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t030.html"
 
-# df = pd.read_html(html, flavor="html5lib")
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/test.pkl')
-# st.write(df)
+# df = pd.read_html(url, flavor="html5lib")
+# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/test.pkl')
+# # st.write(df)
 # df = pd.concat(df).drop([0, 1, 2], axis=1)
 # st.write(df.head())
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_524_detroit.pkl')
-# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_524_detroit.pkl')
+# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_030_deere_run.pkl')
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_030_deere_run.pkl')
 
-# table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=8026')
-# table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_riviera.pkl')
-# def clean_results(file_location,name_of_tournament,date):
-#     df=pd.read_pickle(file_location)
-#     df['tournament']=name_of_tournament
-#     df['date']=date
-#     df['Adj_Pos']=df['Pos'].str.replace('T','')
-#     df['Adj_Pos']=pd.to_numeric(df['Adj_Pos'],errors='coerce')
-#     df['Adj_Pos']=df['Adj_Pos'].fillna(df['Pos'])
-#     return df
+# table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=8178')
+# table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_deere_run.pkl')
+def clean_results(file_location,name_of_tournament,date):
+    df=pd.read_pickle(file_location)
+    df['tournament']=name_of_tournament
+    df['date']=date
+    df['Adj_Pos']=df['Pos'].str.replace('T','')
+    df['Adj_Pos']=pd.to_numeric(df['Adj_Pos'],errors='coerce')
+    df['Adj_Pos']=df['Adj_Pos'].fillna(df['Pos'])
+    return df
+# results_deere_run=clean_results('C:/Users/Darragh/Documents/Python/Golf/results_deere_run.pkl','deere_run',19)
+# results_deere_run=results_deere_run.rename(columns={'Name':'PLAYER NAME'})
+# st.write('deere run', results_deere_run.head())
 
-combined_results=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_combined.pkl')
-# st.write(combined_results[combined_results['tournament'].str.contains('antonio')])
-combined_results=combined_results.rename(columns={'Name':'PLAYER NAME'})
-# st.write(combined_results.head())
-combined_stats=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/combined_stats.pkl')
-# st.write(combined_stats[combined_stats['tournament'].str.contains('antonio')])
-# combined_stats['tournament']=combined_stats['tournament'].replace({'tpc_san_antonio':'san_antonio'})
-# combined_stats.to_pickle('C:/Users/Darragh/Documents/Python/Golf/combined_stats.pkl')
-# st.write(combined_stats[combined_stats['tournament'].str.contains('antonio')])
-# st.write(combined.head())
-combined = pd.merge(combined_stats, combined_results,on=['PLAYER NAME','tournament','date'],how='outer')
-# st.write(test_combine.head())
+# stats_deere_run=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/deere_run_stats.pkl')
+# st.write('deere run', stats_deere_run.head())
+# my_updated_data = pd.merge(stats_deere_run, results_deere_run,on=['PLAYER NAME','tournament','date'],how='outer')
+# st.write('deere run', my_updated_data.head())
 
-# detroit=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_524_detroit.pkl')
-# putt_detroit=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_524_detroit.pkl')
+# combined_detroit=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/data_stats_results.pkl')
+# st.write('combined detroit', combined_detroit.head())
+
+# combined = pd.concat([combined_detroit,my_updated_data])
+# st.write('combined', combined.head())
+# combined.to_pickle('C:/Users/Darragh/Documents/Python/Golf/combined.pkl')
+
+# results_deere_run=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_deere_run.pkl')
+
+# results_deere_run=results_deere_run.rename(columns={'Name':'PLAYER NAME'})
+# st.write('deere run', results_deere_run.head())
+# my_updated_data = pd.merge(combined, results_deere_run,on=['PLAYER NAME','tournament','date'],how='outer')
+# my_updated_data.to_pickle('C:/Users/Darragh/Documents/Python/Golf/data_stats_results_2.pkl')
+
+
+# MIGHT NEED BELOW
+# my_data=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/data_stats_results_1.pkl')
+# st.write('my data', my_data.tail())
+# combined_results=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_combined.pkl')
+# combined_results=combined_results.rename(columns={'Name':'PLAYER NAME'})
+# my_updated_data = pd.merge(my_data, results_deere_run,on=['PLAYER NAME','tournament','date','Pos','Ctry','R1','R2','R3','R4','Ranking Points','Adj_Pos','Agg'],how='outer')
+# st.write('after merge', my_updated_data.tail())
+# my_updated_data.to_pickle('C:/Users/Darragh/Documents/Python/Golf/merged_data.pkl')
+
+# combined=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/data_stats_results.pkl')
+# st.write('data stats results',combined.tail())
+# test_1=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/data_stats_results_1.pkl')
+# st.write('data stats results 1',test_1.tail())
+
+
+# deere_run=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_030_deere_run.pkl')
+# putt_deere_run=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_030_deere_run.pkl')
+
+combined=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/combined.pkl')
+combined['Tee_App_Rank']=combined['Tee_App_Rank'].replace(np.NaN,75)
+combined=combined.sort_values(by=['PLAYER NAME', 'date'])
+
+
+def test_4(df):
+    weights = np.array([0.125, 0.25,0.5,1])
+    sum_weights = np.sum(weights)
+    df['adj_tee_app_rank']=df['Tee_App_Rank'].rolling(window=4, center=False).apply(lambda x: np.sum(weights*x), raw=False)
+    return df
+
+grouped = combined.groupby('PLAYER NAME')
+ranking_power=[]
+for name, group in grouped:
+    update=test_4(group)
+    ranking_power.append(update)
+df = pd.concat(ranking_power, ignore_index=True)
+cols_to_move = ['PLAYER NAME','tournament','date','Tee_App_Rank','adj_tee_app_rank','Pos']
+cols = cols_to_move + [col for col in df if col not in cols_to_move]
+combined=df[cols]
+# st.write(df)
+
+# st.write(combined.tail())
 
 def merge_golf(tee_to_green_stats,putting_stats, name_of_tournament,date):
     tee_to_green_stats = tee_to_green_stats.loc[:,['MEASURED ROUNDS','PLAYER NAME','ROUNDS','SG:APR','SG:ARG','SG:OTT']].copy()
@@ -73,7 +122,7 @@ def merge_golf(tee_to_green_stats,putting_stats, name_of_tournament,date):
     df=df.iloc[1:].copy()
     return df
 
-# detroit_stats=merge_golf(detroit, putt_detroit,'detroit',18)
+
 
 def clean_golf_tee(df):
     df['TOTAL SG:OTT']=df['SG:OTT']*df['MEASURED ROUNDS']
@@ -122,21 +171,27 @@ def clean_golf_tee(df):
     # df=df.reset_index()
     return df.sort_values(by='date', ascending=True)
 
-# detroit_stats=clean_golf_tee(detroit_stats).reset_index()
+
 
 format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}' ,'TOTAL SG:APR':'{0:,.0f}' ,'TOTAL SG:ARG':'{0:,.0f}', 'SG:ARG':'{0:,.0f}', 
 'SG:PUTT':'{0:,.0f}' , 'SG: TOTAL':'{0:,.0f}' , 'SG: TOTAL_AVG':'{0:,.0f}', 'Rev_SG_Tot':'{0:,.1f}', 'TOTAL SG:PUTTING':'{0:,.0f}','sg_rank':'{0:,.0f}',
 'app_sg_rank':'{0:,.0f}','ott_rank':'{0:,.0f}','arg_rank':'{0:,.0f}','normal_sg_no_putt':'{0:,.1f}','tee_green_normalised_sg':'{0:,.2f}',
 'putt_rank':'{0:,.0f}','tee_to_green_rank':'{0:,.0f}','tee_green_rank':'{0:,.0f}','SG_Total':'{0:,.0f}','SG_Tee_Arg_Avg':'{0:,.1f}',
 'SG_OTT':'{0:,.0f}','SG_APR':'{0:,.0f}','SG_ARG':'{0:,.0f}','SG_PUTT':'{0:,.0f}','SG_Total_Avg':'{0:,.1f}','Tee_Rank':'{0:,.0f}',
+'adj_tee_app_rank':'{0:,.0f}',
 'SG_Total_Avg_Rank':'{0:,.0f}','SG_Tee_Arg':'{0:,.0f}','SG_OTT_Avg':'{0:,.1f}','SG_APR_Avg':'{0:,.1f}','SG_ARG_Avg':'{0:,.1f}','SG_PUTT_Avg':'{0:,.1f}',
 'PUTT_Rank':'{0:,.0f}','SG_OTT_Avg_Rank':'{0:,.0f}','Tee_App_Rank':'{0:,.0f}','ARG_Rank':'{0:,.0f}','TOTAL SG:TEE:ARG':'{0:,.0f}','SG_Rank':'{0:,.0f}',
 'SG :Tee_Arg_AVG':'{0:,.1f}','Tee_Arg_Rank':'{0:,.0f}','SG_Rank_less_Rank':'{0:,.0f}','TOTAL SG:TEE_APR':'{0:,.0f}','TOTAL SG:TEE_ARG':'{0:,.0f}','Appr_Rank':'{0:,.0f}'  }
 
+# deere_run_stats=merge_golf(deere_run, putt_deere_run,'deere_run',19)
+# deere_run_stats=clean_golf_tee(deere_run_stats).reset_index()
+# deere_run_stats.to_pickle('C:/Users/Darragh/Documents/Python/Golf/deere_run_stats.pkl')
+# combined=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/data_stats_results.pkl')
+# combined = pd.concat([combined,deere_run_stats])
 
-# combined = pd.concat([combined,detroit_stats])
+
 # combined = combined.reset_index()
-# combined.to_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_combined.pkl')
+# combined.to_pickle('C:/Users/Darragh/Documents/Python/Golf/combined_stats.pkl')
 
 
 # st.write('this is combined database of the tournaments sorted by SG: TOTAL_AVG')
@@ -163,7 +218,7 @@ with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putti
 with st.beta_expander('Last Tournament Played'):
     last_tournament_played = combined.sort_values('date', ascending=False).drop_duplicates('PLAYER NAME').sort_values(by='SG: TOTAL_AVG',ascending=False)
     st.write('Last tournament played by Player')
-    cols_to_move = ['PLAYER NAME','tournament','date','Tee_App_Rank','Appr_Rank','Tee_Rank','PUTT_Rank','ARG_Rank','SG_Rank','Pos',
+    cols_to_move = ['PLAYER NAME','tournament','date','Tee_App_Rank','adj_tee_app_rank','Appr_Rank','Tee_Rank','PUTT_Rank','ARG_Rank','SG_Rank','Pos',
     'TOTAL SG:TEE_APR','TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG','TOTAL SG:PUTTING','SG: TOTAL',
     'SG:OTT','SG:APR','SG:ARG','ROUNDS','MEASURED ROUNDS']
     cols = cols_to_move + [col for col in last_tournament_played if col not in cols_to_move]
