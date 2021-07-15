@@ -197,7 +197,7 @@ format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}
 # st.write('this is combined database of the tournaments sorted by SG: TOTAL_AVG')
 with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putting for each Tournament'):
     st.write('This database gives an idea of who performed best across different tournaments')
-    cols_to_move = ['PLAYER NAME','tournament','date','Tee_App_Rank','Appr_Rank','Tee_Rank','ARG_Rank','PUTT_Rank','SG_Rank','Pos',
+    cols_to_move = ['PLAYER NAME','tournament','date','Tee_App_Rank','adj_tee_app_rank','Appr_Rank','Tee_Rank','ARG_Rank','PUTT_Rank','SG_Rank','Pos',
     'TOTAL SG:TEE_APR','TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG','TOTAL SG:PUTTING','SG: TOTAL',
     'SG: TOTAL_AVG','SG:OTT','SG:APR','SG:ARG','ROUNDS','MEASURED ROUNDS']
     cols = cols_to_move + [col for col in combined if col not in cols_to_move]
@@ -223,7 +223,7 @@ with st.beta_expander('Last Tournament Played'):
     'SG:OTT','SG:APR','SG:ARG','ROUNDS','MEASURED ROUNDS']
     cols = cols_to_move + [col for col in last_tournament_played if col not in cols_to_move]
     last_tournament_played=last_tournament_played[cols]
-    # st.write(last_tournament_played.style.format(format_dict))
+    st.write(last_tournament_played.style.format(format_dict))
     player_names_tour=last_tournament_played['PLAYER NAME'].unique()
     names_selected_tour = st.multiselect('Select Player',player_names_tour)
     st.write((last_tournament_played.set_index('PLAYER NAME').loc[names_selected_tour,:]).reset_index().style.format(format_dict))
