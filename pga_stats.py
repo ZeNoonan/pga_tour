@@ -91,6 +91,15 @@ def clean_results(file_location,name_of_tournament,date):
 
 combined=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/combined.pkl')
 combined['Tee_App_Rank']=combined['Tee_App_Rank'].replace(np.NaN,75)
+masters_filter=combined['tournament']=='masters'
+combined['masters_filter']=(combined['Tee_App_Rank'].where(masters_filter)).replace(75,np.NaN)
+st.write(combined[combined['tournament']=='masters'])
+combined['Tee_App_Rank'] = combined['Tee_App_Rank'] * combined['masters_filter']
+st.write(combined[combined['tournament']=='masters'])
+
+# combined['Tee_App_Rank']=np.where(combined['tournament']=='masters',np.NaN,combined['Tee_App_Rank'])
+# DON'T Know why the above didn't work
+
 combined=combined.sort_values(by=['PLAYER NAME', 'date'])
 
 
@@ -223,6 +232,8 @@ with st.beta_expander('Last Tournament Played'):
     'SG:OTT','SG:APR','SG:ARG','ROUNDS','MEASURED ROUNDS']
     cols = cols_to_move + [col for col in last_tournament_played if col not in cols_to_move]
     last_tournament_played=last_tournament_played[cols]
+    last_date=st.number_input('what tournament number to include',min_value=16,max_value=20,value=17)
+    last_tournament_played=last_tournament_played[last_tournament_played['date']<(last_date+1)]
     st.write(last_tournament_played.style.format(format_dict))
     player_names_tour=last_tournament_played['PLAYER NAME'].unique()
     names_selected_tour = st.multiselect('Select Player',player_names_tour)
