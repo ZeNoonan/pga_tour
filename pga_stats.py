@@ -9,13 +9,6 @@ st.set_page_config(layout="wide")
 
 st.write('when adding competition add the results to the weekly compettion first before merging into main file')
 
-# url = "https://www.europeantour.com/european-tour/stats/2021/leaderboard/?stats=DRIVING&type=SG_OFF_THE_TEE"
-# url="https://stats.europeantour.com/api/v2/seasons/2021/stats/strokes-gained-off-the-tee"
-# html = requests.get(url).text
-# df = pd.read_html(html, flavor="html5lib")
-# # df = pd.read_html(url)
-# st.write(df)
-
 
 
 # headers = {
@@ -26,7 +19,7 @@ st.write('when adding competition add the results to the weekly compettion first
 #     "x-requested-with": "XMLHttpRequest",
 # }
 # # https://stackoverflow.com/questions/64501788/api-web-data-capture
-# url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t030.html"
+# url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t100.html"
 # # url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t030.html"
 
 # df = pd.read_html(url, flavor="html5lib")
@@ -35,10 +28,14 @@ st.write('when adding competition add the results to the weekly compettion first
 # df = pd.concat(df).drop([0, 1, 2], axis=1)
 # st.write(df.head())
 # # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_030_deere_run.pkl')
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_030_deere_run.pkl')
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_100_british_open.pkl')
 
-# table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=8178')
-# table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_deere_run.pkl')
+# table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=8187')
+# table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_british_open.pkl')
+# table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=8179')
+# table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_scottish_open.pkl')
+
+
 def clean_results(file_location,name_of_tournament,date):
     df=pd.read_pickle(file_location)
     df['tournament']=name_of_tournament
@@ -47,6 +44,7 @@ def clean_results(file_location,name_of_tournament,date):
     df['Adj_Pos']=pd.to_numeric(df['Adj_Pos'],errors='coerce')
     df['Adj_Pos']=df['Adj_Pos'].fillna(df['Pos'])
     return df
+# RUN THIS FOR OGWR
 # results_deere_run=clean_results('C:/Users/Darragh/Documents/Python/Golf/results_deere_run.pkl','deere_run',19)
 # results_deere_run=results_deere_run.rename(columns={'Name':'PLAYER NAME'})
 # st.write('deere run', results_deere_run.head())
@@ -90,15 +88,20 @@ def clean_results(file_location,name_of_tournament,date):
 # putt_deere_run=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_030_deere_run.pkl')
 
 combined=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/combined.pkl')
-combined['Tee_App_Rank']=combined['Tee_App_Rank'].replace(np.NaN,75)
-masters_filter=combined['tournament']=='masters'
-combined['masters_filter']=(combined['Tee_App_Rank'].where(masters_filter)).replace(75,np.NaN)
-st.write(combined[combined['tournament']=='masters'])
-combined['Tee_App_Rank'] = combined['Tee_App_Rank'] * combined['masters_filter']
-st.write(combined[combined['tournament']=='masters'])
 
-# combined['Tee_App_Rank']=np.where(combined['tournament']=='masters',np.NaN,combined['Tee_App_Rank'])
-# DON'T Know why the above didn't work
+
+british_open=clean_results('C:/Users/Darragh/Documents/Python/Golf/results_british_open.pkl','british_open',20)
+british_open=british_open.rename(columns={'Name':'PLAYER NAME'})
+st.write('british_open', british_open.head())
+# combined = pd.merge(combined, british_open,on=['PLAYER NAME','tournament','date','Pos','Ctry','R1','R2','R3','R4','Ranking Points','Adj_Pos','Agg'],how='outer')
+
+# combined['Tee_App_Rank']=combined['Tee_App_Rank'].replace(np.NaN,75)
+# masters_filter=combined['tournament']=='masters'
+# combined['masters_filter']=(combined['Tee_App_Rank'].where(masters_filter)).replace(75,np.NaN)
+# combined['Tee_App_Rank'] = combined['Tee_App_Rank'] * combined['masters_filter']
+# st.write('masters',combined[combined['tournament']=='masters'])
+# st.write('british_open',combined[combined['tournament']=='masters'])
+
 
 combined=combined.sort_values(by=['PLAYER NAME', 'date'])
 
