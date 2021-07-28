@@ -4,13 +4,84 @@ import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 import json
+import pickle
 
 st.set_page_config(layout="wide")
 
-st.write('when adding competition add the results to the weekly compettion first before merging into main file')
+combined_1=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_combined.pkl')
+st.write('update',combined_1)
 
-combined=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/combined.pkl')
-st.write('check combined', combined)
+# combined_1=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_riviera.pkl')
+# st.write('update',combined_1)
+
+def clean_results(file_location,name_of_tournament,date):
+    # df=pd.read_pickle(file_location)
+    df=pd.read_html(file_location)
+    df=df[0].copy()
+    df['tournament']=name_of_tournament
+    df['date']=date
+    # df['Adj_Pos']=df['Pos'].str.replace('T','')
+    # df['Adj_Pos']=df['Pos'].str.replace('WD','')
+    # df['Adj_Pos']=pd.to_numeric(df['Adj_Pos'],errors='coerce')
+    # df['Adj_Pos']=df['Adj_Pos'].fillna(df['Pos'])
+    return df
+
+# q1=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8026',name_of_tournament='riviera',date=1)
+
+
+# q1=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8026',name_of_tournament='riviera',date=1)
+# q2=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8029',name_of_tournament='concession',date=2)
+# q3=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8033',name_of_tournament='bay_hill',date=3)
+# q4=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8038',name_of_tournament='sawgrass',date=4)
+# q5=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8045',name_of_tournament='honda',date=5)
+# q6=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8056',name_of_tournament='san_antonio',date=6)
+# q7=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8060',name_of_tournament='masters',date=7)
+# q8=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8064',name_of_tournament='harbour_town',date=8)
+# q9=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8083',name_of_tournament='innisbrook',date=9)
+# q10=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8091',name_of_tournament='quail_hollow',date=10)
+# q11=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8098',name_of_tournament='craig_ranch',date=11)
+# q12=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8102',name_of_tournament='kiawah_island',date=12)
+# q13=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8108',name_of_tournament='colonial',date=13)
+# q14=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8121',name_of_tournament='memorial',date=14)
+# q15=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8134',name_of_tournament='congaree',date=15)
+# q16=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8144',name_of_tournament='torrey_pines',date=16)
+# q17=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8155',name_of_tournament='river_highlands',date=17)
+# q18=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8170',name_of_tournament='detroit',date=18)
+# all_results=pd.concat([q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18])
+# all_results.to_csv('C:/Users/Darragh/Documents/Python/Golf/results_csv.csv')
+# st.write(all_results)
+
+df_test=pd.read_csv('C:/Users/Darragh/Documents/Python/Golf/results_csv.csv')
+df_test=df_test.rename(columns={'Name':'PLAYER NAME'})
+st.write(df_test)
+
+date_18 = pd.merge(combined_1, df_test,on=['PLAYER NAME','tournament','date'],how='outer')
+date_18.to_csv('C:/Users/Darragh/Documents/Python/Golf/date_18.csv')
+
+
+
+
+
+
+
+
+
+
+# with open('C:/Users/Darragh/Documents/Python/Golf/results_combined.pkl', 'wb') as outfile:
+#     pickle.dump({}, outfile)
+
+# infile = open('C:/Users/Darragh/Documents/Python/Golf/results_combined.pkl', 'rb')
+# st.write(pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_combined.pkl'))
+
+# st.write('when adding competition add the results to the weekly compettion first before merging into main file')
+# stats_combined=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_combined.pkl')
+# results_combined=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_combined.pkl')
+# st.write(stats_combined)
+# st.write(results_combined)
+
+
+
+# st.write('check combined', combined)
 
 # headers = {
 #     "accept": "application/json, text/javascript, */*; q=0.01",
@@ -37,15 +108,7 @@ st.write('check combined', combined)
 # table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_scottish_open.pkl')
 
 
-def clean_results(file_location,name_of_tournament,date):
-    df=pd.read_pickle(file_location)
-    df['tournament']=name_of_tournament
-    df['date']=date
-    df['Adj_Pos']=df['Pos'].str.replace('T','')
-    df['Adj_Pos']=df['Pos'].str.replace('WD','')
-    df['Adj_Pos']=pd.to_numeric(df['Adj_Pos'],errors='coerce')
-    df['Adj_Pos']=df['Adj_Pos'].fillna(df['Pos'])
-    return df
+
 
 # RUN THIS FOR OGWR
 # results_twin_cities=clean_results('C:/Users/Darragh/Documents/Python/Golf/results_twin_cities.pkl','twin_cities',22)
@@ -65,8 +128,8 @@ def stats_results(stats_pickle='C:/Users/Darragh/Documents/Python/Golf/twin_citi
     event_stats=pd.read_pickle(stats_pickle)
     return pd.merge(event_stats, event_ogwr,on=['PLAYER NAME','tournament','date'],how='outer')
 
-result_stat_event=stats_results()
-st.write('check this stats/results of event', result_stat_event)
+# result_stat_event=stats_results()
+# st.write('check this stats/results of event', result_stat_event)
 
 
 
@@ -106,11 +169,12 @@ def combine_db(df, event_stats_results):
 
 
 
-british_open=clean_results('C:/Users/Darragh/Documents/Python/Golf/results_british_open.pkl','british_open',20)
-british_open=british_open.rename(columns={'Name':'PLAYER NAME'})
-combined['Tee_App_Rank']=combined['Tee_App_Rank'].replace(np.NaN,75)
 
 
+
+# british_open=clean_results('C:/Users/Darragh/Documents/Python/Golf/results_british_open.pkl','british_open',20)
+# british_open=british_open.rename(columns={'Name':'PLAYER NAME'})
+# combined['Tee_App_Rank']=combined['Tee_App_Rank'].replace(np.NaN,75)
 combined=combined.sort_values(by=['PLAYER NAME', 'date'])
 
 
