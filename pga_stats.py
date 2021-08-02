@@ -8,22 +8,22 @@ import pickle
 
 st.set_page_config(layout="wide")
 
-combined_1=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_combined.pkl')
-st.write('update',combined_1)
+combined=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/combined_1.pkl')
+
 
 # combined_1=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_riviera.pkl')
 # st.write('update',combined_1)
 
 def clean_results(file_location,name_of_tournament,date):
-    # df=pd.read_pickle(file_location)
-    df=pd.read_html(file_location)
-    df=df[0].copy()
+    df=pd.read_pickle(file_location)
+    # df=pd.read_html(file_location)
+    # df=df[0].copy()
     df['tournament']=name_of_tournament
     df['date']=date
     # df['Adj_Pos']=df['Pos'].str.replace('T','')
-    # df['Adj_Pos']=df['Pos'].str.replace('WD','')
-    # df['Adj_Pos']=pd.to_numeric(df['Adj_Pos'],errors='coerce')
-    # df['Adj_Pos']=df['Adj_Pos'].fillna(df['Pos'])
+    df['Adj_Pos']=df['Pos'].str.replace('WD','')
+    df['Adj_Pos']=pd.to_numeric(df['Adj_Pos'],errors='coerce')
+    df['Adj_Pos']=df['Adj_Pos'].fillna(df['Pos'])
     return df
 
 # q1=clean_results(file_location='http://www.owgr.com/en/Events/EventResult.aspx?eventid=8026',name_of_tournament='riviera',date=1)
@@ -51,12 +51,12 @@ def clean_results(file_location,name_of_tournament,date):
 # all_results.to_csv('C:/Users/Darragh/Documents/Python/Golf/results_csv.csv')
 # st.write(all_results)
 
-df_test=pd.read_csv('C:/Users/Darragh/Documents/Python/Golf/results_csv.csv')
-df_test=df_test.rename(columns={'Name':'PLAYER NAME'})
-st.write(df_test)
+# df_test=pd.read_csv('C:/Users/Darragh/Documents/Python/Golf/results_csv.csv')
+# df_test=df_test.rename(columns={'Name':'PLAYER NAME'})
+# st.write(df_test)
 
-date_18 = pd.merge(combined_1, df_test,on=['PLAYER NAME','tournament','date'],how='outer')
-date_18.to_csv('C:/Users/Darragh/Documents/Python/Golf/date_18.csv')
+# date_18 = pd.merge(combined_1, df_test,on=['PLAYER NAME','tournament','date'],how='outer')
+# date_18.to_csv('C:/Users/Darragh/Documents/Python/Golf/date_18.csv')
 
 
 
@@ -129,6 +129,7 @@ def stats_results(stats_pickle='C:/Users/Darragh/Documents/Python/Golf/twin_citi
     return pd.merge(event_stats, event_ogwr,on=['PLAYER NAME','tournament','date'],how='outer')
 
 # result_stat_event=stats_results()
+# result_stat_event.to_pickle('C:/Users/Darragh/Documents/Python/Golf/twin_cities_stats_results.pkl')
 # st.write('check this stats/results of event', result_stat_event)
 
 
@@ -139,7 +140,7 @@ def combine_db(df, event_stats_results):
 # combine_db=combine_db(combined,result_stat_event)
 # st.write('checking merge of event of stats and db', combine_db)
 
-# combine_db.to_pickle('C:/Users/Darragh/Documents/Python/Golf/combined.pkl')
+# combine_db.to_pickle('C:/Users/Darragh/Documents/Python/Golf/combined_1.pkl')
 
 # results_deere_run=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_deere_run.pkl')
 
@@ -172,10 +173,11 @@ def combine_db(df, event_stats_results):
 
 
 
-# british_open=clean_results('C:/Users/Darragh/Documents/Python/Golf/results_british_open.pkl','british_open',20)
-# british_open=british_open.rename(columns={'Name':'PLAYER NAME'})
-# combined['Tee_App_Rank']=combined['Tee_App_Rank'].replace(np.NaN,75)
+british_open=clean_results('C:/Users/Darragh/Documents/Python/Golf/results_british_open.pkl','british_open',20)
+british_open=british_open.rename(columns={'Name':'PLAYER NAME'})
+combined['Tee_App_Rank']=combined['Tee_App_Rank'].replace(np.NaN,75)
 combined=combined.sort_values(by=['PLAYER NAME', 'date'])
+
 
 
 def test_4(df):
@@ -283,7 +285,7 @@ format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}
 # st.write('this is combined database of the tournaments sorted by SG: TOTAL_AVG')
 with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putting for each Tournament'):
     st.write('This database gives an idea of who performed best across different tournaments')
-    cols_to_move = ['PLAYER NAME','tournament','date','Tee_App_Rank','adj_tee_app_rank','Appr_Rank','Tee_Rank','ARG_Rank','PUTT_Rank','SG_Rank','Pos',
+    cols_to_move = ['PLAYER NAME','tournament','date','adj_tee_app_rank','Pos','Tee_App_Rank','Appr_Rank','Tee_Rank','ARG_Rank','PUTT_Rank','SG_Rank',
     'TOTAL SG:TEE_APR','TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG','TOTAL SG:PUTTING','SG: TOTAL',
     'SG: TOTAL_AVG','SG:OTT','SG:APR','SG:ARG','ROUNDS','MEASURED ROUNDS']
     cols = cols_to_move + [col for col in combined if col not in cols_to_move]
@@ -294,7 +296,7 @@ with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putti
     st.write('Find a player')
     player_names=combined['PLAYER NAME'].unique()
     names_selected = st.multiselect('Select Player',player_names)
-    st.write((combined.set_index('PLAYER NAME').loc[names_selected,:]).reset_index().style.format(format_dict))
+    st.write((combined.set_index('PLAYER NAME').loc[names_selected,:]).reset_index().sort_values(by='date',ascending=False).style.format(format_dict))
 
     st.write('Find a tournament')
     tournament_name=combined['tournament'].unique()
@@ -302,9 +304,9 @@ with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putti
     st.write((combined.set_index('tournament').loc[tournament_names,:]).set_index('PLAYER NAME').style.format(format_dict))
 
 with st.beta_expander('Last Tournament Played'):
-    last_date=st.number_input('what tournament number to include',value=19)
-    last_tournament_played=combined[combined['date']<(last_date+1)]
-    last_tournament_played = last_tournament_played.sort_values('date', ascending=False).drop_duplicates('PLAYER NAME').sort_values(by='SG: TOTAL_AVG',ascending=False)
+    # last_date=st.number_input('what tournament number to include',value=22)
+    # last_tournament_played=combined[combined['date']<(last_date+1)]
+    last_tournament_played = combined.sort_values('date', ascending=False).drop_duplicates('PLAYER NAME').sort_values(by='SG: TOTAL_AVG',ascending=False)
     st.write('Last tournament played by Player')
     cols_to_move = ['PLAYER NAME','tournament','date','Tee_App_Rank','adj_tee_app_rank','Appr_Rank','Tee_Rank','PUTT_Rank','ARG_Rank','SG_Rank','Pos',
     'TOTAL SG:TEE_APR','TOTAL SG:OTT','TOTAL SG:APR','TOTAL SG:ARG','TOTAL SG:PUTTING','SG: TOTAL',
@@ -358,6 +360,8 @@ with st.beta_expander('Database grouped by Player over all tournaments'):
     player_names_data=grouped_database_players_index['PLAYER NAME'].unique()
     names_selected_data = st.multiselect('Select Player',player_names_data)
     # st.write((grouped_database_players_index.set_index('PLAYER NAME').loc[names_selected_data,:]).style.format(format_dict))
+
+st.write('check nan',combined[(combined['Pos'].isnull()) & (combined['MEASURED ROUNDS']>3) ])
 
 with st.beta_expander('Notes'):
     st.write('when adding a major with no SG values, be careful, add this data in after the calculations are done')
