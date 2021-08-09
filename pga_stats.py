@@ -67,17 +67,6 @@ def clean_results(file_location,name_of_tournament,date):
 
 
 
-# with open('C:/Users/Darragh/Documents/Python/Golf/results_combined.pkl', 'wb') as outfile:
-#     pickle.dump({}, outfile)
-
-# infile = open('C:/Users/Darragh/Documents/Python/Golf/results_combined.pkl', 'rb')
-# st.write(pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_combined.pkl'))
-
-# st.write('when adding competition add the results to the weekly compettion first before merging into main file')
-# stats_combined=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/stats_combined.pkl')
-# results_combined=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_combined.pkl')
-# st.write(stats_combined)
-# st.write(results_combined)
 
 
 
@@ -91,19 +80,19 @@ def clean_results(file_location,name_of_tournament,date):
 #     "x-requested-with": "XMLHttpRequest",
 # }
 # # https://stackoverflow.com/questions/64501788/api-web-data-capture
-# url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t525.html"
-# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t525.html"
+# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t519.html"
+# url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t525.html"
 
 # df = pd.read_html(url, flavor="html5lib")
-# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/test.pkl')
-# # st.write(df)
 # df = pd.concat(df).drop([0, 1, 2], axis=1)
 # st.write(df.head())
-# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_525_twin_cities.pkl')
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_525_twin_cities.pkl')
 
-# table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9188')
-# table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_twin_cities.pkl')
+
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_519_olympics.pkl')
+# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_519_olympics.pkl')
+
+# table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9198')
+# table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_olympics.pkl')
 # table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=179')
 # table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_scottish_open.pkl')
 
@@ -111,8 +100,9 @@ def clean_results(file_location,name_of_tournament,date):
 
 
 # RUN THIS FOR OGWR
-# results_twin_cities=clean_results('C:/Users/Darragh/Documents/Python/Golf/results_twin_cities.pkl','twin_cities',22)
-# results_twin_cities=results_twin_cities.rename(columns={'Name':'PLAYER NAME'})
+# results_ogwr=clean_results('C:/Users/Darragh/Documents/Python/Golf/results_olympics.pkl','olympics',23)
+# results_ogwr=results_ogwr.rename(columns={'Name':'PLAYER NAME'})
+# st.write(results_ogwr)
 # results_twin_cities.to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_twin_cities_ogwr.pkl')
 # st.write('twin cities ogwr results', results_twin_cities)
 
@@ -120,16 +110,18 @@ def clean_results(file_location,name_of_tournament,date):
 # x=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/twin_cities_stats.pkl')
 # st.write(x)
 
+# test=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/olympics_stats.pkl')
+# st.write('stats??', test)
 
-def stats_results(stats_pickle='C:/Users/Darragh/Documents/Python/Golf/twin_cities_stats.pkl',
-    ogwr_pickle='C:/Users/Darragh/Documents/Python/Golf/results_twin_cities_ogwr.pkl'):
-    event_ogwr=pd.read_pickle(ogwr_pickle)
-    event_ogwr['Adj_Pos']=event_ogwr['Pos'].str.replace('WD','')
-    event_stats=pd.read_pickle(stats_pickle)
-    return pd.merge(event_stats, event_ogwr,on=['PLAYER NAME','tournament','date'],how='outer')
 
-# result_stat_event=stats_results()
-# result_stat_event.to_pickle('C:/Users/Darragh/Documents/Python/Golf/twin_cities_stats_results.pkl')
+# def stats_results(event_ogwr=results_ogwr,stats_pickle='C:/Users/Darragh/Documents/Python/Golf/olympics_stats.pkl'):
+#     # event_ogwr=pd.read_pickle(ogwr_pickle)
+#     event_ogwr['Adj_Pos']=event_ogwr['Pos'].str.replace('WD','')
+#     event_stats=pd.read_pickle(stats_pickle)
+#     return pd.merge(event_stats, event_ogwr,on=['PLAYER NAME','tournament','date'],how='outer')
+
+# result_stat_event=stats_results(event_ogwr=results_ogwr)
+# result_stat_event.to_pickle('C:/Users/Darragh/Documents/Python/Golf/olympics_stats_results.pkl')
 # st.write('check this stats/results of event', result_stat_event)
 
 
@@ -165,8 +157,8 @@ def combine_db(df, event_stats_results):
 # st.write('data stats results 1',test_1.tail())
 
 
-# twin_cities=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_525_twin_cities.pkl')
-# putt_twin_cities=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_525_twin_cities.pkl')
+# olympics=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_519_olympics.pkl')
+# putt_olympics=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_519_olympics.pkl')
 
 
 
@@ -271,9 +263,9 @@ format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}
 'PUTT_Rank':'{0:,.0f}','SG_OTT_Avg_Rank':'{0:,.0f}','Tee_App_Rank':'{0:,.0f}','ARG_Rank':'{0:,.0f}','TOTAL SG:TEE:ARG':'{0:,.0f}','SG_Rank':'{0:,.0f}',
 'SG :Tee_Arg_AVG':'{0:,.1f}','Tee_Arg_Rank':'{0:,.0f}','SG_Rank_less_Rank':'{0:,.0f}','TOTAL SG:TEE_APR':'{0:,.0f}','TOTAL SG:TEE_ARG':'{0:,.0f}','Appr_Rank':'{0:,.0f}'  }
 
-# twin_cities_stats=merge_golf(twin_cities, putt_twin_cities,'twin_cities',22)
-# twin_cities_stats=clean_golf_tee(twin_cities_stats).reset_index()
-# twin_cities_stats.to_pickle('C:/Users/Darragh/Documents/Python/Golf/twin_cities_stats.pkl')
+# event_stats=merge_golf(olympics, putt_olympics,'olympics',23)
+# event_stats=clean_golf_tee(event_stats).reset_index()
+# event_stats.to_pickle('C:/Users/Darragh/Documents/Python/Golf/olympics_stats.pkl')
 # combined=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/data_stats_results.pkl')
 # combined = pd.concat([combined,deere_run_stats])
 
