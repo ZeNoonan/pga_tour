@@ -11,6 +11,8 @@ st.set_page_config(layout="wide")
 combined=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/combined_1.pkl')
 
 
+
+
 # combined_1=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_riviera.pkl')
 # st.write('update',combined_1)
 
@@ -20,7 +22,7 @@ def clean_results(file_location,name_of_tournament,date):
     # df=df[0].copy()
     df['tournament']=name_of_tournament
     df['date']=date
-    # df['Adj_Pos']=df['Pos'].str.replace('T','')
+    df['Adj_Pos']=df['Pos'].str.replace('T','')
     df['Adj_Pos']=df['Pos'].str.replace('WD','')
     df['Adj_Pos']=pd.to_numeric(df['Adj_Pos'],errors='coerce')
     df['Adj_Pos']=df['Adj_Pos'].fillna(df['Pos'])
@@ -80,19 +82,19 @@ def clean_results(file_location,name_of_tournament,date):
 #     "x-requested-with": "XMLHttpRequest",
 # }
 # # https://stackoverflow.com/questions/64501788/api-web-data-capture
-# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t519.html"
-# url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t525.html"
+# url = "https://www.pgatour.com/content/pgatour/stats/stat.02674.y2021.eon.t476.html"
+# # url = "https://www.pgatour.com/content/pgatour/stats/stat.02564.y2021.eon.t476.html"
 
 # df = pd.read_html(url, flavor="html5lib")
 # df = pd.concat(df).drop([0, 1, 2], axis=1)
 # st.write(df.head())
 
 
-# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_519_olympics.pkl')
-# # df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_519_olympics.pkl')
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_476_southwind.pkl')
+# df.to_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_476_southwind.pkl')
 
-# table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9198')
-# table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_olympics.pkl')
+# table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9204')
+# table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_southwind.pkl')
 # table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=179')
 # table[0].to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_scottish_open.pkl')
 
@@ -100,13 +102,21 @@ def clean_results(file_location,name_of_tournament,date):
 
 
 # RUN THIS FOR OGWR
-# results_ogwr=clean_results('C:/Users/Darragh/Documents/Python/Golf/results_olympics.pkl','olympics',23)
+# results_ogwr=clean_results('C:/Users/Darragh/Documents/Python/Golf/results_southwind.pkl','southwind',23)
 # results_ogwr=results_ogwr.rename(columns={'Name':'PLAYER NAME'})
 # st.write(results_ogwr)
-# results_twin_cities.to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_twin_cities_ogwr.pkl')
+# results_ogwr.to_pickle('C:/Users/Darragh/Documents/Python/Golf/results_southwind_ogwr.pkl')
 # st.write('twin cities ogwr results', results_twin_cities)
+# results_ogwr=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_southwind_ogwr.pkl')
+# results_ogwr.loc [ (results_ogwr['PLAYER NAME']=='Cameron Davis'), 'PLAYER NAME' ] = 'Cam Davis'
+# results_ogwr.loc [ (results_ogwr['PLAYER NAME']=='Siwoo Kim'), 'PLAYER NAME' ] = 'Si Woo Kim'
+# results_ogwr.loc [ (results_ogwr['PLAYER NAME']=='Kyoung-Hoon Lee'), 'PLAYER NAME' ] = 'K.H. Lee'
 
-# results_keene_trace=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/results_keene_trace.pkl')
+
+# st.write('change player names', results_ogwr[results_ogwr['PLAYER NAME'].str.contains('avis')])
+# st.write('change player names', results_ogwr[results_ogwr['PLAYER NAME'].str.contains('Siwoo')])
+# st.write('change player names', results_ogwr[results_ogwr['PLAYER NAME'].str.contains('Kyou')])
+
 # x=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/twin_cities_stats.pkl')
 # st.write(x)
 
@@ -114,20 +124,22 @@ def clean_results(file_location,name_of_tournament,date):
 # st.write('stats??', test)
 
 
-# def stats_results(event_ogwr=results_ogwr,stats_pickle='C:/Users/Darragh/Documents/Python/Golf/olympics_stats.pkl'):
+# def stats_results(event_ogwr=results_ogwr,stats_pickle='C:/Users/Darragh/Documents/Python/Golf/southwind_stats.pkl'):
 #     # event_ogwr=pd.read_pickle(ogwr_pickle)
 #     event_ogwr['Adj_Pos']=event_ogwr['Pos'].str.replace('WD','')
 #     event_stats=pd.read_pickle(stats_pickle)
 #     return pd.merge(event_stats, event_ogwr,on=['PLAYER NAME','tournament','date'],how='outer')
 
 # result_stat_event=stats_results(event_ogwr=results_ogwr)
-# result_stat_event.to_pickle('C:/Users/Darragh/Documents/Python/Golf/olympics_stats_results.pkl')
-# st.write('check this stats/results of event', result_stat_event)
+# result_stat_event.to_pickle('C:/Users/Darragh/Documents/Python/Golf/southwind_stats_results.pkl')
+# result_stat_event=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/southwind_stats_results.pkl')
+# st.write('check this stats/results of event', result_stat_event.head())
+# st.write('check nan',result_stat_event[(result_stat_event['Pos'].isnull()) ])
 
 
 
-def combine_db(df, event_stats_results):
-    return pd.concat([df,event_stats_results],ignore_index=True)
+# def combine_db(df, event_stats_results):
+#     return pd.concat([df,event_stats_results],ignore_index=True)
 
 # combine_db=combine_db(combined,result_stat_event)
 # st.write('checking merge of event of stats and db', combine_db)
@@ -157,8 +169,8 @@ def combine_db(df, event_stats_results):
 # st.write('data stats results 1',test_1.tail())
 
 
-# olympics=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_519_olympics.pkl')
-# putt_olympics=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_519_olympics.pkl')
+# southwind=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02674_476_southwind.pkl')
+# putt_southwind=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/_02564_476_southwind.pkl')
 
 
 
@@ -169,6 +181,10 @@ british_open=clean_results('C:/Users/Darragh/Documents/Python/Golf/results_briti
 british_open=british_open.rename(columns={'Name':'PLAYER NAME'})
 combined['Tee_App_Rank']=combined['Tee_App_Rank'].replace(np.NaN,75)
 combined=combined.sort_values(by=['PLAYER NAME', 'date'])
+
+# combined['Adj_Pos']=combined['Adj_Pos'].str.replace('T','')
+# combined['Adj_Pos']=pd.to_numeric(combined['Adj_Pos'],errors='coerce')
+
 
 
 
@@ -263,9 +279,9 @@ format_dict = {'TOTAL SG:OTT':'{0:,.0f}','SG:OTT':'{0:,.0f}', 'SG:APR':'{0:,.0f}
 'PUTT_Rank':'{0:,.0f}','SG_OTT_Avg_Rank':'{0:,.0f}','Tee_App_Rank':'{0:,.0f}','ARG_Rank':'{0:,.0f}','TOTAL SG:TEE:ARG':'{0:,.0f}','SG_Rank':'{0:,.0f}',
 'SG :Tee_Arg_AVG':'{0:,.1f}','Tee_Arg_Rank':'{0:,.0f}','SG_Rank_less_Rank':'{0:,.0f}','TOTAL SG:TEE_APR':'{0:,.0f}','TOTAL SG:TEE_ARG':'{0:,.0f}','Appr_Rank':'{0:,.0f}'  }
 
-# event_stats=merge_golf(olympics, putt_olympics,'olympics',23)
+# event_stats=merge_golf(southwind, putt_southwind,'southwind',23)
 # event_stats=clean_golf_tee(event_stats).reset_index()
-# event_stats.to_pickle('C:/Users/Darragh/Documents/Python/Golf/olympics_stats.pkl')
+# event_stats.to_pickle('C:/Users/Darragh/Documents/Python/Golf/southwind_stats.pkl')
 # combined=pd.read_pickle('C:/Users/Darragh/Documents/Python/Golf/data_stats_results.pkl')
 # combined = pd.concat([combined,deere_run_stats])
 
@@ -283,7 +299,7 @@ with st.beta_expander('Database sorted by Average Shots Gained from Tee to Putti
     cols = cols_to_move + [col for col in combined if col not in cols_to_move]
     combined=combined[cols]
     combined=combined.reset_index().drop('index',axis=1).sort_values(by='date',ascending=True)
-    # st.write(combined.sort_values(by='SG: TOTAL_AVG',ascending=False).style.format(format_dict))
+    # st.write(combined.sort_values(by='adj_tee_app_rank',ascending=False).style.format(format_dict))
     
     st.write('Find a player')
     player_names=combined['PLAYER NAME'].unique()
@@ -305,7 +321,8 @@ with st.beta_expander('Last Tournament Played'):
     'SG:OTT','SG:APR','SG:ARG','ROUNDS','MEASURED ROUNDS']
     cols = cols_to_move + [col for col in last_tournament_played if col not in cols_to_move]
     last_tournament_played=last_tournament_played[cols]
-    # st.write(last_tournament_played.style.format(format_dict))
+    last_tournament_played['adj_tee_app_rank']=last_tournament_played['adj_tee_app_rank'].fillna(1000)
+    st.write(last_tournament_played.style.format(format_dict))
     player_names_tour=last_tournament_played['PLAYER NAME'].unique()
     names_selected_tour = st.multiselect('Select Player',player_names_tour)
     st.write((last_tournament_played.set_index('PLAYER NAME').loc[names_selected_tour,:]).reset_index().style.format(format_dict))
