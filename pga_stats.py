@@ -370,7 +370,7 @@ with st.beta_expander('Database grouped by Player over all tournaments'):
     names_selected_data = st.multiselect('Select Player',player_names_data)
     # st.write((grouped_database_players_index.set_index('PLAYER NAME').loc[names_selected_data,:]).style.format(format_dict))
 
-st.write('check nan',combined[(combined['Pos'].isnull()) & (combined['MEASURED ROUNDS']>3) ])
+# st.write('check nan',combined[(combined['Pos'].isnull()) & (combined['MEASURED ROUNDS']>3) ])
 
 with st.beta_expander('Notes'):
     st.write('when adding a major with no SG values, be careful, add this data in after the calculations are done')
