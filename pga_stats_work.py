@@ -30,7 +30,7 @@ st.write(par_5_group)
 
 
 
-def run(x):
+def run(a,b):
     df=pd.merge(a, b, on=['PLAYER NAME', 'ROUNDS', 'MEASURED ROUNDS'])    
     df=df.drop(df.columns[[0,8,3,9]], axis=1)
     df['SG:OTT']=df['SG:OTT']*df['MEASURED ROUNDS']
