@@ -1,3 +1,4 @@
+from tkinter import CENTER
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -44,7 +45,7 @@ def further_clean(df):
     df['Adj_Pos']=df['Adj_Pos'].fillna(df['Pos'])
     return df
 
-ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9466','hilton_head.csv')
+# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9466','hilton_head.csv')
 # ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9394','dubai.csv')
 
 
@@ -71,16 +72,6 @@ hilton_head=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/
 tournament_list=[masters,players, matchplay, riviera, bay_hill, scottsdale, kapalua, torrey_pines,innisbrook, jeddah, la_quinta,
 dubai,hawaii,abu_dhabi,palm_beach,hilton_head]
 combined=pd.concat(tournament_list,axis=0)
-# st.write('combined', combined)
-# st.write('masters',masters)
-# st.write('matchplay',matchplay)
-
-# st.write('players',players)
-
-# st.write('riviera',riviera)
-# st.write('bay_hill',bay_hill)
-# st.write('kapalua',kapalua)
-# st.write('innisbrook',innisbrook)
 
 # events=pd.read_html('http://www.owgr.com/events')
 # events[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
@@ -89,17 +80,32 @@ ranking_events['World Rating']=pd.to_numeric(ranking_events['World Rating'],erro
 ranking_events['Event Name']=ranking_events['Event Name'].str.lower()
 clean_ranking_event=ranking_events.loc[:,["Week","Year","Event Name","Winner's Points","World Rating","Home Rating","SoF"]]
 st.write(clean_ranking_event)
-combined=pd.merge(combined,clean_ranking_event,on=["Event Name"],how='outer')
-st.write('world ranking events')
+combined=pd.merge(combined,clean_ranking_event,on=["Event Name"],how='outer').reset_index().drop('index',axis=1)
+st.write('combined', combined.head())
+st.write('combined', combined.shape)
+st.write('combined shape', combined['Points Won'].dtype)
+combined['rolling_rank_pts']=combined.groupby(['Name'])['Points Won'].rolling(window=3,min_periods=1,center=False).sum().droplevel([0])
+st.write(combined.groupby(['Name'])['Points Won'].rolling(window=3,min_periods=1,center=False).sum().reset_index())
+# combined['rolling_rank_pts']=combined.groupby(['Name'])['Points Won'].expanding(min_periods=1).sum()
+cols_to_move = ['Name','Week','Event Name','Pos','Points Won','rolling_rank_pts']
+cols = cols_to_move + [col for col in combined if col not in cols_to_move]
+combined=combined[cols]
+st.write('combined after', combined.head())
 
 # st.write('combined', combined)
-format_dict = {'ranking_points_total':'{0:,.0f}'}
+format_dict = {'Points Won':'{0:,.0f}'}
 
-
+with st.expander("Player Detail"):
+    st.write('combined', combined.head())
+    st.write('Find a player')
+    player_names=combined['Name'].unique()
+    names_selected = st.multiselect('Select Player',player_names)
+    st.write((combined.set_index('Name').loc[names_selected,:]).reset_index().sort_values(by='Week',ascending=False).style.format(format_dict))
 
 with st.expander('Filter Combined Analysis by week'):
 
-    week_pick=18
+    # week_pick=18
+    week_pick=st.number_input("Select the week",value=15, step=1)
     # week_selection=((combined.set_index('Week').loc[week_pick,:]).reset_index().style.format(format_dict))
     week_selection=combined[combined['Week']<week_pick].copy()
 
