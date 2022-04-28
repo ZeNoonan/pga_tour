@@ -81,17 +81,25 @@ ranking_events['Event Name']=ranking_events['Event Name'].str.lower()
 clean_ranking_event=ranking_events.loc[:,["Week","Year","Event Name","Winner's Points","World Rating","Home Rating","SoF"]]
 st.write(clean_ranking_event)
 combined=pd.merge(combined,clean_ranking_event,on=["Event Name"],how='outer').reset_index().drop('index',axis=1)
+combined['Name']=combined['Name'].astype(str)
+
 st.write('combined', combined.head())
 st.write('combined', combined.shape)
 st.write('combined shape', combined['Points Won'].dtype)
-combined['rolling_rank_pts']=combined.groupby(['Name'])['Points Won'].rolling(window=3,min_periods=1,center=False).sum().droplevel([0])
-st.write(combined.groupby(['Name'])['Points Won'].rolling(window=3,min_periods=1,center=False).sum().reset_index())
+combined=combined.sort_values(['Name','Week'],ascending=True)
+# combined['rolling_rank_pts']=combined.groupby(['Name'])['Points Won'].rolling(window=3,min_periods=1,center=False).mean().droplevel([0])
+combined['rolling_rank_pts']=combined.groupby(['Name'])['Points Won'].expanding().mean().droplevel([0])
+combined['rolling_rank_pts_sum']=combined.groupby(['Name'])['Points Won'].cumsum()
+combined['rolling_rank_pts_count']=combined.groupby(['Name'])['Points Won'].cumcount()+1
+combined['recalc_check']=(combined['rolling_rank_pts_sum']/combined['rolling_rank_pts_count'])-combined['rolling_rank_pts']
+# st.write(combined.groupby(['Name'])['Points Won'].rolling(window=3,min_periods=1,center=False).mean().reset_index())
 # combined['rolling_rank_pts']=combined.groupby(['Name'])['Points Won'].expanding(min_periods=1).sum()
-cols_to_move = ['Name','Week','Event Name','Pos','Points Won','rolling_rank_pts']
+cols_to_move = ['Name','Week','Event Name','Pos','Points Won','rolling_rank_pts','rolling_rank_pts_sum','rolling_rank_pts_count','recalc_check']
 cols = cols_to_move + [col for col in combined if col not in cols_to_move]
 combined=combined[cols]
-st.write('combined after', combined.head())
-
+st.write('combined after name check Scheffler', combined[combined['Name'].str.contains('Scheff')])
+st.write('Check on calc', combined[combined['recalc_check']>1])
+st.write('Check on calc', combined[combined['recalc_check']<-1])
 # st.write('combined', combined)
 format_dict = {'Points Won':'{0:,.0f}'}
 
