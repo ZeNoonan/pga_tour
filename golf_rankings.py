@@ -103,6 +103,13 @@ st.write('Check on calc', combined[combined['recalc_check']<-1])
 # st.write('combined', combined)
 format_dict = {'Points Won':'{0:,.0f}'}
 
+with st.expander('Just graph min 3 events to see'):
+    st.write('divide it up into deciles first')
+    grouped_golfers=combined.groupby('Name').agg(number_events=('Week','count'),total_points=('Points Won','sum'),avg_points=('Points Won','mean')).reset_index()
+    st.write(grouped_golfers)
+    decile_df=grouped_golfers.groupby(pd.qcut(grouped_golfers['number_events'], q=8,duplicates='drop'))['Name'].count()
+    st.write(decile_df)
+
 with st.expander("Player Detail"):
     st.write('combined', combined.head())
     st.write('Find a player')
