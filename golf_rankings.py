@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pathlib
+import altair as alt
 
 st.set_page_config(layout="wide")
 # variable='masters.csv'
@@ -97,18 +98,41 @@ combined['recalc_check']=(combined['rolling_rank_pts_sum']/combined['rolling_ran
 cols_to_move = ['Name','Week','Event Name','Pos','Points Won','rolling_rank_pts','rolling_rank_pts_sum','rolling_rank_pts_count','recalc_check']
 cols = cols_to_move + [col for col in combined if col not in cols_to_move]
 combined=combined[cols]
-st.write('combined after name check Scheffler', combined[combined['Name'].str.contains('Scheff')])
+st.write('combined after name check Scheffler', combined[combined['Name'].str.contains('Straka')])
 st.write('Check on calc', combined[combined['recalc_check']>1])
 st.write('Check on calc', combined[combined['recalc_check']<-1])
-# st.write('combined', combined)
+combined=combined.dropna(subset=['Points Won'])
+# st.write('combined', combined[combined['Name'].str.contains('nan')])
 format_dict = {'Points Won':'{0:,.0f}'}
 
 with st.expander('Just graph min 3 events to see'):
     st.write('divide it up into deciles first')
     grouped_golfers=combined.groupby('Name').agg(number_events=('Week','count'),total_points=('Points Won','sum'),avg_points=('Points Won','mean')).reset_index()
-    st.write(grouped_golfers)
-    decile_df=grouped_golfers.groupby(pd.qcut(grouped_golfers['number_events'], q=8,duplicates='drop'))['Name'].count()
+    grouped_min_events=grouped_golfers[grouped_golfers['number_events']>4]
+    grouped_min_events['avg_Rank']=(grouped_min_events['avg_points']).rank(method='dense', ascending=False).astype(int)
+    grouped_min_events['Pts_Rank']=(grouped_min_events['total_points']).rank(method='dense', ascending=False).astype(int)
+    grouped_min_events=grouped_min_events.sort_values(by='avg_Rank').reset_index().drop('index',axis=1)
+    st.write(grouped_min_events)
+    decile_df=grouped_golfers.groupby(pd.qcut(grouped_golfers['number_events'], q=8,duplicates='drop'))['Name'].count().reset_index()
     st.write(decile_df)
+    decile_df_total_points=grouped_golfers.groupby(pd.qcut(grouped_golfers['total_points'], q=20,duplicates='drop'))['Name'].count().reset_index()
+    st.write('Total Points decile',decile_df_total_points)
+    st.write('combined', combined.head())
+    top_20=combined.sort_values(by=['Name','Week'],ascending=[True,False]).loc[:,['Name','Week','Event Name','Points Won','Pos','rolling_rank_pts',
+    'rolling_rank_pts_count','rolling_rank_pts_sum']]
+    top_20['max_event']=top_20.groupby('Name')['rolling_rank_pts_count'].transform('max')
+    top_20=top_20[top_20['max_event']>4]
+    st.write('top 20', top_20)
+
+    def graph_pl(decile_df_abs_home_1,column):
+        line_cover= alt.Chart(decile_df_abs_home_1).mark_line().encode(alt.X('Week:O',axis=alt.Axis(title='Week',labelAngle=0)),
+        alt.Y(column),color=alt.Color('category'))
+        text_cover=line_cover.mark_text(baseline='middle',dx=0,dy=-15).encode(text=alt.Text(column),color=alt.value('black'))
+        overlay = pd.DataFrame({column: [0]})
+        vline = alt.Chart(overlay).mark_rule(color='black', strokeWidth=1).encode(y=column)
+        return st.altair_chart(line_cover + text_cover + vline,use_container_width=True)
+
+    graph_pl(top_20,column='result')
 
 with st.expander("Player Detail"):
     st.write('combined', combined.head())
@@ -128,7 +152,7 @@ with st.expander('Filter Combined Analysis by week'):
         filtered = combined.groupby('Name').agg(ranking_points_total=('Points Won','sum'),tournaments_played=('Points Won','count'),
         avg_ranking_points=('Points Won','mean'))
         filtered['avg_ranking_points_Rank']=(filtered['avg_ranking_points']).rank(method='dense', ascending=False)
-        filtered['avg_ranking_points_Rank']=filtered['avg_ranking_points_Rank'].astype(int)
+        filtered['avg_ranking_points_Rank']=filtered['avg_ranking_points_Rank']
         filtered=filtered[filtered['ranking_points_total']>0].copy()
         return filtered
 
