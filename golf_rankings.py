@@ -117,22 +117,35 @@ with st.expander('Just graph min 3 events to see'):
     st.write(decile_df)
     decile_df_total_points=grouped_golfers.groupby(pd.qcut(grouped_golfers['total_points'], q=20,duplicates='drop'))['Name'].count().reset_index()
     st.write('Total Points decile',decile_df_total_points)
-    st.write('combined', combined.head())
-    top_20=combined.sort_values(by=['Name','Week'],ascending=[True,False]).loc[:,['Name','Week','Event Name','Points Won','Pos','rolling_rank_pts',
+    decile_df_total_points=grouped_golfers.groupby(pd.qcut(grouped_golfers['avg_points'], q=24,duplicates='drop'))['Name'].count().reset_index()
+    st.write('Total Points decile',decile_df_total_points)
+    
+    # st.write('combined', combined.head())
+    combined_sort=combined.sort_values(by=['Name','Week'],ascending=[True,False]).loc[:,['Name','Week','Event Name','Points Won','Pos','rolling_rank_pts',
     'rolling_rank_pts_count','rolling_rank_pts_sum']]
+    top_20=combined_sort.copy()
     top_20['max_event']=top_20.groupby('Name')['rolling_rank_pts_count'].transform('max')
-    top_20=top_20[top_20['max_event']>4]
+    top_20['latest_avg']=top_20.groupby('Name')['rolling_rank_pts'].transform('first')
+    top_20=top_20[(top_20['max_event']>4) & (top_20['latest_avg']>8)]
     st.write('top 20', top_20)
 
     def graph_pl(decile_df_abs_home_1,column):
         line_cover= alt.Chart(decile_df_abs_home_1).mark_line().encode(alt.X('Week:O',axis=alt.Axis(title='Week',labelAngle=0)),
-        alt.Y(column),color=alt.Color('category'))
-        text_cover=line_cover.mark_text(baseline='middle',dx=0,dy=-15).encode(text=alt.Text(column),color=alt.value('black'))
-        overlay = pd.DataFrame({column: [0]})
-        vline = alt.Chart(overlay).mark_rule(color='black', strokeWidth=1).encode(y=column)
-        return st.altair_chart(line_cover + text_cover + vline,use_container_width=True)
+        alt.Y(column),color=alt.Color('Name'),tooltip=['Name'])
+        # text_cover=line_cover.mark_text(baseline='middle',dx=0,dy=-15).encode(text=alt.Text(column),color=alt.value('black'))
+        # overlay = pd.DataFrame({column: [0]})
+        # vline = alt.Chart(overlay).mark_rule(color='black', strokeWidth=1).encode(y=column)
+        # return st.altair_chart(line_cover + text_cover + vline,use_container_width=True)
+        return st.altair_chart(line_cover,use_container_width=True)
 
-    graph_pl(top_20,column='result')
+    graph_pl(top_20,column='rolling_rank_pts')
+
+with st.expander('Last 4 events'):
+    st.write('Last say 4 events rolling avg for points')
+    last_4=combined_sort.groupby('Name').head(4).reset_index()
+    last_4['max_event']=last_4.groupby('Name')['rolling_rank_pts_count'].transform('max')
+    last_4=last_4[(last_4['max_event']>4)]
+    st.write(last_4)
 
 with st.expander("Player Detail"):
     st.write('combined', combined.head())
