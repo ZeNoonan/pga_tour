@@ -74,8 +74,8 @@ tournament_list=[masters,players, matchplay, riviera, bay_hill, scottsdale, kapa
 dubai,hawaii,abu_dhabi,palm_beach,hilton_head]
 combined=pd.concat(tournament_list,axis=0)
 
-# events=pd.read_html('http://www.owgr.com/events')
-# events[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
+events=pd.read_html('http://www.owgr.com/events')
+events[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
 ranking_events=pd.read_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
 ranking_events['World Rating']=pd.to_numeric(ranking_events['World Rating'],errors='coerce')
 ranking_events['Event Name']=ranking_events['Event Name'].str.lower()
@@ -98,12 +98,27 @@ combined['recalc_check']=(combined['rolling_rank_pts_sum']/combined['rolling_ran
 cols_to_move = ['Name','Week','Event Name','Pos','Points Won','rolling_rank_pts','rolling_rank_pts_sum','rolling_rank_pts_count','recalc_check']
 cols = cols_to_move + [col for col in combined if col not in cols_to_move]
 combined=combined[cols]
-st.write('combined after name check Scheffler', combined[combined['Name'].str.contains('Straka')])
+st.write('combined after name check Scheffler', combined[combined['Name'].str.contains('Nieman')])
 st.write('Check on calc', combined[combined['recalc_check']>1])
 st.write('Check on calc', combined[combined['recalc_check']<-1])
 combined=combined.dropna(subset=['Points Won'])
+combined=combined.sort_values(by=['Name','Week'],ascending=[True,True])
+def test_4(df):
+    weights = np.array([0.125, 0.25,0.5,1])
+    # weights = np.array([1, 0.5,0.25,0.125])
+    sum_weights = np.sum(weights)
+    df['adj_exp_pts']=df['Points Won'].rolling(window=4, center=False).apply(lambda x: np.sum(weights*x), raw=False)
+    return df
+
+grouped = combined.groupby('Name')
+ranking_power=[]
+for name, group in grouped:
+    update=test_4(group)
+    ranking_power.append(update)
+combined = pd.concat(ranking_power, ignore_index=True)
+
 # st.write('combined', combined[combined['Name'].str.contains('nan')])
-format_dict = {'Points Won':'{0:,.0f}'}
+# format_dict = {'Points Won':'{0:,.0f}'}
 
 with st.expander('Just graph min 3 events to see'):
     st.write('divide it up into deciles first')
@@ -121,7 +136,7 @@ with st.expander('Just graph min 3 events to see'):
     st.write('Total Points decile',decile_df_total_points)
     
     # st.write('combined', combined.head())
-    combined_sort=combined.sort_values(by=['Name','Week'],ascending=[True,False]).loc[:,['Name','Week','Event Name','Points Won','Pos','rolling_rank_pts',
+    combined_sort=combined.sort_values(by=['Name','Week'],ascending=[True,False]).loc[:,['Name','Week','Event Name','Points Won','Pos','adj_exp_pts','rolling_rank_pts',
     'rolling_rank_pts_count','rolling_rank_pts_sum']]
     top_20=combined_sort.copy()
     top_20['max_event']=top_20.groupby('Name')['rolling_rank_pts_count'].transform('max')
@@ -142,10 +157,36 @@ with st.expander('Just graph min 3 events to see'):
 
 with st.expander('Last 4 events'):
     st.write('Last say 4 events rolling avg for points')
-    last_4=combined_sort.groupby('Name').head(4).reset_index()
+    st.write('pick the week you want so lets say before week 15 which is masters')
+    last_4=combined_sort[combined_sort['Week']<15].groupby('Name').head(4).reset_index()
+    last_4['rolling_rank_pts_sum']=last_4.groupby(['Name'])['Points Won'].cumsum()
+    last_4['rolling_rank_pts_count']=last_4.groupby(['Name'])['Points Won'].cumcount()+1
+    last_4['rolling_rank_pts']=last_4.groupby(['Name'])['Points Won'].expanding().mean().droplevel([0])
     last_4['max_event']=last_4.groupby('Name')['rolling_rank_pts_count'].transform('max')
-    last_4=last_4[(last_4['max_event']>4)]
+    
+    # st.write(last_4[last_4['Name'].str.contains('Scheff')])
+
+    # def test_4(df):
+    #     weights = np.array([0.125, 0.25,0.5,1])
+    #     # weights = np.array([1, 0.5,0.25,0.125])
+    #     sum_weights = np.sum(weights)
+    #     df['adj_exp_pts']=df['Points Won'].rolling(window=4, center=False).apply(lambda x: np.sum(weights*x), raw=False)
+    #     return df
+
+    # grouped = last_4.groupby('Name')
+    # ranking_power=[]
+    # for name, group in grouped:
+    #     update=test_4(group)
+    #     ranking_power.append(update)
+    # df = pd.concat(ranking_power, ignore_index=True)
+    # # st.write('df', df[df['Name'].str.contains('Scheff')])
+    # last_4=df.copy()
+    last_4=last_4[(last_4['max_event']>3)]
+
     st.write(last_4)
+    grouped_golfers_last_4=last_4.groupby('Name').agg(number_events=('Week','count'),total_points=('Points Won','sum'),avg_points=('Points Won','mean')).reset_index()\
+    .sort_values(by='avg_points',ascending=False)
+    st.write(grouped_golfers_last_4)
 
 with st.expander("Player Detail"):
     st.write('combined', combined.head())
