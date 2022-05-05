@@ -158,7 +158,7 @@ with st.expander('Just graph min 3 events to see'):
 with st.expander('Last 4 events'):
     st.write('Last say 4 events rolling avg for points')
     st.write('pick the week you want so lets say before week 15 which is masters')
-    last_4=combined_sort[combined_sort['Week']<15].groupby('Name').head(4).reset_index()
+    last_4=combined_sort[combined_sort['Week']<19].groupby('Name').head(4).reset_index()
     last_4['rolling_rank_pts_sum']=last_4.groupby(['Name'])['Points Won'].cumsum()
     last_4['rolling_rank_pts_count']=last_4.groupby(['Name'])['Points Won'].cumcount()+1
     last_4['rolling_rank_pts']=last_4.groupby(['Name'])['Points Won'].expanding().mean().droplevel([0])
@@ -183,23 +183,28 @@ with st.expander('Last 4 events'):
     # last_4=df.copy()
     last_4=last_4[(last_4['max_event']>3)]
 
-    st.write(last_4)
-    grouped_golfers_last_4=last_4.groupby('Name').agg(number_events=('Week','count'),total_points=('Points Won','sum'),avg_points=('Points Won','mean')).reset_index()\
+    st.write(last_4[last_4['Name'].str.contains('Straka')])
+    grouped_golfers_last_4=last_4.groupby('Name').agg(number_events=('Week','count'),total_points=('Points Won','sum'),avg_points=('Points Won','mean'),
+    exp_points=('adj_exp_pts','first')).reset_index()\
     .sort_values(by='avg_points',ascending=False)
-    st.write(grouped_golfers_last_4)
+    grouped_golfers_last_4['last_4_rank']=grouped_golfers_last_4['avg_points'].rank(method='dense', ascending=False).astype(int)
+    grouped_golfers_last_4['exp_4_rank']=grouped_golfers_last_4['exp_points'].rank(method='dense', ascending=False).astype(int)
+    grouped_golfers_last_4['total_rank']=(grouped_golfers_last_4['last_4_rank']+grouped_golfers_last_4['exp_4_rank']).rank(method='dense', ascending=True).astype(int)
+    grouped_golfers_last_4=grouped_golfers_last_4.sort_values(by=['total_rank']).reset_index().drop('index',axis=1)
+    st.write('Average Pts for last 4 events',grouped_golfers_last_4.sort_values(by=['total_rank']))
 
 with st.expander("Player Detail"):
     st.write('combined', combined.head())
     st.write('Find a player')
     player_names=combined['Name'].unique()
     names_selected = st.multiselect('Select Player',player_names)
-    st.write((combined.set_index('Name').loc[names_selected,:]).reset_index().sort_values(by='Week',ascending=False).style.format(format_dict))
+    st.write((combined.set_index('Name').loc[names_selected,:]).reset_index().sort_values(by='Week',ascending=False))
 
 with st.expander('Filter Combined Analysis by week'):
 
     # week_pick=18
     week_pick=st.number_input("Select the week",value=15, step=1)
-    # week_selection=((combined.set_index('Week').loc[week_pick,:]).reset_index().style.format(format_dict))
+    # week_selection=((combined.set_index('Week').loc[week_pick,:]).reset_index())
     week_selection=combined[combined['Week']<week_pick].copy()
 
     def analysis_golf(combined):
