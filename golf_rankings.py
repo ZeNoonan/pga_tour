@@ -74,8 +74,8 @@ tournament_list=[masters,players, matchplay, riviera, bay_hill, scottsdale, kapa
 dubai,hawaii,abu_dhabi,palm_beach,hilton_head]
 combined=pd.concat(tournament_list,axis=0)
 
-events=pd.read_html('http://www.owgr.com/events')
-events[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
+# events=pd.read_html('http://www.owgr.com/events')
+# events[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
 ranking_events=pd.read_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
 ranking_events['World Rating']=pd.to_numeric(ranking_events['World Rating'],errors='coerce')
 ranking_events['Event Name']=ranking_events['Event Name'].str.lower()
