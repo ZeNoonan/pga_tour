@@ -50,8 +50,8 @@ def further_clean(df):
 # ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9394','dubai.csv')
 
 
-# table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9461')
-# table[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/masters_2022.csv')
+# table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9493')
+# table[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/potomac.csv')
 masters=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/masters_2022.csv','masters tournament',2022)
 players=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/players.csv','the players championship',2022)
 matchplay=clean_results_matchplay('C:/Users/Darragh/Documents/Python/Golf/rankings_data/matchplay.csv','wgc - dell technologies match play',2022)
@@ -68,10 +68,11 @@ hawaii=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/hawai
 abu_dhabi=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/abu_dhabi.csv','abu dhabi hsbc championship',2022)
 palm_beach=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/palm_beach.csv','the honda classic',2022)
 hilton_head=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/hilton_head.csv','rbc heritage',2022)
-
+san_antonio=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/san_antonio.csv','valero texas open',2022)
+potomac=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/potomac.csv','wells fargo championship',2022)
 
 tournament_list=[masters,players, matchplay, riviera, bay_hill, scottsdale, kapalua, torrey_pines,innisbrook, jeddah, la_quinta,
-dubai,hawaii,abu_dhabi,palm_beach,hilton_head]
+dubai,hawaii,abu_dhabi,palm_beach,hilton_head, san_antonio, potomac]
 combined=pd.concat(tournament_list,axis=0)
 
 # events=pd.read_html('http://www.owgr.com/events')
@@ -80,7 +81,7 @@ ranking_events=pd.read_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data
 ranking_events['World Rating']=pd.to_numeric(ranking_events['World Rating'],errors='coerce')
 ranking_events['Event Name']=ranking_events['Event Name'].str.lower()
 clean_ranking_event=ranking_events.loc[:,["Week","Year","Event Name","Winner's Points","World Rating","Home Rating","SoF"]]
-st.write(clean_ranking_event)
+st.write(clean_ranking_event.sort_values(by='World Rating', ascending=False))
 combined=pd.merge(combined,clean_ranking_event,on=["Event Name"],how='outer').reset_index().drop('index',axis=1)
 combined['Name']=combined['Name'].astype(str)
 
@@ -159,6 +160,9 @@ with st.expander('Last 4 events'):
     st.write('Last say 4 events rolling avg for points')
     st.write('pick the week you want so lets say before week 15 which is masters')
     last_4=combined_sort[combined_sort['Week']<19].groupby('Name').head(4).reset_index()
+    st.write('i want to get last 8 events in as well')
+    # st.write('this is last 4', last_4)
+
     last_4['rolling_rank_pts_sum']=last_4.groupby(['Name'])['Points Won'].cumsum()
     last_4['rolling_rank_pts_count']=last_4.groupby(['Name'])['Points Won'].cumcount()+1
     last_4['rolling_rank_pts']=last_4.groupby(['Name'])['Points Won'].expanding().mean().droplevel([0])
@@ -183,7 +187,7 @@ with st.expander('Last 4 events'):
     # last_4=df.copy()
     last_4=last_4[(last_4['max_event']>3)]
 
-    st.write(last_4[last_4['Name'].str.contains('Straka')])
+    st.write(last_4[last_4['Name'].str.contains('Scheff')])
     grouped_golfers_last_4=last_4.groupby('Name').agg(number_events=('Week','count'),total_points=('Points Won','sum'),avg_points=('Points Won','mean'),
     exp_points=('adj_exp_pts','first')).reset_index()\
     .sort_values(by='avg_points',ascending=False)
