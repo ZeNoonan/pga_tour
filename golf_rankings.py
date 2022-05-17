@@ -6,6 +6,8 @@ import pathlib
 import altair as alt
 
 st.set_page_config(layout="wide")
+
+current_week=20
 # variable='masters.csv'
 # p=pathlib.Path.cwd().joinpath('golf')
 # st.write(p)
@@ -46,8 +48,8 @@ def further_clean(df):
     df['Adj_Pos']=df['Adj_Pos'].fillna(df['Pos'])
     return df
 
-# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9466','hilton_head.csv')
-# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9394','dubai.csv')
+# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9483','vidanta_mexico.csv')
+# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9399','pebble_beach.csv')
 
 
 # table=pd.read_html('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9493')
@@ -70,9 +72,12 @@ palm_beach=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/p
 hilton_head=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/hilton_head.csv','rbc heritage',2022)
 san_antonio=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/san_antonio.csv','valero texas open',2022)
 potomac=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/potomac.csv','wells fargo championship',2022)
+craig_ranch_texas=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/craig_ranch.csv','at&t byron nelson',2022)
+vidanta_mexico=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/vidanta_mexico.csv','mexico open at vidanta',2022)
+pebble_beach=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/pebble_beach.csv','at&t pebble beach pro-am',2022)
 
 tournament_list=[masters,players, matchplay, riviera, bay_hill, scottsdale, kapalua, torrey_pines,innisbrook, jeddah, la_quinta,
-dubai,hawaii,abu_dhabi,palm_beach,hilton_head, san_antonio, potomac]
+dubai,hawaii,abu_dhabi,palm_beach,hilton_head, san_antonio, potomac,craig_ranch_texas,vidanta_mexico,pebble_beach]
 combined=pd.concat(tournament_list,axis=0)
 
 # events=pd.read_html('http://www.owgr.com/events')
@@ -159,7 +164,7 @@ with st.expander('Just graph min 3 events to see'):
 with st.expander('Last 4 events'):
     st.write('Last say 4 events rolling avg for points')
     st.write('pick the week you want so lets say before week 15 which is masters')
-    last_4=combined_sort[combined_sort['Week']<19].groupby('Name').head(4).reset_index()
+    last_4=combined_sort[combined_sort['Week']<(current_week+1)].groupby('Name').head(4).reset_index()
     st.write('i want to get last 8 events in as well')
     # st.write('this is last 4', last_4)
 
@@ -168,23 +173,6 @@ with st.expander('Last 4 events'):
     last_4['rolling_rank_pts']=last_4.groupby(['Name'])['Points Won'].expanding().mean().droplevel([0])
     last_4['max_event']=last_4.groupby('Name')['rolling_rank_pts_count'].transform('max')
     
-    # st.write(last_4[last_4['Name'].str.contains('Scheff')])
-
-    # def test_4(df):
-    #     weights = np.array([0.125, 0.25,0.5,1])
-    #     # weights = np.array([1, 0.5,0.25,0.125])
-    #     sum_weights = np.sum(weights)
-    #     df['adj_exp_pts']=df['Points Won'].rolling(window=4, center=False).apply(lambda x: np.sum(weights*x), raw=False)
-    #     return df
-
-    # grouped = last_4.groupby('Name')
-    # ranking_power=[]
-    # for name, group in grouped:
-    #     update=test_4(group)
-    #     ranking_power.append(update)
-    # df = pd.concat(ranking_power, ignore_index=True)
-    # # st.write('df', df[df['Name'].str.contains('Scheff')])
-    # last_4=df.copy()
     last_4=last_4[(last_4['max_event']>3)]
 
     st.write(last_4[last_4['Name'].str.contains('Scheff')])
@@ -196,6 +184,30 @@ with st.expander('Last 4 events'):
     grouped_golfers_last_4['total_rank']=(grouped_golfers_last_4['last_4_rank']+grouped_golfers_last_4['exp_4_rank']).rank(method='dense', ascending=True).astype(int)
     grouped_golfers_last_4=grouped_golfers_last_4.sort_values(by=['total_rank']).reset_index().drop('index',axis=1)
     st.write('Average Pts for last 4 events',grouped_golfers_last_4.sort_values(by=['total_rank']))
+
+with st.expander('Last 8 events'):
+    st.write('Last say 8 events rolling avg for points')
+    st.write('pick the week you want so lets say before week 15 which is masters')
+    last_8=combined_sort[combined_sort['Week']<(current_week+1)].groupby('Name').head(8).reset_index()
+    st.write('i want to get last 8 events in as well')
+    # st.write('this is last 4', last_8)
+
+    last_8['rolling_rank_pts_sum']=last_8.groupby(['Name'])['Points Won'].cumsum()
+    last_8['rolling_rank_pts_count']=last_8.groupby(['Name'])['Points Won'].cumcount()+1
+    last_8['rolling_rank_pts']=last_8.groupby(['Name'])['Points Won'].expanding().mean().droplevel([0])
+    last_8['max_event']=last_8.groupby('Name')['rolling_rank_pts_count'].transform('max')
+    
+    last_8=last_8[(last_8['max_event']>7)]
+
+    st.write(last_8[last_8['Name'].str.contains('Scheff')])
+    grouped_golfers_last_8=last_8.groupby('Name').agg(number_events=('Week','count'),total_points=('Points Won','sum'),avg_points=('Points Won','mean'),
+    exp_points=('adj_exp_pts','first')).reset_index()\
+    .sort_values(by='avg_points',ascending=False)
+    grouped_golfers_last_8['last_8_rank']=grouped_golfers_last_8['avg_points'].rank(method='dense', ascending=False).astype(int)
+    grouped_golfers_last_8['exp_4_rank']=grouped_golfers_last_8['exp_points'].rank(method='dense', ascending=False).astype(int)
+    grouped_golfers_last_8['total_rank']=(grouped_golfers_last_8['last_8_rank']+grouped_golfers_last_8['exp_4_rank']).rank(method='dense', ascending=True).astype(int)
+    grouped_golfers_last_8=grouped_golfers_last_8.sort_values(by=['total_rank']).reset_index().drop('index',axis=1)
+    st.write('Average Pts for last 8 events',grouped_golfers_last_8.sort_values(by=['total_rank']))
 
 with st.expander("Player Detail"):
     st.write('combined', combined.head())
