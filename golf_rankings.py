@@ -86,13 +86,14 @@ ranking_events=pd.read_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data
 ranking_events['World Rating']=pd.to_numeric(ranking_events['World Rating'],errors='coerce')
 ranking_events['Event Name']=ranking_events['Event Name'].str.lower()
 clean_ranking_event=ranking_events.loc[:,["Week","Year","Event Name","Winner's Points","World Rating","Home Rating","SoF"]]
-st.write(clean_ranking_event.sort_values(by='World Rating', ascending=False))
+with st.expander('Event'):
+    st.write(clean_ranking_event.sort_values(by='World Rating', ascending=False))
 combined=pd.merge(combined,clean_ranking_event,on=["Event Name"],how='outer').reset_index().drop('index',axis=1)
 combined['Name']=combined['Name'].astype(str)
 
-st.write('combined', combined.head())
-st.write('combined', combined.shape)
-st.write('combined shape', combined['Points Won'].dtype)
+# st.write('combined', combined.head())
+# st.write('combined', combined.shape)
+# st.write('combined shape', combined['Points Won'].dtype)
 combined=combined.sort_values(['Name','Week'],ascending=True)
 # combined['rolling_rank_pts']=combined.groupby(['Name'])['Points Won'].rolling(window=3,min_periods=1,center=False).mean().droplevel([0])
 combined['rolling_rank_pts']=combined.groupby(['Name'])['Points Won'].expanding().mean().droplevel([0])
@@ -104,7 +105,7 @@ combined['recalc_check']=(combined['rolling_rank_pts_sum']/combined['rolling_ran
 cols_to_move = ['Name','Week','Event Name','Pos','Points Won','rolling_rank_pts','rolling_rank_pts_sum','rolling_rank_pts_count','recalc_check']
 cols = cols_to_move + [col for col in combined if col not in cols_to_move]
 combined=combined[cols]
-st.write('combined after name check Scheffler', combined[combined['Name'].str.contains('Nieman')])
+# st.write('combined after name check Scheffler', combined[combined['Name'].str.contains('Nieman')])
 st.write('Check on calc', combined[combined['recalc_check']>1])
 st.write('Check on calc', combined[combined['recalc_check']<-1])
 combined=combined.dropna(subset=['Points Won'])
@@ -188,7 +189,8 @@ with st.expander('Last 4 events'):
 with st.expander('Last 8 events'):
     st.write('Last say 8 events rolling avg for points')
     st.write('pick the week you want so lets say before week 15 which is masters')
-    last_8=combined_sort[combined_sort['Week']<(current_week+1)].groupby('Name').head(8).reset_index()
+    number_of_events=6
+    last_8=combined_sort[combined_sort['Week']<(current_week+1)].groupby('Name').head(number_of_events).reset_index()
     st.write('i want to get last 8 events in as well')
     # st.write('this is last 4', last_8)
 
@@ -197,7 +199,7 @@ with st.expander('Last 8 events'):
     last_8['rolling_rank_pts']=last_8.groupby(['Name'])['Points Won'].expanding().mean().droplevel([0])
     last_8['max_event']=last_8.groupby('Name')['rolling_rank_pts_count'].transform('max')
     
-    last_8=last_8[(last_8['max_event']>7)]
+    last_8=last_8[(last_8['max_event']>(number_of_events-1))]
 
     st.write(last_8[last_8['Name'].str.contains('Scheff')])
     grouped_golfers_last_8=last_8.groupby('Name').agg(number_events=('Week','count'),total_points=('Points Won','sum'),avg_points=('Points Won','mean'),
