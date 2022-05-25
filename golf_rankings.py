@@ -1,9 +1,11 @@
+from math import comb
 from tkinter import CENTER
 import streamlit as st
 import pandas as pd
 import numpy as np
 import pathlib
 import altair as alt
+from st_aggrid import AgGrid, GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode, JsCode
 
 st.set_page_config(layout="wide")
 
@@ -48,7 +50,7 @@ def further_clean(df):
     df['Adj_Pos']=df['Adj_Pos'].fillna(df['Pos'])
     return df
 
-# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9483','vidanta_mexico.csv')
+# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9514','uspga.csv')
 # ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9399','pebble_beach.csv')
 
 
@@ -75,9 +77,10 @@ potomac=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/poto
 craig_ranch_texas=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/craig_ranch.csv','at&t byron nelson',2022)
 vidanta_mexico=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/vidanta_mexico.csv','mexico open at vidanta',2022)
 pebble_beach=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/pebble_beach.csv','at&t pebble beach pro-am',2022)
+uspga=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/uspga.csv','u.s. pga championship',2022)
 
 tournament_list=[masters,players, matchplay, riviera, bay_hill, scottsdale, kapalua, torrey_pines,innisbrook, jeddah, la_quinta,
-dubai,hawaii,abu_dhabi,palm_beach,hilton_head, san_antonio, potomac,craig_ranch_texas,vidanta_mexico,pebble_beach]
+dubai,hawaii,abu_dhabi,palm_beach,hilton_head, san_antonio, potomac,craig_ranch_texas,vidanta_mexico,pebble_beach, uspga]
 combined=pd.concat(tournament_list,axis=0)
 
 # events=pd.read_html('http://www.owgr.com/events')
@@ -88,13 +91,16 @@ ranking_events['Event Name']=ranking_events['Event Name'].str.lower()
 clean_ranking_event=ranking_events.loc[:,["Week","Year","Event Name","Winner's Points","World Rating","Home Rating","SoF"]]
 with st.expander('Event'):
     st.write(clean_ranking_event.sort_values(by='World Rating', ascending=False))
-combined=pd.merge(combined,clean_ranking_event,on=["Event Name"],how='outer').reset_index().drop('index',axis=1)
-combined['Name']=combined['Name'].astype(str)
 
-# st.write('combined', combined.head())
-# st.write('combined', combined.shape)
-# st.write('combined shape', combined['Points Won'].dtype)
-combined=combined.sort_values(['Name','Week'],ascending=True)
+    combined=pd.merge(combined,clean_ranking_event,on=["Event Name"],how='outer').reset_index().drop('index',axis=1)
+    combined['Name']=combined['Name'].astype(str)
+
+    # st.write('combined', combined.head())
+    # st.write('combined', combined.shape)
+    # st.write('combined shape', combined['Points Won'].dtype)
+    combined=combined.sort_values(['Name','Week'],ascending=True)
+    st.write(combined[combined['Event Name'].str.contains("u.s. pga championship")].sort_values(by=['Points Won'], ascending=False))
+
 # combined['rolling_rank_pts']=combined.groupby(['Name'])['Points Won'].rolling(window=3,min_periods=1,center=False).mean().droplevel([0])
 combined['rolling_rank_pts']=combined.groupby(['Name'])['Points Won'].expanding().mean().droplevel([0])
 combined['rolling_rank_pts_sum']=combined.groupby(['Name'])['Points Won'].cumsum()
@@ -189,7 +195,7 @@ with st.expander('Last 4 events'):
 with st.expander('Last 8 events'):
     st.write('Last say 8 events rolling avg for points')
     st.write('pick the week you want so lets say before week 15 which is masters')
-    number_of_events=6
+    number_of_events=8
     last_8=combined_sort[combined_sort['Week']<(current_week+1)].groupby('Name').head(number_of_events).reset_index()
     st.write('i want to get last 8 events in as well')
     # st.write('this is last 4', last_8)
@@ -201,15 +207,49 @@ with st.expander('Last 8 events'):
     
     last_8=last_8[(last_8['max_event']>(number_of_events-1))]
 
-    st.write(last_8[last_8['Name'].str.contains('Scheff')])
+    st.write(last_8[last_8['Name'].str.contains('Zala')])
     grouped_golfers_last_8=last_8.groupby('Name').agg(number_events=('Week','count'),total_points=('Points Won','sum'),avg_points=('Points Won','mean'),
-    exp_points=('adj_exp_pts','first')).reset_index()\
+    exp_points=('adj_exp_pts','first'),median_points=('Points Won','median'),Week=('Week','first')).reset_index()\
     .sort_values(by='avg_points',ascending=False)
     grouped_golfers_last_8['last_8_rank']=grouped_golfers_last_8['avg_points'].rank(method='dense', ascending=False).astype(int)
     grouped_golfers_last_8['exp_4_rank']=grouped_golfers_last_8['exp_points'].rank(method='dense', ascending=False).astype(int)
+    grouped_golfers_last_8['median_rank']=grouped_golfers_last_8['median_points'].rank(method='dense', ascending=False).astype(int)
+    grouped_golfers_last_8['total_med_rank']=(grouped_golfers_last_8['last_8_rank']+grouped_golfers_last_8['median_rank']).rank(method='dense', ascending=True).astype(int)
     grouped_golfers_last_8['total_rank']=(grouped_golfers_last_8['last_8_rank']+grouped_golfers_last_8['exp_4_rank']).rank(method='dense', ascending=True).astype(int)
     grouped_golfers_last_8=grouped_golfers_last_8.sort_values(by=['total_rank']).reset_index().drop('index',axis=1)
-    st.write('Average Pts for last 8 events',grouped_golfers_last_8.sort_values(by=['total_rank']))
+
+    # st.write('number',max(grouped_golfers_last_8['Week']))
+    week_after_event=combined_sort[combined_sort['Week']>(max(grouped_golfers_last_8['Week']))].rename(columns={'Pos':'pos_next_event','Points Won':'points_next_event'})\
+    .loc[:,['Name','pos_next_event','points_next_event']]
+    # week_after_event=week_after_event.loc[:,['Name','pos_next_event']]
+    # st.write('this is week after event of combined',week_after_event)
+    grouped_golfers_last_8=pd.merge(grouped_golfers_last_8,week_after_event,on='Name',how='left')
+    cols_to_move = ['Name','number_events','Week','last_8_rank','median_rank','total_med_rank','pos_next_event','total_rank','points_next_event']
+    cols = cols_to_move + [col for col in grouped_golfers_last_8 if col not in cols_to_move]
+    grouped_golfers_last_8=grouped_golfers_last_8[cols].sort_values(by=['total_rank'],ascending=False)
+    st.write('Average Pts for last 8 events',grouped_golfers_last_8)
+
+    gb = GridOptionsBuilder.from_dataframe(grouped_golfers_last_8)
+    gb.configure_column("total_points", type=["numericColumn","numberColumnFilter","customNumericFormat"], precision=0, aggFunc='sum')
+    gb.configure_column("avg_points", type=["numericColumn","numberColumnFilter","customNumericFormat"], precision=0, aggFunc='sum')
+    gb.configure_column("exp_points", type=["numericColumn","numberColumnFilter","customNumericFormat"], precision=0, aggFunc='sum')
+    gb.configure_column("median_points", type=["numericColumn","numberColumnFilter","customNumericFormat"], precision=0, aggFunc='sum')
+    # gb.configure_column("Date", type=["dateColumnFilter","customDateTimeFormat"], custom_format_string='dd-MM-yyyy', pivot=True)
+    gb.configure_default_column(groupable=True, value=True, enableRowGroup=True, aggFunc="sum", editable=True)
+    gb.configure_grid_options(domLayout='normal')
+    gridOptions = gb.build()
+    grid_response = AgGrid(
+        grouped_golfers_last_8, 
+        gridOptions=gridOptions,
+        # height=grid_height, 
+        width='100%',
+        # data_return_mode=return_mode_value, 
+        # update_mode=update_mode_value,
+        # fit_columns_on_grid_load=fit_columns_on_grid_load,
+        allow_unsafe_jscode=True, #Set it to True to allow jsfunction to be injected
+        enable_enterprise_modules=True,
+    )
+    # AgGrid(grouped_golfers_last_8)
 
 with st.expander("Player Detail"):
     st.write('combined', combined.head())
