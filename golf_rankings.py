@@ -224,9 +224,14 @@ with st.expander('Last 8 events'):
     # week_after_event=week_after_event.loc[:,['Name','pos_next_event']]
     # st.write('this is week after event of combined',week_after_event)
     grouped_golfers_last_8=pd.merge(grouped_golfers_last_8,week_after_event,on='Name',how='left')
-    cols_to_move = ['Name','number_events','Week','last_8_rank','median_rank','total_med_rank','pos_next_event','total_rank','points_next_event']
+    grouped_golfers_last_8['points_next_event']=grouped_golfers_last_8['points_next_event'].fillna(0)
+    grouped_golfers_last_8['cum_median_rank']=grouped_golfers_last_8['median_rank'].cumsum()
+    grouped_golfers_last_8['test']=grouped_golfers_last_8['number_events'].cumsum()
+    grouped_golfers_last_8=grouped_golfers_last_8.sort_values(by=['points_next_event'],ascending=False)
+    grouped_golfers_last_8=grouped_golfers_last_8.reset_index().drop('index',axis=1)
+    cols_to_move = ['Name','number_events','Week','last_8_rank','median_rank','total_med_rank','pos_next_event','total_rank','points_next_event','cum_median_rank','test']
     cols = cols_to_move + [col for col in grouped_golfers_last_8 if col not in cols_to_move]
-    grouped_golfers_last_8=grouped_golfers_last_8[cols].sort_values(by=['total_rank'],ascending=False)
+    grouped_golfers_last_8=grouped_golfers_last_8[cols].sort_values(by=['points_next_event'],ascending=False)
     st.write('Average Pts for last 8 events',grouped_golfers_last_8)
 
     gb = GridOptionsBuilder.from_dataframe(grouped_golfers_last_8)
@@ -234,6 +239,7 @@ with st.expander('Last 8 events'):
     gb.configure_column("avg_points", type=["numericColumn","numberColumnFilter","customNumericFormat"], precision=0, aggFunc='sum')
     gb.configure_column("exp_points", type=["numericColumn","numberColumnFilter","customNumericFormat"], precision=0, aggFunc='sum')
     gb.configure_column("median_points", type=["numericColumn","numberColumnFilter","customNumericFormat"], precision=0, aggFunc='sum')
+    gb.configure_column("points_next_event", type=["numericColumn","numberColumnFilter","customNumericFormat"], precision=0, aggFunc='sum')
     # gb.configure_column("Date", type=["dateColumnFilter","customDateTimeFormat"], custom_format_string='dd-MM-yyyy', pivot=True)
     gb.configure_default_column(groupable=True, value=True, enableRowGroup=True, aggFunc="sum", editable=True)
     gb.configure_grid_options(domLayout='normal')
