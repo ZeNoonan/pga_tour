@@ -189,14 +189,18 @@ with st.expander('Last 4 events'):
     grouped_golfers_last_4['last_4_rank']=grouped_golfers_last_4['avg_points'].rank(method='dense', ascending=False).astype(int)
     grouped_golfers_last_4['exp_4_rank']=grouped_golfers_last_4['exp_points'].rank(method='dense', ascending=False).astype(int)
     grouped_golfers_last_4['total_rank']=(grouped_golfers_last_4['last_4_rank']+grouped_golfers_last_4['exp_4_rank']).rank(method='dense', ascending=True).astype(int)
-    grouped_golfers_last_4=grouped_golfers_last_4.sort_values(by=['total_rank']).reset_index().drop('index',axis=1)
+    # grouped_golfers_last_4=grouped_golfers_last_4.sort_values(by=['total_rank']).reset_index().drop('index',axis=1)
+    grouped_golfers_last_4=grouped_golfers_last_4.reset_index().drop('index',axis=1)
+    grouped_golfers_last_4=grouped_golfers_last_4.reset_index().drop('index',axis=1)
     st.write('Average Pts for last 4 events',grouped_golfers_last_4.sort_values(by=['total_rank']))
 
 with st.expander('Last 8 events'):
     st.write('Last say 8 events rolling avg for points')
     st.write('pick the week you want so lets say before week 15 which is masters')
     number_of_events=8
+    # alt_number_of_events=4
     last_8=combined_sort[combined_sort['Week']<(current_week+1)].groupby('Name').head(number_of_events).reset_index()
+    # last_4=combined_sort[combined_sort['Week']<(current_week+1)].groupby('Name').head(alt_number_of_events).reset_index()
     st.write('i want to get last 8 events in as well')
     # st.write('this is last 4', last_8)
 
@@ -216,7 +220,8 @@ with st.expander('Last 8 events'):
     grouped_golfers_last_8['median_rank']=grouped_golfers_last_8['median_points'].rank(method='dense', ascending=False).astype(int)
     grouped_golfers_last_8['total_med_rank']=(grouped_golfers_last_8['last_8_rank']+grouped_golfers_last_8['median_rank']).rank(method='dense', ascending=True).astype(int)
     grouped_golfers_last_8['total_rank']=(grouped_golfers_last_8['last_8_rank']+grouped_golfers_last_8['exp_4_rank']).rank(method='dense', ascending=True).astype(int)
-    grouped_golfers_last_8=grouped_golfers_last_8.sort_values(by=['total_rank']).reset_index().drop('index',axis=1)
+    # grouped_golfers_last_8=grouped_golfers_last_8.sort_values(by=['total_rank']).reset_index().drop('index',axis=1)
+    grouped_golfers_last_8=grouped_golfers_last_8.reset_index().drop('index',axis=1)
 
     # st.write('number',max(grouped_golfers_last_8['Week']))
     week_after_event=combined_sort[combined_sort['Week']>(max(grouped_golfers_last_8['Week']))].rename(columns={'Pos':'pos_next_event','Points Won':'points_next_event'})\
@@ -225,11 +230,16 @@ with st.expander('Last 8 events'):
     # st.write('this is week after event of combined',week_after_event)
     grouped_golfers_last_8=pd.merge(grouped_golfers_last_8,week_after_event,on='Name',how='left')
     grouped_golfers_last_8['points_next_event']=grouped_golfers_last_8['points_next_event'].fillna(0)
+    grouped_golfers_last_8=grouped_golfers_last_8.sort_values(by=['points_next_event'],ascending=False)
     grouped_golfers_last_8['cum_median_rank']=grouped_golfers_last_8['median_rank'].cumsum()
-    grouped_golfers_last_8['test']=grouped_golfers_last_8['number_events'].cumsum()
+    grouped_golfers_last_8['cum_8_rank']=grouped_golfers_last_8['last_8_rank'].cumsum()
+    grouped_golfers_last_8['cum_8_median_rank']=grouped_golfers_last_8['total_med_rank'].cumsum()
+    grouped_golfers_last_8['cum_8_exp4_rank']=grouped_golfers_last_8['total_rank'].cumsum()
+
     grouped_golfers_last_8=grouped_golfers_last_8.sort_values(by=['points_next_event'],ascending=False)
     grouped_golfers_last_8=grouped_golfers_last_8.reset_index().drop('index',axis=1)
-    cols_to_move = ['Name','number_events','Week','last_8_rank','median_rank','total_med_rank','pos_next_event','total_rank','points_next_event','cum_median_rank','test']
+    cols_to_move = ['Name','number_events','Week','last_8_rank','median_rank','total_med_rank','pos_next_event','total_rank','points_next_event',
+    'cum_median_rank','cum_8_rank','cum_8_median_rank','cum_8_exp4_rank']
     cols = cols_to_move + [col for col in grouped_golfers_last_8 if col not in cols_to_move]
     grouped_golfers_last_8=grouped_golfers_last_8[cols].sort_values(by=['points_next_event'],ascending=False)
     st.write('Average Pts for last 8 events',grouped_golfers_last_8)
