@@ -91,17 +91,27 @@ combined['rolling_8_pts_median']=combined.groupby('Name')['Points Won'].rolling(
 st.write(combined[combined['Name'].str.contains("Scheff")])
 
 with st.expander('Last 8 events'):
-    number_of_events=st.number_input(label='number of events for points won',min_value=2,key='number_weeks',value=8)
+    number_of_events=int(st.number_input(label='number of events for points won',min_value=2,key='number_weeks',value=8))
     week_number=st.number_input(label='select week number',min_value=2,key='week_number',value=20)
     selected_df=combined[combined['Week']<(week_number+1)].groupby('Name').head(number_of_events).reset_index(0,drop=True)
     
-    combined['rolling_pts_count']=combined.groupby('Name')['Points Won'].rolling(number_of_events, min_periods=1).count().reset_index(0,drop=True).astype(int)
-    combined['rolling_pts_total']=combined.groupby('Name')['Points Won'].rolling(number_of_events, min_periods=1).sum().reset_index(0,drop=True)
-    combined['rolling_pts_mean']=combined.groupby('Name')['Points Won'].rolling(number_of_events, min_periods=1).mean().reset_index(0,drop=True)
-    combined['rolling_pts_median']=combined.groupby('Name')['Points Won'].rolling(number_of_events, min_periods=1).median().reset_index(0,drop=True)
+    st.write('check out',selected_df.groupby('Name')['Points Won'])
 
-    st.write(selected_df[selected_df['Name'].str.contains("Scheff")])
+    selected_df['rolling_pts_count']=selected_df.groupby('Name')['Points Won'].rolling(number_of_events, min_periods=number_of_events).count().reset_index(0,drop=True).astype(int)
+    # selected_df['rolling_pts_count']=selected_df.groupby('Name')['Points Won'].rolling(number_of_events, min_periods=1).count().reset_index(0,drop=True).astype(int)
+    selected_df['rolling_pts_total']=selected_df.groupby('Name')['Points Won'].rolling(number_of_events, min_periods=1).sum().reset_index(0,drop=True)
+    selected_df['rolling_pts_mean']=selected_df.groupby('Name')['Points Won'].rolling(number_of_events, min_periods=1).mean().reset_index(0,drop=True).fillna(0)
+    selected_df['rolling_pts_median']=selected_df.groupby('Name')['Points Won'].rolling(number_of_events, min_periods=1).median().reset_index(0,drop=True).fillna(0)
 
     selected_df['avg_pts_rank']=selected_df['rolling_pts_mean'].rank(method='dense', ascending=False).astype(int)
     selected_df['median_pts_rank']=selected_df['rolling_pts_median'].rank(method='dense', ascending=False).astype(int)
     selected_df['avg_plus_med_rank']=(selected_df['avg_pts_rank']+selected_df['median_pts_rank']).rank(method='dense', ascending=True).astype(int)
+
+    st.write(selected_df[selected_df['Name'].str.contains("Scheff")])
+
+    week_after_event=combined[combined['Week']>(max(selected_df['Week']))].rename(columns={'Pos':'pos_next_event','Points Won':'points_next_event'})\
+    .loc[:,['Name','pos_next_event','points_next_event']]
+
+    selected_df=pd.merge(selected_df,week_after_event,on='Name',how='left')
+
+    st.write(selected_df[selected_df['Name'].str.contains("Scheff")])
