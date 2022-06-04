@@ -88,15 +88,18 @@ combined['max_event']=combined.groupby('Name')['events_count'].transform('max')
 
 
 # https://stackoverflow.com/questions/13996302/python-rolling-functions-for-groupby-object
-st.write(combined[combined['Name'].str.contains("Scheff")])
+# st.write(combined[combined['Name'].str.contains("Hovl")])
 
 with st.expander('Last 8 events'):
     number_of_events=int(st.number_input(label='number of events for points won',min_value=2,key='number_weeks',value=8))
     week_number=st.number_input(label='select week number',min_value=2,key='week_number',value=20)
+    combined=combined.sort_values(['Name','Week'],ascending=[True,False])
     selected_df=combined[combined['Week']<(week_number+1)].groupby('Name').head(number_of_events).reset_index(0,drop=True)
+    selected_df=selected_df.sort_values(['Name','Week'],ascending=[True,True])
 
-
-    selected_df=selected_df[(selected_df['max_event']>(number_of_events-1))]    
+    # st.write('0',selected_df[selected_df['Name'].str.contains("Hovl")])
+    selected_df=selected_df[(selected_df['max_event']>(number_of_events-1))]
+    # st.write('1',selected_df[selected_df['Name'].str.contains("Hovl")])    
     # st.write('check out',selected_df.groupby('Name')['Points Won'])
 
     # selected_df['rolling_pts_count']=selected_df.groupby('Name')['Points Won'].rolling(number_of_events, min_periods=number_of_events).count().reset_index(0,drop=True).astype(int)
@@ -109,7 +112,7 @@ with st.expander('Last 8 events'):
     # selected_df['median_pts_rank']=selected_df['rolling_pts_median'].rank(method='dense', ascending=False).astype(int)
     # selected_df['avg_plus_med_rank']=(selected_df['avg_pts_rank']+selected_df['median_pts_rank']).rank(method='dense', ascending=True).astype(int)
 
-    # st.write(selected_df[selected_df['Name'].str.contains("Scheff")])
+    # st.write(selected_df[selected_df['Name'].str.contains("Hovl")])
 
     first_step=combined[combined['Week']>(max(selected_df['Week']))].sort_values(['Name','Week'],ascending=True).drop_duplicates(subset=['Name'], keep='first')
     # st.write('first step', first_step)
@@ -124,7 +127,14 @@ with st.expander('Last 8 events'):
     selected_df['avg_pts_rank']=selected_df['rolling_pts_mean'].rank(method='dense', ascending=False).astype(int)
     selected_df['median_pts_rank']=selected_df['rolling_pts_median'].rank(method='dense', ascending=False).astype(int)
     selected_df['avg_plus_med_rank']=(selected_df['avg_pts_rank']+selected_df['median_pts_rank']).rank(method='dense', ascending=True).astype(int)
+    
+    player_names=selected_df['Name'].unique()
+    names_selected = st.multiselect('Select Player',player_names)
+    st.write((selected_df.set_index('Name').loc[names_selected,:]).reset_index().sort_values(by='Week',ascending=False))
 
+    
+    
+    # st.write(selected_df[selected_df['Name'].str.contains("Hovl")])
     # selected_df=selected_df.sort_values(by=['points_next_event'],ascending=False)
     # selected_df['cum_median_rank']=selected_df['median_pts_rank'].cumsum()
     # selected_df['cum_avg_rank']=selected_df['avg_pts_rank'].cumsum()
@@ -148,7 +158,7 @@ with st.expander('Last 8 events'):
     selected_df=selected_df[cols]
 
 
-    st.write(selected_df[selected_df['Name'].str.contains("Scheff")])
+    # st.write(selected_df[selected_df['Name'].str.contains("Hovl")])
     # st.write(selected_df)
     st.write(selected_df.set_index('Name'))
     st.write('Check this table against the golf rankings first version table')

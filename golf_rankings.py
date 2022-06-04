@@ -209,7 +209,7 @@ with st.expander('Last 8 events'):
     
     last_8=last_8[(last_8['max_event']>(number_of_events-1))]
 
-    st.write(last_8[last_8['Name'].str.contains('Zala')])
+    st.write(last_8[last_8['Name'].str.contains('Hovl')])
     grouped_golfers_last_8=last_8.groupby('Name').agg(number_events=('Week','count'),total_points=('Points Won','sum'),avg_points=('Points Won','mean'),
     exp_points=('adj_exp_pts','first'),median_points=('Points Won','median'),Week=('Week','first')).reset_index()\
     .sort_values(by='avg_points',ascending=False)
