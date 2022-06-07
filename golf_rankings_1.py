@@ -151,7 +151,7 @@ with st.expander('Last 8 events'):
     selected_df['cum_median_rank']=selected_df['median_pts_rank'].cumsum()
     selected_df['cum_avg_rank']=selected_df['avg_pts_rank'].cumsum()
     selected_df['cum_avg_median_rank']=selected_df['avg_plus_med_rank'].cumsum()
-    cols_to_move = ['Name','events_count','max_event','Week','avg_pts_rank','median_pts_rank','avg_plus_med_rank','pos_next_event','points_next_event',
+    cols_to_move = ['Name','events_count','max_event','Week','Event Name','avg_pts_rank','median_pts_rank','avg_plus_med_rank','pos_next_event','points_next_event',
     'cum_median_rank','cum_avg_rank','cum_avg_median_rank']
     cols = cols_to_move + [col for col in selected_df if col not in cols_to_move]
     # selected_df=selected_df[cols].sort_values(by=['points_next_event'],ascending=False)
@@ -160,5 +160,7 @@ with st.expander('Last 8 events'):
 
     # st.write(selected_df[selected_df['Name'].str.contains("Hovl")])
     # st.write(selected_df)
+    list_of_events=combined.loc[:,['Week','Event Name']].drop_duplicates().sort_values(by='Week',ascending=False).reset_index(0,drop=True)
+    st.write(list_of_events)
     st.write(selected_df.set_index('Name'))
     st.write('Check this table against the golf rankings first version table')
