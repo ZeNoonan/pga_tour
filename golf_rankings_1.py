@@ -34,7 +34,7 @@ def ogwr_file_csv_save(url_comp,filename_ext):
     p=pathlib.Path.cwd().joinpath('golf','rankings_data')
     return table[0].to_csv(p.joinpath(filename_ext))
 
-# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9522','colonial.csv')
+# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9536','memorial.csv')
 
 
 masters=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/masters_2022.csv','masters tournament',2022)
@@ -60,13 +60,14 @@ vidanta_mexico=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_da
 pebble_beach=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/pebble_beach.csv','at&t pebble beach pro-am',2022)
 uspga=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/uspga.csv','u.s. pga championship',2022)
 colonial=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/colonial.csv','charles schwab challenge',2022)
+memorial=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/memorial.csv','the memorial tournament presented by workday',2022)
 
 tournament_list=[masters,players, matchplay, riviera, bay_hill, scottsdale, kapalua, torrey_pines,innisbrook, jeddah, la_quinta,
-dubai,hawaii,abu_dhabi,palm_beach,hilton_head, san_antonio, potomac,craig_ranch_texas,vidanta_mexico,pebble_beach, uspga,colonial]
+dubai,hawaii,abu_dhabi,palm_beach,hilton_head, san_antonio, potomac,craig_ranch_texas,vidanta_mexico,pebble_beach, uspga,colonial,memorial]
 combined=pd.concat(tournament_list,axis=0)
 
-# events=pd.read_html('http://www.owgr.com/events')
-# events[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
+events=pd.read_html('http://www.owgr.com/events')
+events[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
 ranking_events=pd.read_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
 ranking_events['World Rating']=pd.to_numeric(ranking_events['World Rating'],errors='coerce')
 ranking_events['Event Name']=ranking_events['Event Name'].str.lower()
@@ -120,39 +121,30 @@ with st.expander('Last 8 events'):
     .loc[:,['Name','pos_next_event','points_next_event']]
     # st.write(week_after_event)
 
-    selected_df=pd.merge(selected_df,week_after_event,on='Name',how='left')
-    # st.write(selected_df[selected_df['Name'].str.contains("Scheff")])
-    selected_df['points_next_event']=selected_df['points_next_event'].fillna(0)
+    selected_df=pd.merge(selected_df,week_after_event,on='Name',how='right')
+    # st.write('test this',selected_df[selected_df['Name'].str.contains("erger")])
+    # selected_df['points_next_event']=selected_df['points_next_event'].fillna(0)
 
-    selected_df['avg_pts_rank']=selected_df['rolling_pts_mean'].rank(method='dense', ascending=False).astype(int)
-    selected_df['median_pts_rank']=selected_df['rolling_pts_median'].rank(method='dense', ascending=False).astype(int)
-    selected_df['avg_plus_med_rank']=(selected_df['avg_pts_rank']+selected_df['median_pts_rank']).rank(method='dense', ascending=True).astype(int)
+    selected_df['avg_pts_rank']=selected_df['rolling_pts_mean'].rank(method='dense', ascending=False)
+    # selected_df['avg_pts_rank']=selected_df['rolling_pts_mean'].rank(method='dense', ascending=False).astype(int)
+    selected_df['median_pts_rank']=selected_df['rolling_pts_median'].rank(method='dense', ascending=False)
+    selected_df['avg_plus_med_rank']=(selected_df['avg_pts_rank']+selected_df['median_pts_rank']).rank(method='dense', ascending=True)
     
     player_names=selected_df['Name'].unique()
     names_selected = st.multiselect('Select Player',player_names)
     st.write((selected_df.set_index('Name').loc[names_selected,:]).reset_index().sort_values(by='Week',ascending=False))
 
-    
-    
-    # st.write(selected_df[selected_df['Name'].str.contains("Hovl")])
-    # selected_df=selected_df.sort_values(by=['points_next_event'],ascending=False)
-    # selected_df['cum_median_rank']=selected_df['median_pts_rank'].cumsum()
-    # selected_df['cum_avg_rank']=selected_df['avg_pts_rank'].cumsum()
-    # selected_df['cum_avg_median_rank']=selected_df['avg_plus_med_rank'].cumsum()
     selected_df=selected_df.sort_values(['Name','Week'],ascending=True)
-    # cols_to_move = ['Name','events_count','max_event','Week','avg_pts_rank','median_pts_rank','avg_plus_med_rank','pos_next_event','points_next_event',
-    # 'cum_median_rank','cum_avg_rank','cum_avg_median_rank']
-    # cols = cols_to_move + [col for col in selected_df if col not in cols_to_move]
-    # # selected_df=selected_df[cols].sort_values(by=['points_next_event'],ascending=False)
-    # selected_df=selected_df[cols]
     selected_df=selected_df.drop_duplicates(subset=['Name'], keep='last').sort_values(by='points_next_event',ascending=False)
+    # selected_df['Week']=
+
 
     selected_df=selected_df.sort_values(by=['points_next_event'],ascending=False)
     selected_df['cum_median_rank']=selected_df['median_pts_rank'].cumsum()
     selected_df['cum_avg_rank']=selected_df['avg_pts_rank'].cumsum()
     selected_df['cum_avg_median_rank']=selected_df['avg_plus_med_rank'].cumsum()
     cols_to_move = ['Name','events_count','max_event','Week','Event Name','avg_pts_rank','median_pts_rank','avg_plus_med_rank','pos_next_event','points_next_event',
-    'cum_median_rank','cum_avg_rank','cum_avg_median_rank']
+    'cum_median_rank','cum_avg_rank','cum_avg_median_rank','rolling_pts_median','rolling_pts_mean']
     cols = cols_to_move + [col for col in selected_df if col not in cols_to_move]
     # selected_df=selected_df[cols].sort_values(by=['points_next_event'],ascending=False)
     selected_df=selected_df[cols]
@@ -161,6 +153,8 @@ with st.expander('Last 8 events'):
     # st.write(selected_df[selected_df['Name'].str.contains("Hovl")])
     # st.write(selected_df)
     list_of_events=combined.loc[:,['Week','Event Name']].drop_duplicates().sort_values(by='Week',ascending=False).reset_index(0,drop=True)
-    st.write(list_of_events)
+    
     st.write(selected_df.set_index('Name'))
     st.write('Check this table against the golf rankings first version table')
+    st.write(list_of_events)
+    df_testing_ranking=selected_df.copy()
