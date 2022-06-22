@@ -8,7 +8,7 @@ from st_aggrid import AgGrid, GridOptionsBuilder, AgGrid, GridUpdateMode, DataRe
 
 st.set_page_config(layout="wide")
 
-current_week=20
+current_week=24
 
 def clean_results(file_location,name_of_tournament,year):
     df=pd.read_csv(file_location)
@@ -16,7 +16,7 @@ def clean_results(file_location,name_of_tournament,year):
     df['year']=int(year)
     df['position']=df['Pos'].str.extract('(\d+)')
     df['MC']=np.where(df['Pos']=='MC',1,0)
-    df=df.drop(['Unnamed: 0',"R1","R2","R3","R4","Agg",'Ctry'],axis=1)
+    df=df.drop(['Unnamed: 0',"R1","R2","R3","R4",'Ctry'],axis=1)
     # df["R1"]=pd.to_numeric(df["R1"],errors='coerce')
     return df
 
@@ -26,7 +26,7 @@ def clean_results_matchplay(file_location,name_of_tournament,year):
     df['year']=int(year)
     df['position']=df['Pos'].str.extract('(\d+)')
     df['MC']=np.where(df['Pos']=='MC',1,0)
-    df=df.drop(['Unnamed: 0',"Agg",'Ctry'],axis=1)
+    df=df.drop(['Unnamed: 0','Ctry'],axis=1)
     # df["R1"]=pd.to_numeric(df["R1"],errors='coerce')
     return df
 
@@ -35,7 +35,7 @@ def ogwr_file_csv_save(url_comp,filename_ext):
     p=pathlib.Path.cwd().joinpath('golf','rankings_data')
     return table[0].to_csv(p.joinpath(filename_ext))
 
-# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9548','canadian.csv')
+# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9562','us_open.csv')
 
 
 masters=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/masters_2022.csv','masters tournament',2022)
@@ -63,10 +63,13 @@ uspga=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/uspga.
 colonial=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/colonial.csv','charles schwab challenge',2022)
 memorial=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/memorial.csv','the memorial tournament presented by workday',2022)
 canadian=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/canadian.csv','rbc canadian open',2022)
+us_open=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/us_open.csv','u.s open',2022)
+
 
 
 tournament_list=[masters,players, matchplay, riviera, bay_hill, scottsdale, kapalua, torrey_pines,innisbrook, jeddah, la_quinta,
-dubai,hawaii,abu_dhabi,palm_beach,hilton_head, san_antonio, potomac,craig_ranch_texas,vidanta_mexico,pebble_beach, uspga,colonial,memorial,canadian]
+dubai,hawaii,abu_dhabi,palm_beach,hilton_head, san_antonio, potomac,craig_ranch_texas,vidanta_mexico,pebble_beach,
+uspga,colonial,memorial,canadian,us_open]
 combined=pd.concat(tournament_list,axis=0)
 
 # events=pd.read_html('http://www.owgr.com/events')
@@ -114,16 +117,31 @@ overall_df=overall_df[cols].sort_values(by='avg_plus_med_rank',ascending=True).r
 # selected_df=combined[combined['Week']<(week_number+1)].groupby('Name').head(number_of_events).reset_index(0,drop=True)
 match_df=pd.read_excel('C:/Users/Darragh/Documents/Python/Golf/us_open.xlsx')
 match_df=match_df.rename(columns={'Home':'Name'})
-# st.write(match_df)
-df_1=overall_df.loc[:,['Name','avg_plus_med_rank']]
-df_2=pd.merge(match_df,df_1,on='Name')
-df_1=df_1.rename(columns={'Name':'Away','avg_plus_med_rank':'rank_away'})
-df_2=pd.merge(df_2,df_1,on='Away').rename(columns={'Name':'home','avg_plus_med_rank':'home_rank'})
-df_2['diff']=df_2['home_rank']-df_2['rank_away']
+# st.write(overall_df)
+df_1=overall_df.loc[:,['Name','avg_plus_med_rank','Week','Agg']]
+df_2=pd.merge(match_df,df_1,on=['Name']).rename(columns={'Agg':'home_agg'})
+st.write('df2 to be merged', df_2)
+df_1=df_1.rename(columns={'Name':'away','avg_plus_med_rank':'away_rank'}).drop(['Week'],axis=1)
+st.write('df1 to be merged', df_1)
+df_2=pd.merge(df_2,df_1,on=['away']).rename(columns={'Name':'home','avg_plus_med_rank':'home_rank','Agg':'away_agg'})
+df_2['diff']=df_2['home_rank']-df_2['away_rank']
 df_2['abs']=df_2['diff'].abs()
-df_2=df_2.sort_values(by='abs',ascending=False)
-st.write(df_2.style.format(precision=0))
+df_2['agg_diff']=df_2['home_agg']-df_2['away_agg']
+df_2['agg_diff_1']=(df_2['agg_diff'].where(df_2['agg_diff'].abs() < 50))
+df_2['agg_diff_2']=(df_2['agg_diff'].where(df_2['agg_diff'].abs() > 50)).fillna(0)
+df_2['agg_diff_3']=(df_2['agg_diff_1']*-1).fillna(0)
+df_2['agg_diff_4']=df_2['agg_diff_2'] + df_2['agg_diff_3']
+df_2['win']=np.where(df_2['agg_diff_4']>0,1,-1)
+cols_to_move = ['home','away','Week','home_rank','away_rank','home_agg','away_agg','win']
+cols = cols_to_move + [col for col in df_2 if col not in cols_to_move]
+df_2=df_2[cols]
+# df_2['agg_diff_4']=df_2['agg_diff_2']*1 # DON'T NEED IT
 
+df_2=df_2.sort_values(by='abs',ascending=False)
+# df_2['week']=25
+# df_3=pd.merge(df_2,overall_df)
+st.write('match ups',df_2.style.format(precision=0))
+st.write('win total?', df_2['win'].sum())
 
 st.write(overall_df.style.format(precision=0))
 
