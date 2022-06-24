@@ -117,8 +117,9 @@ overall_df=overall_df[cols].sort_values(by='avg_plus_med_rank',ascending=True).r
 # selected_df=combined[combined['Week']<(week_number+1)].groupby('Name').head(number_of_events).reset_index(0,drop=True)
 match_df=pd.read_excel('C:/Users/Darragh/Documents/Python/Golf/us_open.xlsx')
 match_df=match_df.rename(columns={'Home':'Name'})
-# st.write(overall_df)
+# st.write('check this for what to  bring in',overall_df)
 df_1=overall_df.loc[:,['Name','avg_plus_med_rank','Week','Agg']]
+st.write('match df', match_df,'df_1 to merge', df_1)
 df_2=pd.merge(match_df,df_1,on=['Name']).rename(columns={'Agg':'home_agg'})
 st.write('df2 to be merged', df_2)
 df_1=df_1.rename(columns={'Name':'away','avg_plus_med_rank':'away_rank'}).drop(['Week'],axis=1)
@@ -132,7 +133,7 @@ df_2['agg_diff_2']=(df_2['agg_diff'].where(df_2['agg_diff'].abs() > 50)).fillna(
 df_2['agg_diff_3']=(df_2['agg_diff_1']*-1).fillna(0)
 df_2['agg_diff_4']=df_2['agg_diff_2'] + df_2['agg_diff_3']
 df_2['win']=np.where(df_2['agg_diff_4']>0,1,-1)
-cols_to_move = ['home','away','Week','home_rank','away_rank','home_agg','away_agg','win']
+cols_to_move = ['home','away','home_rank','away_rank','home_agg','away_agg','win']
 cols = cols_to_move + [col for col in df_2 if col not in cols_to_move]
 df_2=df_2[cols]
 # df_2['agg_diff_4']=df_2['agg_diff_2']*1 # DON'T NEED IT
