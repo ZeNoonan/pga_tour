@@ -93,20 +93,24 @@ overall_df['rolling_8_pts_count']=overall_df.groupby('Name')['Points Won'].rolli
 overall_df['rolling_8_pts_total']=overall_df.groupby('Name')['Points Won'].rolling(8, min_periods=1).sum().reset_index(0,drop=True)
 overall_df['rolling_8_pts_mean']=overall_df.groupby('Name')['Points Won'].rolling(8, min_periods=1).mean().reset_index(0,drop=True)
 overall_df['rolling_8_pts_median']=overall_df.groupby('Name')['Points Won'].rolling(8, min_periods=1).median().reset_index(0,drop=True)
-
+all_df=overall_df.copy()
 week_number_1=st.number_input(label='select week number_1',min_value=2,key='week number',value=24)
 number_of_events_1=int(st.number_input(label='number of events for points won',min_value=2,key='number weeks',value=8))
 overall_df=overall_df[overall_df['Week']<(week_number_1+1)]
 overall_df=overall_df[(overall_df['max_event']>(number_of_events_1-1))]
-overall_df=overall_df.sort_values(['Name','Week'],ascending=True)
-overall_df=overall_df.drop_duplicates(subset=['Name'], keep='last')
 
-overall_df['med_4_rank']=overall_df['rolling_4_pts_median'].rank(method='dense', ascending=False)
-overall_df['avg_4_rank']=overall_df['rolling_4_pts_mean'].rank(method='dense', ascending=False)
-overall_df['med_8_rank']=overall_df['rolling_8_pts_median'].rank(method='dense', ascending=False)
-overall_df['avg_8_rank']=overall_df['rolling_8_pts_mean'].rank(method='dense', ascending=False)
-overall_df['avg_plus_med']=(overall_df['med_4_rank']+overall_df['avg_4_rank']+overall_df['med_8_rank']+overall_df['avg_8_rank'])
-overall_df['avg_plus_med_rank']=overall_df['avg_plus_med'].rank(method='dense', ascending=True)
+def processing_rank(overall_df):
+    overall_df=overall_df.sort_values(['Name','Week'],ascending=True)
+    overall_df=overall_df.drop_duplicates(subset=['Name'], keep='last')
+    overall_df['med_4_rank']=overall_df['rolling_4_pts_median'].rank(method='dense', ascending=False)
+    overall_df['avg_4_rank']=overall_df['rolling_4_pts_mean'].rank(method='dense', ascending=False)
+    overall_df['med_8_rank']=overall_df['rolling_8_pts_median'].rank(method='dense', ascending=False)
+    overall_df['avg_8_rank']=overall_df['rolling_8_pts_mean'].rank(method='dense', ascending=False)
+    overall_df['avg_plus_med']=(overall_df['med_4_rank']+overall_df['avg_4_rank']+overall_df['med_8_rank']+overall_df['avg_8_rank'])
+    overall_df['avg_plus_med_rank']=overall_df['avg_plus_med'].rank(method='dense', ascending=True)
+    return overall_df
+
+overall_df=processing_rank(overall_df)
 cols_to_move = ['Name','events_count','max_event','Week','Event Name','Pos','avg_plus_med_rank','avg_plus_med','med_4_rank','avg_4_rank','med_8_rank','avg_8_rank',
 'rolling_8_pts_mean','rolling_8_pts_median']
 cols = cols_to_move + [col for col in overall_df if col not in cols_to_move]
@@ -115,36 +119,53 @@ overall_df=overall_df[cols].sort_values(by='avg_plus_med_rank',ascending=True).r
 
 # combined=combined.sort_values(['Name','Week'],ascending=[True,False])
 # selected_df=combined[combined['Week']<(week_number+1)].groupby('Name').head(number_of_events).reset_index(0,drop=True)
-match_df=pd.read_excel('C:/Users/Darragh/Documents/Python/Golf/us_open.xlsx')
-match_df=match_df.rename(columns={'Home':'Name'})
-# st.write('check this for what to  bring in',overall_df)
-df_1=overall_df.loc[:,['Name','avg_plus_med_rank','Week','Agg']]
-st.write('match df', match_df,'df_1 to merge', df_1)
-df_2=pd.merge(match_df,df_1,on=['Name']).rename(columns={'Agg':'home_agg'})
-st.write('df2 to be merged', df_2)
-df_1=df_1.rename(columns={'Name':'away','avg_plus_med_rank':'away_rank'}).drop(['Week'],axis=1)
-st.write('df1 to be merged', df_1)
-df_2=pd.merge(df_2,df_1,on=['away']).rename(columns={'Name':'home','avg_plus_med_rank':'home_rank','Agg':'away_agg'})
-df_2['diff']=df_2['home_rank']-df_2['away_rank']
-df_2['abs']=df_2['diff'].abs()
-df_2['agg_diff']=df_2['home_agg']-df_2['away_agg']
-df_2['agg_diff_1']=(df_2['agg_diff'].where(df_2['agg_diff'].abs() < 50))
-df_2['agg_diff_2']=(df_2['agg_diff'].where(df_2['agg_diff'].abs() > 50)).fillna(0)
-df_2['agg_diff_3']=(df_2['agg_diff_1']*-1).fillna(0)
-df_2['agg_diff_4']=df_2['agg_diff_2'] + df_2['agg_diff_3']
-df_2['win']=np.where(df_2['agg_diff_4']>0,1,-1)
-cols_to_move = ['home','away','home_rank','away_rank','home_agg','away_agg','win']
-cols = cols_to_move + [col for col in df_2 if col not in cols_to_move]
-df_2=df_2[cols]
-# df_2['agg_diff_4']=df_2['agg_diff_2']*1 # DON'T NEED IT
+with st.expander('Tournament Match ups'):
+    match_df=pd.read_excel('C:/Users/Darragh/Documents/Python/Golf/us_open.xlsx')
+    match_df=match_df.rename(columns={'Home':'Name'})
+    # st.write('check this for what to  bring in',overall_df)
+    df_1=overall_df.loc[:,['Name','avg_plus_med_rank','Week','Agg']]
+    
+    
+    grouped = match_df.groupby('Week')
+    ranking_power=[]
+    for week, group in grouped:
+        st.write('name', week, 'group', group)
+        df_week_match_up=all_df[all_df['Week']<(week)]
+        df_week_match_up=processing_rank(df_week_match_up).loc[:,['Name','avg_plus_med_rank']].rename(columns={'avg_plus_med_rank':'home_rank',})
+        st.write('df_week_match_up', df_week_match_up.head(1))
+        df_1=pd.merge(group,df_week_match_up,on=['Name']).rename(columns={'Agg':'home_agg'})
+        st.write('first pass after merge', df_1)    
 
-df_2=df_2.sort_values(by='abs',ascending=False)
-# df_2['week']=25
-# df_3=pd.merge(df_2,overall_df)
-st.write('match ups',df_2.style.format(precision=0))
-st.write('win total?', df_2['win'].sum())
+    df_power = pd.concat(ranking_power, ignore_index=True)
+    st.write('df_power', df_power)
 
-st.write(overall_df.style.format(precision=0))
+
+    # st.write('match df', match_df,'df_1 to merge', df_1)
+    df_2=pd.merge(match_df,df_1,on=['Name']).rename(columns={'Agg':'home_agg'})
+    # st.write('df2 to be merged', df_2)
+    df_1=df_1.rename(columns={'Name':'away','avg_plus_med_rank':'away_rank'}).drop(['Week'],axis=1)
+    # st.write('df1 to be merged', df_1)
+    df_2=pd.merge(df_2,df_1,on=['away']).rename(columns={'Name':'home','avg_plus_med_rank':'home_rank','Agg':'away_agg'})
+    df_2['diff']=df_2['home_rank']-df_2['away_rank']
+    df_2['abs']=df_2['diff'].abs()
+    df_2['agg_diff']=df_2['home_agg']-df_2['away_agg']
+    df_2['agg_diff_1']=(df_2['agg_diff'].where(df_2['agg_diff'].abs() < 50))
+    df_2['agg_diff_2']=(df_2['agg_diff'].where(df_2['agg_diff'].abs() > 50)).fillna(0)
+    df_2['agg_diff_3']=(df_2['agg_diff_1']*-1).fillna(0)
+    df_2['agg_diff_4']=df_2['agg_diff_2'] + df_2['agg_diff_3']
+    df_2['win']=np.where(df_2['agg_diff_4']>0,1,-1)
+    cols_to_move = ['home','away','home_rank','away_rank','home_agg','away_agg','win']
+    cols = cols_to_move + [col for col in df_2 if col not in cols_to_move]
+    df_2=df_2[cols]
+    # df_2['agg_diff_4']=df_2['agg_diff_2']*1 # DON'T NEED IT
+
+    df_2=df_2.sort_values(by='abs',ascending=False)
+    # df_2['week']=25
+    # df_3=pd.merge(df_2,overall_df)
+    st.write('match ups',df_2.style.format(precision=0))
+    st.write('win total?', df_2['win'].sum())
+
+    st.write(overall_df.style.format(precision=0))
 
 # https://stackoverflow.com/questions/13996302/python-rolling-functions-for-groupby-object
 # st.write(combined[combined['Name'].str.contains("Hovl")])
