@@ -125,19 +125,26 @@ with st.expander('Tournament Match ups'):
     # st.write('check this for what to  bring in',overall_df)
     df_1=overall_df.loc[:,['Name','avg_plus_med_rank','Week','Agg']]
     
+    def assign_ranking_to_names(match_df,col='Name', rank='home_rank', agg='home_agg', merge_on='Name'):
+        grouped = match_df.groupby('Week')
+        ranking_power=[]
+        for week, group in grouped:
+            # st.write('name', week, 'group', group)
+            df_week_match_up=all_df[all_df['Week']<(week)]
+            # st.write('processing_rank(df_week_match_up)', processing_rank(df_week_match_up))
+            df_week_match_up=processing_rank(df_week_match_up).loc[:,[col,'avg_plus_med_rank','Agg']].rename(columns={'avg_plus_med_rank':rank})
+            # st.write('df_week_match_up', df_week_match_up.head(1))
+            df_1=pd.merge(group,df_week_match_up,on=[merge_on]).rename(columns={'Agg':agg})
+            ranking_power.append(df_1)
+            # st.write('first pass after merge', df_1)    
+        return pd.concat(ranking_power, ignore_index=True)
     
-    grouped = match_df.groupby('Week')
-    ranking_power=[]
-    for week, group in grouped:
-        st.write('name', week, 'group', group)
-        df_week_match_up=all_df[all_df['Week']<(week)]
-        df_week_match_up=processing_rank(df_week_match_up).loc[:,['Name','avg_plus_med_rank']].rename(columns={'avg_plus_med_rank':'home_rank',})
-        st.write('df_week_match_up', df_week_match_up.head(1))
-        df_1=pd.merge(group,df_week_match_up,on=['Name']).rename(columns={'Agg':'home_agg'})
-        st.write('first pass after merge', df_1)    
-
-    df_power = pd.concat(ranking_power, ignore_index=True)
+    
+    
+    df_power=assign_ranking_to_names(match_df).rename(columns={'Name':'home','away':'Name'})
     st.write('df_power', df_power)
+    df_power_1=assign_ranking_to_names(df_power,col='Name', rank='away_rank', agg='away_agg', merge_on='Name')
+    st.write('df_power', df_power_1)
 
 
     # st.write('match df', match_df,'df_1 to merge', df_1)
