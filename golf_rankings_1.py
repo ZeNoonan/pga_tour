@@ -181,7 +181,10 @@ with st.expander('Tournament Match ups'):
     st.write('win total?', df_2.groupby('Week')['result'].sum())
 
     st.write('would be good to do a sense check of the results agg so that they tally up')
-
+    test_df_home=df_2.loc[:,['Week','Event','home','home_agg']].rename(columns={'home_agg':'agg','home':'name'}).set_index('name')
+    test_df_away=df_2.loc[:,['Week','Event','away','away_agg']].rename(columns={'away_agg':'agg','away':'name'}).set_index('name')
+    test_df=pd.concat([test_df_home,test_df_away],axis=0).sort_values(by=['Week','agg'],ascending=True)
+    st.write(test_df)
     
 
 # https://stackoverflow.com/questions/13996302/python-rolling-functions-for-groupby-object
