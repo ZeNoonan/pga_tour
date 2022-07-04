@@ -184,6 +184,7 @@ with st.expander('Tournament Match ups'):
     test_df_home=df_2.loc[:,['Week','Event','home','home_agg']].rename(columns={'home_agg':'agg','home':'name'}).set_index('name')
     test_df_away=df_2.loc[:,['Week','Event','away','away_agg']].rename(columns={'away_agg':'agg','away':'name'}).set_index('name')
     test_df=pd.concat([test_df_home,test_df_away],axis=0).sort_values(by=['Week','agg'],ascending=True)
+    test_df=test_df.reset_index().drop_duplicates()
     st.write(test_df)
     
 
