@@ -8,7 +8,7 @@ from st_aggrid import AgGrid, GridOptionsBuilder, AgGrid, GridUpdateMode, DataRe
 
 st.set_page_config(layout="wide")
 
-current_week=26
+current_week=28
 
 def clean_results(file_location,name_of_tournament,year):
     df=pd.read_csv(file_location)
@@ -123,6 +123,7 @@ with st.expander('Current Ranking'):
     st.write(overall_df.style.format(precision=0))
 # combined=combined.sort_values(['Name','Week'],ascending=[True,False])
 # selected_df=combined[combined['Week']<(week_number+1)].groupby('Name').head(number_of_events).reset_index(0,drop=True)
+
 with st.expander('Tournament Match ups'):
     match_df=pd.read_excel('C:/Users/Darragh/Documents/Python/Golf/us_open.xlsx')
     match_df=match_df.rename(columns={'Home':'Name'})
@@ -139,16 +140,27 @@ with st.expander('Tournament Match ups'):
             # st.write('processing_rank(df_week_match_up)', processing_rank(df_week_match_up))
             df_week_match_up=processing_rank(df_week_match_up).loc[:,[col,'avg_plus_med_rank']].rename(columns={'avg_plus_med_rank':rank})
             df_week_match_up_1=processing_rank(df_week_match_up_result).loc[:,[col,'Agg']]
+            st.write('week start',week,'to merge group', group)
+            st.write('to merge df_week', df_week_match_up)
             df_1=pd.merge(group,df_week_match_up,on=[merge_on])
-            df_1=pd.merge(df_1,df_week_match_up_1,on=[merge_on]).rename(columns={'Agg':agg})
-            ranking_power.append(df_1)
-            # st.write('first pass after merge', df_1)    
+            st.write('afer merge',df_1)
+            # st.write('week start',week,'1 to merge', df_1)
+            # st.write('df_week match up to merge on Name', df_week_match_up_1)
+
+            if df_week_match_up_1.shape < (1,1):
+                ranking_power.append(df_1)
+            else:
+                df_1=pd.merge(df_1,df_week_match_up_1,on=[merge_on]).rename(columns={'Agg':agg})
+                st.write('merging with above df_1 table',df_week_match_up_1)
+                st.write('after merge', df_1,'week end',week)
+                ranking_power.append(df_1)
+                # st.write('first pass after merge', df_1)    
         return pd.concat(ranking_power, ignore_index=True)
     
     
     
     df_power=assign_ranking_to_names(match_df).rename(columns={'Name':'home','away':'Name'})
-    # st.write('df_power', df_power)
+    st.write('df_power', df_power)
     df_2=assign_ranking_to_names(df_power,col='Name', rank='away_rank', agg='away_agg', merge_on='Name').rename(columns={'Name':'away'})
     # st.write('df_power', df_2)
 
