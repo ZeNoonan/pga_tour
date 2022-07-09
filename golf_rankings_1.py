@@ -140,10 +140,10 @@ with st.expander('Tournament Match ups'):
             # st.write('processing_rank(df_week_match_up)', processing_rank(df_week_match_up))
             df_week_match_up=processing_rank(df_week_match_up).loc[:,[col,'avg_plus_med_rank']].rename(columns={'avg_plus_med_rank':rank})
             df_week_match_up_1=processing_rank(df_week_match_up_result).loc[:,[col,'Agg']]
-            st.write('week start',week,'to merge group', group)
-            st.write('to merge df_week', df_week_match_up)
+            # st.write('week start',week,'to merge group', group)
+            # st.write('to merge df_week', df_week_match_up)
             df_1=pd.merge(group,df_week_match_up,on=[merge_on])
-            st.write('afer merge',df_1)
+            # st.write('afer merge',df_1)
             # st.write('week start',week,'1 to merge', df_1)
             # st.write('df_week match up to merge on Name', df_week_match_up_1)
 
@@ -151,8 +151,8 @@ with st.expander('Tournament Match ups'):
                 ranking_power.append(df_1)
             else:
                 df_1=pd.merge(df_1,df_week_match_up_1,on=[merge_on]).rename(columns={'Agg':agg})
-                st.write('merging with above df_1 table',df_week_match_up_1)
-                st.write('after merge', df_1,'week end',week)
+                # st.write('merging with above df_1 table',df_week_match_up_1)
+                # st.write('after merge', df_1,'week end',week)
                 ranking_power.append(df_1)
                 # st.write('first pass after merge', df_1)    
         return pd.concat(ranking_power, ignore_index=True)
@@ -160,7 +160,7 @@ with st.expander('Tournament Match ups'):
     
     
     df_power=assign_ranking_to_names(match_df).rename(columns={'Name':'home','away':'Name'})
-    st.write('df_power', df_power)
+    # st.write('df_power', df_power)
     df_2=assign_ranking_to_names(df_power,col='Name', rank='away_rank', agg='away_agg', merge_on='Name').rename(columns={'Name':'away'})
     # st.write('df_power', df_2)
 
@@ -198,6 +198,14 @@ with st.expander('Tournament Match ups'):
     test_df=pd.concat([test_df_home,test_df_away],axis=0).sort_values(by=['Week','agg'],ascending=True)
     test_df=test_df.reset_index().drop_duplicates()
     st.write(test_df)
+
+    st.write('make sure the merge works')
+    merge_check=df_2.loc[:,['Week','Event','home','away']].sort_values(by=['Week','home'],ascending=True)
+    csv_picks=match_df.copy().sort_values(by=['Week','Name'],ascending=True).drop(['home_odds','away_odds'],axis=1).rename(columns={'away':'away_name'})
+    st.write('after merge', merge_check)
+    st.write('match up spreadsheet', csv_picks)
+    combine_test_check=pd.concat([merge_check,csv_picks],axis=1)
+    st.write('this is concat', combine_test_check)
     
 
 # https://stackoverflow.com/questions/13996302/python-rolling-functions-for-groupby-object
