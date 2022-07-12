@@ -35,7 +35,7 @@ def ogwr_file_csv_save(url_comp,filename_ext):
     p=pathlib.Path.cwd().joinpath('golf','rankings_data')
     return table[0].to_csv(p.joinpath(filename_ext))
 
-# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9575','river_highlands.csv')
+ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9603','scottish_open.csv')
 
 
 masters=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/masters_2022.csv','masters tournament',2022)
@@ -65,17 +65,18 @@ memorial=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/mem
 canadian=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/canadian.csv','rbc canadian open',2022)
 us_open=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/us_open.csv','u.s open',2022)
 river_highlands=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/river_highlands.csv','travelers championship',2022)
+scottish_open=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/scottish_open.csv','genesis scottish open',2022)
 
 
 
 
 tournament_list=[masters,players, matchplay, riviera, bay_hill, scottsdale, kapalua, torrey_pines,innisbrook, jeddah, la_quinta,
 dubai,hawaii,abu_dhabi,palm_beach,hilton_head, san_antonio, potomac,craig_ranch_texas,vidanta_mexico,pebble_beach,
-uspga,colonial,memorial,canadian,us_open,river_highlands]
+uspga,colonial,memorial,canadian,us_open,river_highlands,scottish_open]
 combined=pd.concat(tournament_list,axis=0)
 
-# events=pd.read_html('http://www.owgr.com/events')
-# events[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
+events=pd.read_html('http://www.owgr.com/events')
+events[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
 ranking_events=pd.read_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
 ranking_events['World Rating']=pd.to_numeric(ranking_events['World Rating'],errors='coerce')
 ranking_events['Event Name']=ranking_events['Event Name'].str.lower()
