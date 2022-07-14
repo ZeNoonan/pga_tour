@@ -35,7 +35,7 @@ def ogwr_file_csv_save(url_comp,filename_ext):
     p=pathlib.Path.cwd().joinpath('golf','rankings_data')
     return table[0].to_csv(p.joinpath(filename_ext))
 
-ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9603','scottish_open.csv')
+# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9603','scottish_open.csv')
 
 
 masters=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/masters_2022.csv','masters tournament',2022)
@@ -75,8 +75,8 @@ dubai,hawaii,abu_dhabi,palm_beach,hilton_head, san_antonio, potomac,craig_ranch_
 uspga,colonial,memorial,canadian,us_open,river_highlands,scottish_open]
 combined=pd.concat(tournament_list,axis=0)
 
-events=pd.read_html('http://www.owgr.com/events')
-events[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
+# events=pd.read_html('http://www.owgr.com/events')
+# events[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
 ranking_events=pd.read_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
 ranking_events['World Rating']=pd.to_numeric(ranking_events['World Rating'],errors='coerce')
 ranking_events['Event Name']=ranking_events['Event Name'].str.lower()
@@ -130,7 +130,7 @@ with st.expander('Tournament Match ups'):
     match_df=match_df.rename(columns={'Home':'Name'})
     # st.write('check this for what to  bring in',overall_df)
     df_1=overall_df.loc[:,['Name','avg_plus_med_rank','Week','Agg']]
-    
+    st.write('checking here #1')
     def assign_ranking_to_names(match_df,col='Name', rank='home_rank', agg='home_agg', merge_on='Name'):
         grouped = match_df.groupby('Week')
         ranking_power=[]
@@ -159,9 +159,10 @@ with st.expander('Tournament Match ups'):
         return pd.concat(ranking_power, ignore_index=True)
     
     
-    
+    st.write('checking here #2 after function')
     df_power=assign_ranking_to_names(match_df).rename(columns={'Name':'home','away':'Name'})
     # st.write('df_power', df_power)
+    st.write('checking here #3 after function')
     df_2=assign_ranking_to_names(df_power,col='Name', rank='away_rank', agg='away_agg', merge_on='Name').rename(columns={'Name':'away'})
     # st.write('df_power', df_2)
 
@@ -179,7 +180,8 @@ with st.expander('Tournament Match ups'):
     df_2['agg_diff_2']=(df_2['agg_diff'].where(df_2['agg_diff'].abs() > 50)).fillna(0)
     df_2['agg_diff_3']=(df_2['agg_diff_1']*-1).fillna(0)
     df_2['agg_diff_4']=df_2['agg_diff_2'] + df_2['agg_diff_3']
-    df_2['win']=np.where(df_2['agg_diff_4']>0,1,-1)
+    # df_2['win']=np.where(df_2['agg_diff_4']>0,1,-1)
+    df_2['win']=np.where(df_2['agg_diff_4']>0,1,np.where(df_2['agg_diff_4']==0,0,-1))
     df_2['pick']=np.where(df_2['diff']<0,1,-1)
     df_2['result']=df_2['win'] * df_2['pick']
     cols_to_move = ['Week','Event','home','away','home_rank','away_rank','home_agg','away_agg','win','pick','result']
@@ -190,6 +192,7 @@ with st.expander('Tournament Match ups'):
     df_2=df_2.sort_values(by=['Week','abs'],ascending=[True,False])
     # df_2['week']=25
     # df_3=pd.merge(df_2,overall_df)
+    st.write('match ups working?', df_2)
     st.write('match ups',df_2.style.format(precision=0))
     st.write('win total?', df_2.groupby('Week')['result'].sum())
 
