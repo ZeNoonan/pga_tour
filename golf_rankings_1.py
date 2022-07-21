@@ -8,7 +8,7 @@ from st_aggrid import AgGrid, GridOptionsBuilder, AgGrid, GridUpdateMode, DataRe
 
 st.set_page_config(layout="wide")
 
-current_week=28
+current_week=29
 
 def clean_results(file_location,name_of_tournament,year):
     df=pd.read_csv(file_location)
@@ -35,7 +35,7 @@ def ogwr_file_csv_save(url_comp,filename_ext):
     p=pathlib.Path.cwd().joinpath('golf','rankings_data')
     return table[0].to_csv(p.joinpath(filename_ext))
 
-# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9603','scottish_open.csv')
+# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9610','british_open.csv')
 
 
 masters=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/masters_2022.csv','masters tournament',2022)
@@ -66,13 +66,13 @@ canadian=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/can
 us_open=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/us_open.csv','u.s open',2022)
 river_highlands=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/river_highlands.csv','travelers championship',2022)
 scottish_open=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/scottish_open.csv','genesis scottish open',2022)
-
+british_open=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/british_open.csv','the 150th open',2022)
 
 
 
 tournament_list=[masters,players, matchplay, riviera, bay_hill, scottsdale, kapalua, torrey_pines,innisbrook, jeddah, la_quinta,
 dubai,hawaii,abu_dhabi,palm_beach,hilton_head, san_antonio, potomac,craig_ranch_texas,vidanta_mexico,pebble_beach,
-uspga,colonial,memorial,canadian,us_open,river_highlands,scottish_open]
+uspga,colonial,memorial,canadian,us_open,river_highlands,scottish_open,british_open]
 combined=pd.concat(tournament_list,axis=0)
 
 # events=pd.read_html('http://www.owgr.com/events')
@@ -101,16 +101,28 @@ all_df=overall_df.copy()
 with st.expander('Current Ranking'):
     week_number_1=st.number_input(label='select week number_1',min_value=2,key='week number',value=current_week)
     number_of_events_1=int(st.number_input(label='number of events for points won',min_value=2,key='number weeks',value=8))
+    player_df=overall_df.copy()
     overall_df=overall_df[overall_df['Week']<(week_number_1+1)]
     overall_df=overall_df[(overall_df['max_event']>(number_of_events_1-1))]
 
     def processing_rank(overall_df):
         overall_df=overall_df.sort_values(['Name','Week'],ascending=True)
         overall_df=overall_df.drop_duplicates(subset=['Name'], keep='last')
-        overall_df['med_4_rank']=overall_df['rolling_4_pts_median'].rank(method='dense', ascending=False)
-        overall_df['avg_4_rank']=overall_df['rolling_4_pts_mean'].rank(method='dense', ascending=False)
+
+        # overall_df['med_4_rank']=overall_df['rolling_4_pts_median'].rank(method='dense', ascending=False)
+        # overall_df['avg_4_rank']=overall_df['rolling_4_pts_mean'].rank(method='dense', ascending=False)
+        overall_df['med_4_rank']=overall_df['rolling_8_pts_median'].rank(method='dense', ascending=False)
+        overall_df['avg_4_rank']=overall_df['rolling_8_pts_mean'].rank(method='dense', ascending=False)
+
+
+
         overall_df['med_8_rank']=overall_df['rolling_8_pts_median'].rank(method='dense', ascending=False)
         overall_df['avg_8_rank']=overall_df['rolling_8_pts_mean'].rank(method='dense', ascending=False)
+        # overall_df['med_8_rank']=overall_df['rolling_4_pts_median'].rank(method='dense', ascending=False)
+        # overall_df['avg_8_rank']=overall_df['rolling_4_pts_mean'].rank(method='dense', ascending=False)
+        
+        
+        
         overall_df['avg_plus_med']=(overall_df['med_4_rank']+overall_df['avg_4_rank']+overall_df['med_8_rank']+overall_df['avg_8_rank'])
         overall_df['avg_plus_med_rank']=overall_df['avg_plus_med'].rank(method='dense', ascending=True)
         return overall_df
@@ -125,12 +137,23 @@ with st.expander('Current Ranking'):
 # combined=combined.sort_values(['Name','Week'],ascending=[True,False])
 # selected_df=combined[combined['Week']<(week_number+1)].groupby('Name').head(number_of_events).reset_index(0,drop=True)
 
+with st.expander('Player Detail by Week'):
+    player_names_pick=player_df['Name'].unique()
+    names_selected_pick = st.selectbox('Select players',player_names_pick, key='player_pick',index=0)
+    player_selected_detail_by_week = player_df[player_df['Name']==names_selected_pick]
+    st.write(player_selected_detail_by_week)
+
+
+
 with st.expander('Tournament Match ups'):
     match_df=pd.read_excel('C:/Users/Darragh/Documents/Python/Golf/us_open.xlsx')
+    # Sungjae Im withdrew from travelers championship in week 26 
+
     match_df=match_df.rename(columns={'Home':'Name'})
     # st.write('check this for what to  bring in',overall_df)
     df_1=overall_df.loc[:,['Name','avg_plus_med_rank','Week','Agg']]
-    st.write('checking here #1')
+    # st.write('checking here #1')
+    # st.write('all df',all_df[all_df['Name'].str.contains('ung')])
     def assign_ranking_to_names(match_df,col='Name', rank='home_rank', agg='home_agg', merge_on='Name'):
         grouped = match_df.groupby('Week')
         ranking_power=[]
@@ -140,9 +163,13 @@ with st.expander('Tournament Match ups'):
             df_week_match_up_result=all_df[all_df['Week']==(week)]
             # st.write('processing_rank(df_week_match_up)', processing_rank(df_week_match_up))
             df_week_match_up=processing_rank(df_week_match_up).loc[:,[col,'avg_plus_med_rank']].rename(columns={'avg_plus_med_rank':rank})
+            
+            # no sungjae im in below
             df_week_match_up_1=processing_rank(df_week_match_up_result).loc[:,[col,'Agg']]
+            
             # st.write('week start',week,'to merge group', group)
             # st.write('to merge df_week', df_week_match_up)
+
             df_1=pd.merge(group,df_week_match_up,on=[merge_on])
             # st.write('afer merge',df_1)
             # st.write('week start',week,'1 to merge', df_1)
@@ -151,19 +178,22 @@ with st.expander('Tournament Match ups'):
             if df_week_match_up_1.shape < (1,1):
                 ranking_power.append(df_1)
             else:
-                df_1=pd.merge(df_1,df_week_match_up_1,on=[merge_on]).rename(columns={'Agg':agg})
+                # st.write('df1 before merge', df_1,'week',week,'df week match up 1 before merge', df_week_match_up_1)
+                df_1=pd.merge(df_1,df_week_match_up_1,on=[merge_on],how='left').rename(columns={'Agg':agg})
+                # https://www.datasciencemadesimple.com/join-merge-data-frames-pandas-python/
+
                 # st.write('merging with above df_1 table',df_week_match_up_1)
-                # st.write('after merge', df_1,'week end',week)
+                # st.write('after merge', df_1,'week',week)
                 ranking_power.append(df_1)
                 # st.write('first pass after merge', df_1)    
         return pd.concat(ranking_power, ignore_index=True)
     
     
-    st.write('checking here #2 after function')
+    # st.write('checking here #2 after function')
     df_power=assign_ranking_to_names(match_df).rename(columns={'Name':'home','away':'Name'})
-    # st.write('df_power', df_power)
-    st.write('checking here #3 after function')
-    df_2=assign_ranking_to_names(df_power,col='Name', rank='away_rank', agg='away_agg', merge_on='Name').rename(columns={'Name':'away'})
+    # st.write('df_power check for sungjae im', df_power)
+    # st.write('checking here #3 after function')
+    df_2=assign_ranking_to_names(df_power,col='Name', rank='away_rank', agg='away_agg', merge_on='Name').rename(columns={'Name':'away'}) # just doing this to check function
     # st.write('df_power', df_2)
 
 
@@ -192,7 +222,7 @@ with st.expander('Tournament Match ups'):
     df_2=df_2.sort_values(by=['Week','abs'],ascending=[True,False])
     # df_2['week']=25
     # df_3=pd.merge(df_2,overall_df)
-    st.write('match ups working?', df_2)
+    # st.write('match ups working?', df_2)
     st.write('match ups',df_2.style.format(precision=0))
     st.write('win total?', df_2.groupby('Week')['result'].sum())
 
@@ -201,14 +231,15 @@ with st.expander('Tournament Match ups'):
     test_df_away=df_2.loc[:,['Week','Event','away','away_agg']].rename(columns={'away_agg':'agg','away':'name'}).set_index('name')
     test_df=pd.concat([test_df_home,test_df_away],axis=0).sort_values(by=['Week','agg'],ascending=True)
     test_df=test_df.reset_index().drop_duplicates()
-    st.write(test_df)
+    # st.write(test_df)
 
     st.write('make sure the merge works')
     merge_check=df_2.loc[:,['Week','Event','home','away']].sort_values(by=['Week','home'],ascending=True)
     csv_picks=match_df.copy().sort_values(by=['Week','Name'],ascending=True).drop(['home_odds','away_odds'],axis=1).rename(columns={'away':'away_name'})
-    st.write('after merge', merge_check)
-    st.write('match up spreadsheet', csv_picks)
-    combine_test_check=pd.concat([merge_check,csv_picks],axis=1)
+    # st.write('after merge', merge_check)
+    # st.write('match up spreadsheet', csv_picks)
+    # https://stackoverflow.com/questions/48647534/python-pandas-find-difference-between-two-data-frames
+    combine_test_check=csv_picks.rename(columns={'Name':'home','away_name':'away'}).merge(merge_check,indicator = True, how='left').loc[lambda x : x['_merge']!='both']
     st.write('this is concat', combine_test_check)
     
 
