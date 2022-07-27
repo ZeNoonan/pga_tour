@@ -75,8 +75,8 @@ dubai,hawaii,abu_dhabi,palm_beach,hilton_head, san_antonio, potomac,craig_ranch_
 uspga,colonial,memorial,canadian,us_open,river_highlands,scottish_open,british_open]
 combined=pd.concat(tournament_list,axis=0)
 
-# events=pd.read_html('http://www.owgr.com/events')
-# events[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
+events=pd.read_html('http://www.owgr.com/events')
+events[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
 ranking_events=pd.read_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
 ranking_events['World Rating']=pd.to_numeric(ranking_events['World Rating'],errors='coerce')
 ranking_events['Event Name']=ranking_events['Event Name'].str.lower()
@@ -146,6 +146,7 @@ with st.expander('Player Detail by Week'):
 
 
 with st.expander('Tournament Match ups'):
+    st.write('At the minute running it based on rolling 8 week median and average - seems to be better than incorporating 4 rolling week')
     match_df=pd.read_excel('C:/Users/Darragh/Documents/Python/Golf/us_open.xlsx')
     # Sungjae Im withdrew from travelers championship in week 26 
 
