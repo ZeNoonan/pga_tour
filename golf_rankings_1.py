@@ -8,7 +8,7 @@ from st_aggrid import AgGrid, GridOptionsBuilder, AgGrid, GridUpdateMode, DataRe
 
 st.set_page_config(layout="wide")
 
-current_week=29
+current_week=32
 
 def clean_results(file_location,name_of_tournament,year):
     df=pd.read_csv(file_location)
@@ -35,7 +35,7 @@ def ogwr_file_csv_save(url_comp,filename_ext):
     p=pathlib.Path.cwd().joinpath('golf','rankings_data')
     return table[0].to_csv(p.joinpath(filename_ext))
 
-# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9610','british_open.csv')
+# ogwr_file_csv_save('http://www.owgr.com/en/Events/EventResult.aspx?eventid=9629','detroit.csv')
 
 
 masters=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/masters_2022.csv','masters tournament',2022)
@@ -67,16 +67,17 @@ us_open=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/us_o
 river_highlands=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/river_highlands.csv','travelers championship',2022)
 scottish_open=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/scottish_open.csv','genesis scottish open',2022)
 british_open=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/british_open.csv','the 150th open',2022)
+detroit=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/detroit.csv','rocket mortgage classic',2022)
 
 
 
 tournament_list=[masters,players, matchplay, riviera, bay_hill, scottsdale, kapalua, torrey_pines,innisbrook, jeddah, la_quinta,
 dubai,hawaii,abu_dhabi,palm_beach,hilton_head, san_antonio, potomac,craig_ranch_texas,vidanta_mexico,pebble_beach,
-uspga,colonial,memorial,canadian,us_open,river_highlands,scottish_open,british_open]
+uspga,colonial,memorial,canadian,us_open,river_highlands,scottish_open,british_open,detroit]
 combined=pd.concat(tournament_list,axis=0)
 
-events=pd.read_html('http://www.owgr.com/events')
-events[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
+# events=pd.read_html('http://www.owgr.com/events')
+# events[0].to_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
 ranking_events=pd.read_csv('C:/Users/Darragh/Documents/Python/Golf/rankings_data/ranking_events.csv')
 ranking_events['World Rating']=pd.to_numeric(ranking_events['World Rating'],errors='coerce')
 ranking_events['Event Name']=ranking_events['Event Name'].str.lower()
@@ -215,7 +216,10 @@ with st.expander('Tournament Match ups'):
     df_2['win']=np.where(df_2['agg_diff_4']>0,1,np.where(df_2['agg_diff_4']==0,0,-1))
     df_2['pick']=np.where(df_2['diff']<0,1,-1)
     df_2['result']=df_2['win'] * df_2['pick']
-    cols_to_move = ['Week','Event','home','away','home_rank','away_rank','home_agg','away_agg','win','pick','result']
+    df_2['pick_odds']=np.where(df_2['diff']<0,df_2['home_odds'],df_2['home_odds'])
+    df_2['cash_return']=np.where(df_2['result']<0,-1*10,df_2['pick_odds']*df_2['result']*10)
+    # df_2['result_filter']=df_2['result'].where()
+    cols_to_move = ['Week','Event','home','away','home_rank','away_rank','home_agg','away_agg','win','pick','result','pick_odds','cash_return']
     cols = cols_to_move + [col for col in df_2 if col not in cols_to_move]
     df_2=df_2[cols]
     # df_2['agg_diff_4']=df_2['agg_diff_2']*1 # DON'T NEED IT
@@ -224,8 +228,15 @@ with st.expander('Tournament Match ups'):
     # df_2['week']=25
     # df_3=pd.merge(df_2,overall_df)
     # st.write('match ups working?', df_2)
-    st.write('match ups',df_2.style.format(precision=0))
-    st.write('win total?', df_2.groupby('Week')['result'].sum())
+    st.write('match ups',df_2.style.format(precision=0,formatter={'pick_odds':'{:.2f}','cash_return':'{:.2f}'}))
+    summary_result_match_ups=df_2.groupby(['Week','result'])['result','cash_return'].sum()
+    # summary_result_match_ups=summary_result_match_ups.reset_index()
+    summary_result_match_ups['avg']=summary_result_match_ups['cash_return'] / summary_result_match_ups['result']
+    def style_negative(v, props=''):
+        return props if v < 0 else None
+    st.write('Assume €10 per bet')
+    st.write('win total?', summary_result_match_ups.style.applymap(style_negative, props='color:red;').format(formatter={'cash_return':'{:.2f}','avg':'{:.2f}'}))
+    st.write('cash total?', df_2.groupby('Week')['cash_return','result'].sum().style.applymap(style_negative, props='color:red;').format(formatter={'cash_return':'{:.2f}'}))
 
     st.write('would be good to do a sense check of the results agg so that they tally up')
     test_df_home=df_2.loc[:,['Week','Event','home','home_agg']].rename(columns={'home_agg':'agg','home':'name'}).set_index('name')
