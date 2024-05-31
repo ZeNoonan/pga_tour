@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pathlib
+import altair as alt
 st.set_page_config(layout="wide")
 
 # a=(pd.DataFrame(pd.read_html('https://www.pgatour.com/tournaments/2024/the-players-championship/R2024011.html')))
@@ -35,7 +36,8 @@ with st.expander('World Rankings'):
 
         return df
     
-    # ogwr_file_csv_save("https://www.owgr.com/events/u-s--pga-championship-10384",'valhalla_2024.csv')
+    # ogwr_file_csv_save("https://www.owgr.com/events/charles-schwab-challenge-10397",'colonial_2024.csv')
+    colonial_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/colonial_2024.csv','colonial',2024,pd.to_datetime('26-05-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
     valhalla_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/valhalla_2024.csv','Valhalla',2024,pd.to_datetime('19-05-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
     quail_hollow_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/quail_hollow_2024.csv','Quail_Hollow',2024,pd.to_datetime('12-05-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
     dallas_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/dallas_2024.csv','Dallas',2024,pd.to_datetime('05-05-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
@@ -54,7 +56,7 @@ with st.expander('World Rankings'):
     torrey_pines=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/torrey_pines_2024.csv','torrey_pines',2024,'27-01-2024').rename(columns={'NAME':'Name'})
     hawaii=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/hawaii_2024.csv','hawaii',2024,'14-01-2024').rename(columns={'NAME':'Name'})
     kapalua=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/kapalua_2024.csv','kapalua',2024,pd.to_datetime('07-01-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
-    combined_data=pd.concat([valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
+    combined_data=pd.concat([colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
                              pebble_beach,torrey_pines,hawaii,kapalua])
     combined_data["R1"]=pd.to_numeric(combined_data["R1"],errors='coerce')
     combined_data["R2"]=pd.to_numeric(combined_data["R2"],errors='coerce')
@@ -469,19 +471,116 @@ with st.expander('All Betting Analysis'):
     
     # st.write(combined_data[combined_data['Name'].str.contains('ungj')])
     df_betting_raw['Name']=df_betting_raw['Name'].str.title()
-    # st.write(df_betting_raw[df_betting_raw['Name'].str.contains('ungj')])
+    # st.write(df_betting_raw[df_betting_raw['Name'].str.contains('itche')])
     df_betting_results=pd.merge(df_betting_raw,combined_data,on=['date','Name'],how='left',indicator=True)
     st.write('Check the indicator to see if anything missing after merge',df_betting_results[df_betting_results['_merge'].str.contains('left')].sort_values(by='date'))
     df_betting_results=df_betting_results[~df_betting_results['position'].isna()]
+    df_betting_results=df_betting_results.sort_values(by=['date','Winner_odds'],ascending=[False,True])
 
     df_betting_results['agg_after_handicap'] = (df_betting_results['AGG']*df_betting_results['MC'])-df_betting_results['Handicap_Strokes']
-    df_betting_results['POS_after_handicap'] = df_betting_results['agg_after_handicap'].rank(method='dense', ascending=True)
+    df_betting_results['POS_after_handicap'] = df_betting_results.groupby('Tour_Name')['agg_after_handicap'].rank(method='dense', ascending=True)
     df_betting_results['cover_handicap?'] = np.where((df_betting_results['position']>=df_betting_results['Finishing_Position_2']),-1,1)
-    st.write('after merge', df_betting_results)
+    df_betting_results['alt_pos'] = df_betting_results['position'].where(df_betting_results['position'] != 999, 80)
+    df_betting_results['surplus_pos_result'] = df_betting_results['Finishing_Position_1'] - df_betting_results['alt_pos']
+    cols_to_move=['Tour_Name','date','Name','Finishing_Position_1','Finish Pos.','cover_handicap?','surplus_pos_result','agg_after_handicap']
+    cols = cols_to_move + [col for col in df_betting_results if col not in cols_to_move]
+    df_betting_results=df_betting_results[cols]
+    # st.write('after merge', df_betting_results)
+    st.write('Last result',df_betting_results.drop_duplicates(subset='Name',keep='first'))
+    results_by_name = df_betting_results.groupby('Name').agg(surplus_position=('surplus_pos_result','sum'),
+                                                             count_tourn=('surplus_pos_result','count'),cover_result=('cover_handicap?','sum')).reset_index()
+    # results_by_name['cover_result']=results_by_name['cover_result'].astype(float)
+    # st.write(results_by_name.dtypes)
+    # st.write('Cover Results Worst Performers:', results_by_name.sort_values(by='cover_result',ascending=True))
+    # st.write('Cover Results Best Performers:', results_by_name.sort_values(by=['cover_result'],ascending=[False]))
+    # st.write('Surplus Position Results:', results_by_name.sort_values(by='surplus_position',ascending=False))
 
-# with st.expander('Number of Tournies played'):
-#     # st.write(current_data_before_rank)
-#     st.write(current_data_before_rank.groupby(['Name']).agg(number=('Tournament','nunique')))
+    st.write('Colonial:', df_betting_results[df_betting_results['Tour_Name']=='Colonial'].sort_values(by=['agg_after_handicap','position'],ascending=[True,True]))
+    st.write('Valhalla:', df_betting_results[df_betting_results['Tour_Name']=='Valhalla'].sort_values(by=['agg_after_handicap','position'],ascending=[True,True]))
+
+with st.expander('Canada'):
+
+    canada_entrants=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Canada',header=[0])
+    canada_entrants['Name']=canada_entrants['Name'].str.title()
+    # st.write(canada_entrants)
+    # st.write(df_betting_results[df_betting_results['Name'].str.contains('eith')])
+    st.write(combined_data[combined_data['Name'].str.contains('itche')])
+    canada=pd.merge(df_betting_results,canada_entrants,on='Name',how='right').sort_values(by=['date','Winner_odds'],ascending=[False,True])
+    cols_to_move=['Tour_Name','date','Name','Finishing_Position_1','Finish Pos.','cover_handicap?']
+    cols = cols_to_move + [col for col in canada if col not in cols_to_move]
+    canada=canada[cols]
+    st.write(canada.drop_duplicates(subset='Name',keep='first'))
+    canada_update=pd.merge(results_by_name,canada_entrants,on='Name',how='right')
+    st.write(canada_update.sort_values(by='surplus_position',ascending=False))
+
+
+
+
+with st.expander('Season to Date Cover Graph'):
+    # df_stdc_1=canada.loc[:,['date','Name','cover_handicap?']].copy()
+    df_stdc_1=df_betting_results.loc[:,['date','Name','cover_handicap?','surplus_pos_result']].copy()
+    # st.write(pd.pivot_table(df_stdc_1,values=['cover_handicap?'],index=['Name'],columns=['date']))
+    def pivot_generation(df_stdc_1,col_selection='cover_handicap?'):
+        test_pivot=pd.pivot(df_stdc_1,values=[col_selection],index=['Name'],columns=['date']).reset_index()
+        test_pivot.columns = test_pivot.columns.get_level_values(1)
+        test_pivot=test_pivot.set_index('NaT')
+        test_pivot.index.names=['Name']
+        test_pivot['total_cover']=test_pivot.sum(axis=1)
+        return test_pivot
+    test_pivot=pivot_generation(df_stdc_1,col_selection='cover_handicap?')
+    test_pivot_1=pivot_generation(df_stdc_1,col_selection='surplus_pos_result')
+    # st.write(test_pivot.columns)
+    # https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html
+    def highlight_max(cell): 
+        if cell > 0 : 
+            return 'background-color:green'
+        if cell < 0 : 
+            return 'background-color:red'
+        else: 
+            return ''
+  
+    # st.write(test_pivot.sort_values(by=['total_cover'],ascending=False).style.applymap(highlight_max))
+    st.write(test_pivot.sort_values(by=['total_cover'],ascending=False).style.format(precision=0).applymap(highlight_max))
+    st.write(test_pivot_1.sort_values(by=['total_cover'],ascending=False).style.format(precision=0).applymap(highlight_max))
+    st.write(test_pivot.sort_values(by=['total_cover'],ascending=True).style.format(precision=0).applymap(highlight_max))
+    st.write(test_pivot_1.sort_values(by=['total_cover'],ascending=True).style.format(precision=0).applymap(highlight_max))
+
+    # st.write(test_pivot.sort_values(by=['total_cover'],ascending=False))
+    df_stdc_1['average']=df_stdc_1.groupby('Name')['cover_handicap?'].transform(np.mean)
+    chart_cover= alt.Chart(df_stdc_1).mark_rect().encode(alt.X('date:N',axis=alt.Axis(title='date',labelAngle=0)),
+    alt.Y('Name',sort=alt.SortField(field='average', order='descending')),color=alt.Color('cover_handicap?:Q',scale=alt.Scale(scheme='redyellowgreen')))
+    # https://altair-viz.github.io/gallery/layered_heatmap_text.html
+    # https://vega.github.io/vega/docs/schemes/
+    text_cover=chart_cover.mark_text().encode(text=alt.Text('cover_handicap?:N'),color=alt.value('black'))
+    # st.altair_chart(chart_cover + text_cover,use_container_width=True)
+
+with st.expander('Handicap Results Graph'):
+    # df_stdc_1=canada.loc[:,['date','Name','cover_handicap?']].copy()
+    df_stdc_1=df_betting_results.loc[:,['date','Name','cover_handicap?','POS_after_handicap']].copy()
+    df_stdc_1=df_stdc_1.dropna(subset=['POS_after_handicap'])
+    
+    
+    test_pivot=pivot_generation(df_stdc_1,col_selection='POS_after_handicap')
+
+    # st.write(test_pivot.sort_values(by=['total_cover'],ascending=True).style.format(precision=0).background_gradient(axis=0, cmap='bwr')) #bwr
+    # https://matplotlib.org/stable/users/explain/colors/colormaps.html
+
+    test_pivot=test_pivot.drop('total_cover',axis=1)
+    test_pivot['top_3']=test_pivot.isin({1,2,3}).sum(axis=1)
+    # st.write(test_pivot.sort_values(by=['top_3'],ascending=False).style.format(precision=0).background_gradient(axis=0, cmap='bwr')) #bwr
+    # https://matplotlib.org/stable/gallery/color/named_colors.html
+    def highlight_custom(cell): 
+        if cell ==1: 
+            return 'background-color:lime'
+        if cell == 2 : 
+            return 'background-color:green'
+        if cell == 3 : 
+            return 'background-color:green'
+        if cell > 3 : 
+            return 'background-color:lightgrey'
+        else: 
+            return ''
+    st.write(test_pivot.sort_values(by=['top_3'],ascending=False).style.format(precision=0).applymap(highlight_custom)) 
 
 with st.expander('Data PGA Tour SG'):
     hilton_head_sg_approach=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/hilton_head_app.csv').drop(['MOVEMENT','AVG'],axis=1).rename(columns={'RANK':'rank_app'})
