@@ -36,7 +36,8 @@ with st.expander('World Rankings'):
 
         return df
     
-    # ogwr_file_csv_save("https://www.owgr.com/events/charles-schwab-challenge-10397",'colonial_2024.csv')
+    # ogwr_file_csv_save("https://www.owgr.com/events/rbc-canadian-open--10406",'canada_2024.csv')
+    canada_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/canada_2024.csv','canada',2024,pd.to_datetime('30-05-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
     colonial_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/colonial_2024.csv','colonial',2024,pd.to_datetime('26-05-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
     valhalla_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/valhalla_2024.csv','Valhalla',2024,pd.to_datetime('19-05-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
     quail_hollow_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/quail_hollow_2024.csv','Quail_Hollow',2024,pd.to_datetime('12-05-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
@@ -56,12 +57,16 @@ with st.expander('World Rankings'):
     torrey_pines=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/torrey_pines_2024.csv','torrey_pines',2024,'27-01-2024').rename(columns={'NAME':'Name'})
     hawaii=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/hawaii_2024.csv','hawaii',2024,'14-01-2024').rename(columns={'NAME':'Name'})
     kapalua=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/kapalua_2024.csv','kapalua',2024,pd.to_datetime('07-01-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
-    combined_data=pd.concat([colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
+    combined_data=pd.concat([canada_2024,colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
                              pebble_beach,torrey_pines,hawaii,kapalua])
     combined_data["R1"]=pd.to_numeric(combined_data["R1"],errors='coerce')
     combined_data["R2"]=pd.to_numeric(combined_data["R2"],errors='coerce')
     combined_data["R3"]=pd.to_numeric(combined_data["R3"],errors='coerce')
     combined_data["R4"]=pd.to_numeric(combined_data["R4"],errors='coerce')
+    combined_data["AGG"]=pd.to_numeric(combined_data["AGG"],errors='coerce')
+    # st.write(combined_data.dtypes)
+    # st.write(combined_data)
+    combined_data.to_parquet('C:/Users/Darragh/Documents/Python/Golf/combined_odds_data.parq')
 
     # st.write('comb', combined_data)
     # st.write('hil', masters_2024)
@@ -469,9 +474,9 @@ with st.expander('All Betting Analysis'):
 
     df_betting_raw=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='betting_data',converters= {'date': pd.to_datetime})
     
-    # st.write(combined_data[combined_data['Name'].str.contains('ungj')])
+    st.write(combined_data[combined_data['Name'].str.contains('ory')])
     df_betting_raw['Name']=df_betting_raw['Name'].str.title()
-    # st.write(df_betting_raw[df_betting_raw['Name'].str.contains('itche')])
+    st.write(df_betting_raw[df_betting_raw['Name'].str.contains('ory')])
     df_betting_results=pd.merge(df_betting_raw,combined_data,on=['date','Name'],how='left',indicator=True)
     st.write('Check the indicator to see if anything missing after merge',df_betting_results[df_betting_results['_merge'].str.contains('left')].sort_values(by='date'))
     df_betting_results=df_betting_results[~df_betting_results['position'].isna()]
@@ -495,6 +500,7 @@ with st.expander('All Betting Analysis'):
     # st.write('Cover Results Best Performers:', results_by_name.sort_values(by=['cover_result'],ascending=[False]))
     # st.write('Surplus Position Results:', results_by_name.sort_values(by='surplus_position',ascending=False))
 
+    st.write('Canada:', df_betting_results[df_betting_results['Tour_Name']=='canada'].sort_values(by=['agg_after_handicap','position'],ascending=[True,True]))
     st.write('Colonial:', df_betting_results[df_betting_results['Tour_Name']=='Colonial'].sort_values(by=['agg_after_handicap','position'],ascending=[True,True]))
     st.write('Valhalla:', df_betting_results[df_betting_results['Tour_Name']=='Valhalla'].sort_values(by=['agg_after_handicap','position'],ascending=[True,True]))
 
