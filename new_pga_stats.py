@@ -120,7 +120,7 @@ with st.expander('Masters Analysis Historical'):
         else: 
             return 'background: black; color: white'
         
-    def highlight_max(cell): 
+    def highlight_max(cell):   # sourcery skip: assign-if-exp
         if type(cell) != str and cell < 0 : 
             return 'color: red'
         else: 
@@ -480,7 +480,7 @@ with st.expander('All Betting Analysis'):
     df_betting_raw['Name']=df_betting_raw['Name'].str.title()
     # st.write(df_betting_raw[df_betting_raw['Name'].str.contains('ory')])
     df_betting_results=pd.merge(df_betting_raw,combined_data,on=['date','Name'],how='left',indicator=True)
-    df_betting_results.to_parquet('C:/Users/Darragh/Documents/Python/Golf/golf_odds_results_combined.parq')
+    # df_betting_results.to_parquet('C:/Users/Darragh/Documents/Python/Golf/golf_odds_results_combined.parq')
     st.write('Check the indicator to see if anything missing after merge',df_betting_results[df_betting_results['_merge'].str.contains('left')].sort_values(by='date'))
     df_betting_results=df_betting_results[~df_betting_results['position'].isna()]
     df_betting_results=df_betting_results.sort_values(by=['date','Winner_odds'],ascending=[False,True])
@@ -505,10 +505,10 @@ with st.expander('All Betting Analysis'):
     cols = cols_to_move + [col for col in df_betting_results if col not in cols_to_move]
     df_betting_results=df_betting_results[cols].sort_values(by=['date','Name'],ascending=True)
     # st.write('after merge', df_betting_results)
-    st.write('Last result',df_betting_results.drop_duplicates(subset='Name',keep='first'))
-    results_by_name = df_betting_results.groupby('Name').agg(surplus_position=('surplus_pos_result','sum'),
-                                                             count_tourn=('surplus_pos_result','count'),cover_result=('cover_handicap?','sum')).reset_index()
-    st.write(combined_data.head())
+    # st.write('Last result',df_betting_results.drop_duplicates(subset='Name',keep='first'))
+    # results_by_name = df_betting_results.groupby('Name').agg(surplus_position=('surplus_pos_result','sum'),
+    #                                                          count_tourn=('surplus_pos_result','count'),cover_result=('cover_handicap?','sum')).reset_index()
+    # st.write(combined_data.head())
     st.write(combined_data.groupby('Event Name').agg(count_players=('AGG','count')))
     # st.write('Cover Results Worst Performers:', results_by_name.sort_values(by='cover_result',ascending=True))
     # st.write('Cover Results Best Performers:', results_by_name.sort_values(by=['cover_result'],ascending=[False]))
@@ -545,28 +545,56 @@ with st.expander('Momentum'):
     
     # st.write(mom_pivot)
 
-with st.expander('Season Cover workings'):
-    x=df_betting_results.groupby (['Name'])['cover_handicap?'].apply(lambda x: x.cumsum().shift()).reset_index().rename(columns={'level_1':'unique_id'})
-    y=df_betting_results.drop('cover_handicap?',axis=1).reset_index().rename(columns={'index':'unique_id'})
-    season_cover_df=pd.merge(x,y,how='outer',on=['unique_id','Name']).rename(columns={'cover_handicap?':'cover_prev'})
+with st.expander('Season Cover Factor'):
+    # st.write(df_betting_results)
+    x=df_betting_results.groupby (['Name'])['cover_handicap?'].apply(lambda x: x.cumsum().shift()).reset_index().rename(columns={'level_1':'unique_id'}).rename(columns={'cover_handicap?':'season_cover'})
+
+    y=df_betting_results.reset_index().rename(columns={'index':'unique_id'})
+    season_cover_df=pd.merge(x,y,how='outer',on=['unique_id','Name']).rename(columns={'season_cover':'season_cover_prev'})
     # st.write('after merge', season_cover_df)
     season_cover_df=season_cover_df.reset_index().sort_values(by=['date','Name'],ascending=True).drop(['index','unique_id'],axis=1)
-    st.write(season_cover_df)
+    season_cover_df['season_cover_prev_sign']=np.sign(season_cover_df['season_cover_prev'])
+    # st.write(season_cover_df)
 
-with st.expander('Canada'):
+    momentum_results = season_cover_df.groupby('season_cover_prev_sign').agg(season_cover_results=('cover_handicap?','sum'),count=('cover_handicap?','count'))
+    st.write(momentum_results)
+    momentum_results_event = season_cover_df.groupby(['date','Tour_Name','season_cover_prev_sign']).agg(cover_handicap=('cover_handicap?','sum'),count=('cover_handicap?','count')).reset_index().sort_values(by=['date'],ascending=False)
+    # st.write(momentum_results_event)
+    summary_momentum_results_event=momentum_results_event[momentum_results_event['season_cover_prev_sign']!=0]
+    st.write(summary_momentum_results_event)
+    def graph_pl(summary_momentum_results_event,column):
+        line_cover= alt.Chart(summary_momentum_results_event).mark_line().encode(alt.X('date:T',axis=alt.Axis(title='Week',labelAngle=0)),
+        alt.Y(column),color=alt.Color('season_cover_prev_sign:N'))
+        text_cover=line_cover.mark_text(baseline='middle',dx=0,dy=-15).encode(text=alt.Text(column),color=alt.value('black'))
+        overlay = pd.DataFrame({column: [0]})
+        vline = alt.Chart(overlay).mark_rule(color='black', strokeWidth=1).encode(y=column)
+        return st.altair_chart(line_cover + text_cover + vline,use_container_width=True)
 
-    canada_entrants=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Canada',header=[0])
-    canada_entrants['Name']=canada_entrants['Name'].str.title()
-    # st.write(canada_entrants)
-    # st.write(df_betting_results[df_betting_results['Name'].str.contains('eith')])
-    st.write(combined_data[combined_data['Name'].str.contains('itche')])
-    canada=pd.merge(df_betting_results,canada_entrants,on='Name',how='right').sort_values(by=['date','Winner_odds'],ascending=[False,True])
-    cols_to_move=['Tour_Name','date','Name','Finishing_Position_1','Finish Pos.','cover_handicap?']
-    cols = cols_to_move + [col for col in canada if col not in cols_to_move]
-    canada=canada[cols]
-    st.write(canada.drop_duplicates(subset='Name',keep='first'))
-    canada_update=pd.merge(results_by_name,canada_entrants,on='Name',how='right')
-    st.write(canada_update.sort_values(by='surplus_position',ascending=False))
+    graph_pl(summary_momentum_results_event,column='cover_handicap')    
+    # st.altair_chart(alt.Chart(summary_momentum_results_event).mark_line().encode(x='date:T',y='cover_handicap:Q',color='momentum_pick:N'),use_container_width=True)
+    # factor_bets = (analysis_factors[analysis_factors['bet_sign']!=0]).copy()
+    
+    # momentum_results_event = df_betting_results.groupby(['date','Tour_Name','momentum_pick'])['cover_handicap?'].sum().reset_index().sort_values(by='date')
+    # mom_pivot=pd.pivot_table(df_betting_results,values=['cover_handicap?'],index=['momentum_pick'],columns=['date'],aggfunc='sum').reset_index()
+    # st.write(df_betting_results.dtypes)
+    
+    st.write(season_cover_df.groupby(['season_cover_prev_sign','cover_handicap?']).agg(season_cover_results=('cover_handicap?','sum'),count=('cover_handicap?','count')))    
+    
+    # st.write(season_cover_df[(season_cover_df['Tour_Name']=='memorial') & (season_cover_df['season_cover_prev_sign']==-1) ])
+# with st.expander('Canada'):
+
+#     canada_entrants=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Canada',header=[0])
+#     canada_entrants['Name']=canada_entrants['Name'].str.title()
+#     # st.write(canada_entrants)
+#     # st.write(df_betting_results[df_betting_results['Name'].str.contains('eith')])
+#     st.write(combined_data[combined_data['Name'].str.contains('itche')])
+#     canada=pd.merge(df_betting_results,canada_entrants,on='Name',how='right').sort_values(by=['date','Winner_odds'],ascending=[False,True])
+#     cols_to_move=['Tour_Name','date','Name','Finishing_Position_1','Finish Pos.','cover_handicap?']
+#     cols = cols_to_move + [col for col in canada if col not in cols_to_move]
+#     canada=canada[cols]
+#     st.write(canada.drop_duplicates(subset='Name',keep='first'))
+#     canada_update=pd.merge(results_by_name,canada_entrants,on='Name',how='right')
+#     st.write(canada_update.sort_values(by='surplus_position',ascending=False))
 
 
 
@@ -586,7 +614,7 @@ with st.expander('Season to Date Cover Graph'):
     test_pivot_1=pivot_generation(df_stdc_1,col_selection='surplus_pos_result')
     # st.write(test_pivot.columns)
     # https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html
-    def highlight_max(cell): 
+    def highlight_max(cell):   # sourcery skip: assign-if-exp
         if cell > 0 : 
             return 'background-color:green'
         if cell < 0 : 
@@ -623,11 +651,14 @@ with st.expander('Handicap Results Graph'):
 
     test_pivot=test_pivot.drop('total_cover',axis=1)
     count_players=test_pivot.copy()
+    date_event=df_betting_results.loc[:,['Tour_Name','date']].drop_duplicates().reset_index(drop=True)
+    cols = list(zip(date_event['date'], date_event['Tour_Name']))
+    test_pivot.columns = pd.MultiIndex.from_tuples(cols)
     test_pivot['top_3']=test_pivot.isin({1,2,3}).sum(axis=1)
     
     # st.write(test_pivot.sort_values(by=['top_3'],ascending=False).style.format(precision=0).background_gradient(axis=0, cmap='bwr')) #bwr
     # https://matplotlib.org/stable/gallery/color/named_colors.html
-    def highlight_custom(cell): 
+    def highlight_custom(cell):   # sourcery skip: assign-if-exp
         if cell ==1: 
             return 'background-color:lime'
         if cell == 2 : 
@@ -638,6 +669,9 @@ with st.expander('Handicap Results Graph'):
             return 'background-color:lightgrey'
         else: 
             return ''
+        
+
+
     st.write(test_pivot.sort_values(by=['top_3'],ascending=False).style.format(precision=0).applymap(highlight_custom)) 
 
 with st.expander('Power Ranking'):
@@ -650,11 +684,39 @@ with st.expander('Power Ranking'):
     count_players.columns = pd.MultiIndex.from_tuples(cols)
     count_players['total']=count_players.count(axis=1)
     count_players=count_players.sort_values(by='total',ascending=False)
-    st.write(count_players.reset_index())
+    # st.write(count_players.reset_index())
     count_players_min_3=count_players[count_players['total']>2]
     # st.write(count_players_min_3.columns)
     # count_players_min_3.columns = pd.MultiIndex.from_tuples(cols)
     st.write(count_players_min_3.reset_index())
+
+    handicap_df=df_betting_results.loc[:,['date','Name','Handicap_Strokes','Tour_Name']].copy()
+    handicap_df=handicap_df[handicap_df['Handicap_Strokes'].notna()].copy().sort_values(by=['date','Handicap_Strokes']).reset_index(drop=True)
+    
+    # exclude Dallas Colonial Canada as just not enough players to compare against
+    # handicap_df=handicap_df[handicap_df['Tour_Name']!='Dallas'].copy()
+    handicap_df=handicap_df[~handicap_df['Tour_Name'].isin({'Dallas','canada','Colonial'})].copy()
+    # https://stackoverflow.com/questions/41594703/pandas-assign-an-index-to-each-group-identified-by-groupby
+    handicap_df['week'] = handicap_df.groupby(['Tour_Name']).ngroup()-3
+    handicap_df['count']=handicap_df.groupby('Name')['Handicap_Strokes'].transform('count')
+    # st.write(handicap_df)
+    handicap_df=handicap_df[handicap_df['count']>2].reset_index(drop=True).set_index('date')
+    
+    # handicap_df['week_number'] = pd.to_numeric(handicap_df.index.isocalendar().week)
+    # handicap_df['week_number'] =handicap_df['week_number'].astype(int)
+    # st.write(handicap_df.dtypes)
+    # handicap_df['week_number'] =handicap_df['week_number'] - 19
+    handicap_df['count_players']=handicap_df.groupby('week')['Handicap_Strokes'].transform('count')
+
+    
+
+    st.write(handicap_df)
+    st.write(handicap_df.groupby('Name')['week'].count().reset_index().sort_values(by='week',ascending=False).reset_index(drop=True))
+
+    # test_pivot=pivot_generation(df_betting_results.loc[:,['date','Name','cover_handicap?','surplus_pos_result']].copy(),col_selection='Handicap_Strokes')
+    # st.write(test_pivot)
+    # # test_pivot=test_pivot.drop('total_cover',axis=1)
+    
 
 
 with st.expander('Data PGA Tour SG'):
