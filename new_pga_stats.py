@@ -37,7 +37,9 @@ with st.expander('World Rankings'):
 
         return df
     
+    # ogwr_file_csv_save("https://www.owgr.com/events/u-s--open-10425",'pinehurst_2024.csv')
     # ogwr_file_csv_save("https://www.owgr.com/events/the-memorial-tournament-presented-by-workday-10419",'memorial_2024.csv')
+    pinehurst_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/pinehurst_2024.csv','pinehurst',2024,pd.to_datetime('16-06-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
     memorial_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/memorial_2024.csv','memorial',2024,pd.to_datetime('06-06-2024',dayfirst=True)).rename(columns={'NAME':'Name'})     
     canada_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/canada_2024.csv','canada',2024,pd.to_datetime('30-05-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
     colonial_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/colonial_2024.csv','colonial',2024,pd.to_datetime('26-05-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
@@ -59,7 +61,7 @@ with st.expander('World Rankings'):
     torrey_pines=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/torrey_pines_2024.csv','torrey_pines',2024,'27-01-2024').rename(columns={'NAME':'Name'})
     hawaii=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/hawaii_2024.csv','hawaii',2024,'14-01-2024').rename(columns={'NAME':'Name'})
     kapalua=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/kapalua_2024.csv','kapalua',2024,pd.to_datetime('07-01-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
-    combined_data=pd.concat([memorial_2024,canada_2024,colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
+    combined_data=pd.concat([pinehurst_2024,memorial_2024,canada_2024,colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
                              pebble_beach,torrey_pines,hawaii,kapalua])
     combined_data["R1"]=pd.to_numeric(combined_data["R1"],errors='coerce')
     combined_data["R2"]=pd.to_numeric(combined_data["R2"],errors='coerce')
@@ -68,6 +70,7 @@ with st.expander('World Rankings'):
     combined_data["AGG"]=pd.to_numeric(combined_data["AGG"],errors='coerce')
     # st.write(combined_data.dtypes)
     # st.write(combined_data)
+    # st.write(pinehurst_2024)
     # combined_data.to_parquet('C:/Users/Darragh/Documents/Python/Golf/golf_results_from_ogwr.parq')
 
     # st.write('comb', combined_data)
@@ -228,248 +231,248 @@ with st.expander('current'):
     st.write('Last 1',groupby_factors.sort_values(by=['diff_last_1','diff_last_3'],ascending=[False,False]).reset_index())
     st.write('Bottom of the Pack',groupby_factors.sort_values(by='diff_last_3',ascending=True))
 
-with st.expander('Houston'):
-    updated_groupby_factors=groupby_factors.reset_index()
-    # houston_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Houston',header=None).values.tolist()
-    houston_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Houston')
-    # st.write('houst',houston_players)
-    houston_merge=pd.merge(updated_groupby_factors,houston_players,on='Name',how='right')
-    # houston_merge.index=houston_players.index
-    # houston_merge['No.']=range(len(houston_merge))
-    # houston_merge=houston_merge.reset_index()
-    st.write('houston', houston_merge.sort_values(by='diff_last_3',ascending=False).reset_index(drop=True))
-    # houston_players_dict=houston_players.to_dict()
-    # st.write('dict', houston_players_dict)
-    # st.write(updated_groupby_factors[updated_groupby_factors['Name'].isin(houston_players_dict)])
-    # st.write(updated_groupby_factors[updated_groupby_factors['Name'].isin(houston_players)])
-    # st.write(updated_groupby_factors)
-    # updated_groupby_factors['Houston_Players'] = updated_groupby_factors[]
+# with st.expander('Houston'):
+#     updated_groupby_factors=groupby_factors.reset_index()
+#     # houston_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Houston',header=None).values.tolist()
+#     houston_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Houston')
+#     # st.write('houst',houston_players)
+#     houston_merge=pd.merge(updated_groupby_factors,houston_players,on='Name',how='right')
+#     # houston_merge.index=houston_players.index
+#     # houston_merge['No.']=range(len(houston_merge))
+#     # houston_merge=houston_merge.reset_index()
+#     st.write('houston', houston_merge.sort_values(by='diff_last_3',ascending=False).reset_index(drop=True))
+#     # houston_players_dict=houston_players.to_dict()
+#     # st.write('dict', houston_players_dict)
+#     # st.write(updated_groupby_factors[updated_groupby_factors['Name'].isin(houston_players_dict)])
+#     # st.write(updated_groupby_factors[updated_groupby_factors['Name'].isin(houston_players)])
+#     # st.write(updated_groupby_factors)
+#     # updated_groupby_factors['Houston_Players'] = updated_groupby_factors[]
 
-with st.expander('San Antonio'):
-    pre_masters_data=current_data_before_rank[(current_data_before_rank['Tournament']>1)]
-    st.write('Tournies played before San Antonio',pre_masters_data.groupby(['Name']).agg(number=('Tournament','nunique')))
-    pre_masters_data=pre_masters_data.drop('index',axis=1).sort_values(by=['Name','Tournament'],ascending=[True,True]).reset_index(drop=True)
-    pre_masters_data['event_tracker']=pre_masters_data.groupby('Name')['Tournament'].rank(method='first', ascending=True)
+# with st.expander('San Antonio'):
+#     pre_masters_data=current_data_before_rank[(current_data_before_rank['Tournament']>1)]
+#     st.write('Tournies played before San Antonio',pre_masters_data.groupby(['Name']).agg(number=('Tournament','nunique')))
+#     pre_masters_data=pre_masters_data.drop('index',axis=1).sort_values(by=['Name','Tournament'],ascending=[True,True]).reset_index(drop=True)
+#     pre_masters_data['event_tracker']=pre_masters_data.groupby('Name')['Tournament'].rank(method='first', ascending=True)
 
-    updated_groupby_factors=analysis_data(pre_masters_data).reset_index()
-    master_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='San Antonio')
-    master_players['Name']=master_players['Name'].str.title()
-    # st.write('San Antonio', master_players)
-    houston_merge=pd.merge(updated_groupby_factors,master_players,on='Name',how='right')
-    final_masters_results=pd.merge(houston_merge,san_antonio_2024.loc[:,['Name','position']],on='Name',how='left').sort_values(by='position')
-    st.write('Final Result',final_masters_results.loc[:,['Name','diff_last_3','diff_last_1','position']])
+#     updated_groupby_factors=analysis_data(pre_masters_data).reset_index()
+#     master_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='San Antonio')
+#     master_players['Name']=master_players['Name'].str.title()
+#     # st.write('San Antonio', master_players)
+#     houston_merge=pd.merge(updated_groupby_factors,master_players,on='Name',how='right')
+#     final_masters_results=pd.merge(houston_merge,san_antonio_2024.loc[:,['Name','position']],on='Name',how='left').sort_values(by='position')
+#     st.write('Final Result',final_masters_results.loc[:,['Name','diff_last_3','diff_last_1','position']])
 
-with st.expander('Masters'):
-    st.write('My takeaway here is that betting on Top 40 for every player who has 0 negatives in the week prior in the SG categories ott app arg')
-    st.write('looks profitable')
-    # current_data_before_rank=current_data.copy()
-    pre_masters_data=current_data_before_rank[current_data_before_rank['Tour_Name']!='Masters']
-    pre_masters_data=pre_masters_data.drop('index',axis=1).sort_values(by=['Name','Tournament'],ascending=[True,True]).reset_index(drop=True)
-    # st.write('pre ranking sort', pre_masters_data[pre_masters_data['Name'].str.contains('Fleetwood')])
-    pre_masters_data['event_tracker']=pre_masters_data.groupby('Name')['Tournament'].rank(method='first', ascending=True)
-    # st.write('after ranking', pre_masters_data[pre_masters_data['Name'].str.contains('Fleetwood')])
+# with st.expander('Masters'):
+#     st.write('My takeaway here is that betting on Top 40 for every player who has 0 negatives in the week prior in the SG categories ott app arg')
+#     st.write('looks profitable')
+#     # current_data_before_rank=current_data.copy()
+#     pre_masters_data=current_data_before_rank[current_data_before_rank['Tour_Name']!='Masters']
+#     pre_masters_data=pre_masters_data.drop('index',axis=1).sort_values(by=['Name','Tournament'],ascending=[True,True]).reset_index(drop=True)
+#     # st.write('pre ranking sort', pre_masters_data[pre_masters_data['Name'].str.contains('Fleetwood')])
+#     pre_masters_data['event_tracker']=pre_masters_data.groupby('Name')['Tournament'].rank(method='first', ascending=True)
+#     # st.write('after ranking', pre_masters_data[pre_masters_data['Name'].str.contains('Fleetwood')])
 
-    updated_groupby_factors=analysis_data(pre_masters_data).reset_index()
-    # st.write('after function', updated_groupby_factors[updated_groupby_factors['Name'].str.contains('Fleetwood')])
-    # houston_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Houston',header=None).values.tolist()
-    master_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Masters')
-    master_players['Name']=master_players['Name'].str.title()
-    houston_merge=pd.merge(updated_groupby_factors,master_players,on='Name',how='right')
-    # st.write('Masters', houston_merge.sort_values(by='diff_last_3',ascending=False).reset_index(drop=True))
-    # st.write('masters', masters_2024.loc[:,['Name','position']])
-    final_masters_results=pd.merge(houston_merge,masters_2024.loc[:,['Name','position']],on='Name',how='left')
-    final_masters_results['combine_diffs']=final_masters_results['diff_last_3']+final_masters_results['diff_last_1']
-    st.write('Final Result',final_masters_results.loc[:,['Name','diff_last_3','diff_last_1','position','combine_diffs']])
+#     updated_groupby_factors=analysis_data(pre_masters_data).reset_index()
+#     # st.write('after function', updated_groupby_factors[updated_groupby_factors['Name'].str.contains('Fleetwood')])
+#     # houston_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Houston',header=None).values.tolist()
+#     master_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Masters')
+#     master_players['Name']=master_players['Name'].str.title()
+#     houston_merge=pd.merge(updated_groupby_factors,master_players,on='Name',how='right')
+#     # st.write('Masters', houston_merge.sort_values(by='diff_last_3',ascending=False).reset_index(drop=True))
+#     # st.write('masters', masters_2024.loc[:,['Name','position']])
+#     final_masters_results=pd.merge(houston_merge,masters_2024.loc[:,['Name','position']],on='Name',how='left')
+#     final_masters_results['combine_diffs']=final_masters_results['diff_last_3']+final_masters_results['diff_last_1']
+#     st.write('Final Result',final_masters_results.loc[:,['Name','diff_last_3','diff_last_1','position','combine_diffs']])
 
-with st.expander('Hilton Head'):
-    # st.write('dtype',current_data_before_rank.dtypes)
-    pre_masters_data=current_data_before_rank[current_data_before_rank['Tournament']>-1]
-    pre_masters_data=pre_masters_data.drop('index',axis=1).sort_values(by=['Name','Tournament'],ascending=[True,True]).reset_index(drop=True)
-    pre_masters_data['event_tracker']=pre_masters_data.groupby('Name')['Tournament'].rank(method='first', ascending=True)
+# with st.expander('Hilton Head'):
+#     # st.write('dtype',current_data_before_rank.dtypes)
+#     pre_masters_data=current_data_before_rank[current_data_before_rank['Tournament']>-1]
+#     pre_masters_data=pre_masters_data.drop('index',axis=1).sort_values(by=['Name','Tournament'],ascending=[True,True]).reset_index(drop=True)
+#     pre_masters_data['event_tracker']=pre_masters_data.groupby('Name')['Tournament'].rank(method='first', ascending=True)
 
-    updated_groupby_factors=analysis_data(pre_masters_data).reset_index()
-    master_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Hilton_Head')
-    master_players['Name']=master_players['Name'].str.title()
-    houston_merge=pd.merge(updated_groupby_factors,master_players,on='Name',how='right').sort_values(by=['diff_last_3','diff_last_1'],ascending=[False,False])
-    # update below when results come in
-    final_masters_results=pd.merge(houston_merge,Hilton_Head_2024.loc[:,['Name','position']],on='Name',how='left').sort_values(by=['position','diff_last_3'],ascending=[True,False]).reset_index(drop=True)
-    # st.write('Final Result',final_masters_results.loc[:,['Name','diff_last_3','diff_last_1','position']].sort_values(by=['position'],ascending=[True]))
+#     updated_groupby_factors=analysis_data(pre_masters_data).reset_index()
+#     master_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Hilton_Head')
+#     master_players['Name']=master_players['Name'].str.title()
+#     houston_merge=pd.merge(updated_groupby_factors,master_players,on='Name',how='right').sort_values(by=['diff_last_3','diff_last_1'],ascending=[False,False])
+#     # update below when results come in
+#     final_masters_results=pd.merge(houston_merge,Hilton_Head_2024.loc[:,['Name','position']],on='Name',how='left').sort_values(by=['position','diff_last_3'],ascending=[True,False]).reset_index(drop=True)
+#     # st.write('Final Result',final_masters_results.loc[:,['Name','diff_last_3','diff_last_1','position']].sort_values(by=['position'],ascending=[True]))
 
-    # st.write('Final Result',houston_merge.loc[:,['Name','diff_last_3','diff_last_1']].reset_index(drop=True))
+#     # st.write('Final Result',houston_merge.loc[:,['Name','diff_last_3','diff_last_1']].reset_index(drop=True))
 
-    hilton_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Hilton_Head_Betting')
-    hilton_players['Name']=hilton_players['Name'].str.title()
-    hilton_players['top_5_%']=1/hilton_players['Top_5']
-    hilton_players['top_10_%']=1/hilton_players['Top_10']
-    hilton_players['top_20_%']=1/hilton_players['Top_20']
-    hilton_players['top_30_%']=1/hilton_players['Top_30']
-    hilton_players['max_less_mins_10_not_top_5']=hilton_players[['top_10_%','top_20_%','top_30_%']].max(axis=1)-hilton_players[['top_10_%','top_20_%','top_30_%']].min(axis=1)
-    hilton_players['diff_to_fifty_fifty']=hilton_players[['top_10_%','top_20_%','top_30_%']].max(axis=1)-0.5
-    hilton_players['pos_by_tenth']=(hilton_players['diff_to_fifty_fifty'] / hilton_players['max_less_mins_10_not_top_5'])*10
-    hilton_selection=pd.merge(hilton_players,houston_merge,how='left',on='Name').sort_values(by=['diff_last_3','diff_last_1'],ascending=[False,False])
-    # st.write(Hilton_Head_2024)
-    hilton_selection=pd.merge(hilton_selection,Hilton_Head_2024.loc[:,['Name','position','AGG']],on='Name',how='left')
-    hilton_selection['agg_after_handicap'] = hilton_selection['AGG']-hilton_selection['Handicap_Strokes']
-    hilton_selection['POS_after_handicap'] = hilton_selection['agg_after_handicap'].rank(method='dense', ascending=True)
+#     hilton_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Hilton_Head_Betting')
+#     hilton_players['Name']=hilton_players['Name'].str.title()
+#     hilton_players['top_5_%']=1/hilton_players['Top_5']
+#     hilton_players['top_10_%']=1/hilton_players['Top_10']
+#     hilton_players['top_20_%']=1/hilton_players['Top_20']
+#     hilton_players['top_30_%']=1/hilton_players['Top_30']
+#     hilton_players['max_less_mins_10_not_top_5']=hilton_players[['top_10_%','top_20_%','top_30_%']].max(axis=1)-hilton_players[['top_10_%','top_20_%','top_30_%']].min(axis=1)
+#     hilton_players['diff_to_fifty_fifty']=hilton_players[['top_10_%','top_20_%','top_30_%']].max(axis=1)-0.5
+#     hilton_players['pos_by_tenth']=(hilton_players['diff_to_fifty_fifty'] / hilton_players['max_less_mins_10_not_top_5'])*10
+#     hilton_selection=pd.merge(hilton_players,houston_merge,how='left',on='Name').sort_values(by=['diff_last_3','diff_last_1'],ascending=[False,False])
+#     # st.write(Hilton_Head_2024)
+#     hilton_selection=pd.merge(hilton_selection,Hilton_Head_2024.loc[:,['Name','position','AGG']],on='Name',how='left')
+#     hilton_selection['agg_after_handicap'] = hilton_selection['AGG']-hilton_selection['Handicap_Strokes']
+#     hilton_selection['POS_after_handicap'] = hilton_selection['agg_after_handicap'].rank(method='dense', ascending=True)
 
-    # hilton_selection['agg_after_handicap_ALT'] = hilton_selection['AGG']+hilton_selection['Handicap_Strokes']
-    # hilton_selection['POS_after_handicap_ALT'] = hilton_selection['agg_after_handicap_ALT'].rank(method='dense', ascending=True)
+#     # hilton_selection['agg_after_handicap_ALT'] = hilton_selection['AGG']+hilton_selection['Handicap_Strokes']
+#     # hilton_selection['POS_after_handicap_ALT'] = hilton_selection['agg_after_handicap_ALT'].rank(method='dense', ascending=True)
 
 
-    hilton_selection['cover_handicap?'] = np.where(hilton_selection['position']>=hilton_selection['Finishing_Position_2'],-1,1)
-    hilton_selection['combine_diffs']=hilton_selection['diff_last_3']+hilton_selection['diff_last_1']
-    hilton_head_results_betting=hilton_selection.loc[:,['Name','diff_last_3','diff_last_1','POS_after_handicap','position','Finishing_Position_1',
-    'cover_handicap?','Handicap_Strokes','agg_after_handicap']]\
-             .sort_values(by=['POS_after_handicap']).reset_index(drop=True)
-    st.write('Betting Result', hilton_selection.loc[:,['Name','diff_last_3','diff_last_1','POS_after_handicap','position','Finishing_Position_1',
-    'cover_handicap?','Handicap_Strokes','agg_after_handicap']]\
-             .sort_values(by=['POS_after_handicap']).reset_index(drop=True))
-    groupby_result_diff_3=hilton_selection.groupby(['diff_last_3']).agg(diff_3_result=('cover_handicap?','sum'),diff_3_count=('cover_handicap?','count'))
-    groupby_result_diff_1=hilton_selection.groupby(['diff_last_1']).agg(diff_1_result=('cover_handicap?','sum'),diff_1_count=('cover_handicap?','count'))
-    groupby_result_diff_comb=hilton_selection.groupby(['combine_diffs']).agg(diff_1_result=('cover_handicap?','sum'),diff_1_count=('cover_handicap?','count'))
-    st.write('groupby result diff 3',groupby_result_diff_3)
-    st.write('groupby result diff 1',groupby_result_diff_1)
-    st.write('groupby result diff combine',groupby_result_diff_comb)
-    st.write('Handicap Betting All Columns', hilton_selection.reset_index(drop=True))
+#     hilton_selection['cover_handicap?'] = np.where(hilton_selection['position']>=hilton_selection['Finishing_Position_2'],-1,1)
+#     hilton_selection['combine_diffs']=hilton_selection['diff_last_3']+hilton_selection['diff_last_1']
+#     hilton_head_results_betting=hilton_selection.loc[:,['Name','diff_last_3','diff_last_1','POS_after_handicap','position','Finishing_Position_1',
+#     'cover_handicap?','Handicap_Strokes','agg_after_handicap']]\
+#              .sort_values(by=['POS_after_handicap']).reset_index(drop=True)
+#     st.write('Betting Result', hilton_selection.loc[:,['Name','diff_last_3','diff_last_1','POS_after_handicap','position','Finishing_Position_1',
+#     'cover_handicap?','Handicap_Strokes','agg_after_handicap']]\
+#              .sort_values(by=['POS_after_handicap']).reset_index(drop=True))
+#     groupby_result_diff_3=hilton_selection.groupby(['diff_last_3']).agg(diff_3_result=('cover_handicap?','sum'),diff_3_count=('cover_handicap?','count'))
+#     groupby_result_diff_1=hilton_selection.groupby(['diff_last_1']).agg(diff_1_result=('cover_handicap?','sum'),diff_1_count=('cover_handicap?','count'))
+#     groupby_result_diff_comb=hilton_selection.groupby(['combine_diffs']).agg(diff_1_result=('cover_handicap?','sum'),diff_1_count=('cover_handicap?','count'))
+#     st.write('groupby result diff 3',groupby_result_diff_3)
+#     st.write('groupby result diff 1',groupby_result_diff_1)
+#     st.write('groupby result diff combine',groupby_result_diff_comb)
+#     st.write('Handicap Betting All Columns', hilton_selection.reset_index(drop=True))
 
     
-with st.expander('New Orleans'):
-    # st.write('dtype',current_data_before_rank.dtypes)
-    # pre_masters_data=current_data_before_rank[current_data_before_rank['Tournament']>-1]
-    # pre_masters_data=pre_masters_data.drop('index',axis=1).sort_values(by=['Name','Tournament'],ascending=[True,True]).reset_index(drop=True)
-    # pre_masters_data['event_tracker']=pre_masters_data.groupby('Name')['Tournament'].rank(method='first', ascending=True)
+# with st.expander('New Orleans'):
+#     # st.write('dtype',current_data_before_rank.dtypes)
+#     # pre_masters_data=current_data_before_rank[current_data_before_rank['Tournament']>-1]
+#     # pre_masters_data=pre_masters_data.drop('index',axis=1).sort_values(by=['Name','Tournament'],ascending=[True,True]).reset_index(drop=True)
+#     # pre_masters_data['event_tracker']=pre_masters_data.groupby('Name')['Tournament'].rank(method='first', ascending=True)
 
-    # updated_groupby_factors=analysis_data(pre_masters_data).reset_index()
-    # master_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Hilton_Head')
-    # master_players['Name']=master_players['Name'].str.title()
-    # houston_merge=pd.merge(updated_groupby_factors,master_players,on='Name',how='right').sort_values(by=['diff_last_3','diff_last_1'],ascending=[False,False])
-    # # update below when results come in
-    # final_masters_results=pd.merge(houston_merge,Hilton_Head_2024.loc[:,['Name','position']],on='Name',how='left').sort_values(by=['position','diff_last_3'],ascending=[True,False]).reset_index(drop=True)
-    # # st.write('Final Result',final_masters_results.loc[:,['Name','diff_last_3','diff_last_1','position']].sort_values(by=['position'],ascending=[True]))
+#     # updated_groupby_factors=analysis_data(pre_masters_data).reset_index()
+#     # master_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Hilton_Head')
+#     # master_players['Name']=master_players['Name'].str.title()
+#     # houston_merge=pd.merge(updated_groupby_factors,master_players,on='Name',how='right').sort_values(by=['diff_last_3','diff_last_1'],ascending=[False,False])
+#     # # update below when results come in
+#     # final_masters_results=pd.merge(houston_merge,Hilton_Head_2024.loc[:,['Name','position']],on='Name',how='left').sort_values(by=['position','diff_last_3'],ascending=[True,False]).reset_index(drop=True)
+#     # # st.write('Final Result',final_masters_results.loc[:,['Name','diff_last_3','diff_last_1','position']].sort_values(by=['position'],ascending=[True]))
 
-    # st.write('Final Result',houston_merge.loc[:,['Name','diff_last_3','diff_last_1']].reset_index(drop=True))
+#     # st.write('Final Result',houston_merge.loc[:,['Name','diff_last_3','diff_last_1']].reset_index(drop=True))
 
-    hilton_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Louisiana_Team_Betting')
-    hilton_players['Name']=hilton_players['Name'].str.title()
-    hilton_players['top_5_%']=1/hilton_players['Top_5']
-    hilton_players['top_10_%']=1/hilton_players['Top_10']
-    hilton_players['top_20_%']=1/hilton_players['Top_20']
-    hilton_players['top_30_%']=1/hilton_players['Top_30']
-    hilton_players['max_less_mins_10_not_top_5']=hilton_players[['top_10_%','top_20_%','top_30_%']].max(axis=1)-hilton_players[['top_10_%','top_20_%','top_30_%']].min(axis=1)
-    hilton_players['diff_to_fifty_fifty']=hilton_players[['top_10_%','top_20_%','top_30_%']].max(axis=1)-0.5
-    hilton_players['pos_by_tenth']=(hilton_players['diff_to_fifty_fifty'] / hilton_players['max_less_mins_10_not_top_5'])*10
-    hilton_selection=hilton_players.copy()
-    # st.write(Hilton_Head_2024)
-    # hilton_selection=pd.merge(hilton_selection,Hilton_Head_2024.loc[:,['Name','position','AGG']],on='Name',how='left')
-    hilton_selection['agg_after_handicap'] = hilton_selection['AGG']-hilton_selection['Handicap_Strokes']
-    hilton_selection['POS_after_handicap'] = hilton_selection['agg_after_handicap'].rank(method='dense', ascending=True)
+#     hilton_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Louisiana_Team_Betting')
+#     hilton_players['Name']=hilton_players['Name'].str.title()
+#     hilton_players['top_5_%']=1/hilton_players['Top_5']
+#     hilton_players['top_10_%']=1/hilton_players['Top_10']
+#     hilton_players['top_20_%']=1/hilton_players['Top_20']
+#     hilton_players['top_30_%']=1/hilton_players['Top_30']
+#     hilton_players['max_less_mins_10_not_top_5']=hilton_players[['top_10_%','top_20_%','top_30_%']].max(axis=1)-hilton_players[['top_10_%','top_20_%','top_30_%']].min(axis=1)
+#     hilton_players['diff_to_fifty_fifty']=hilton_players[['top_10_%','top_20_%','top_30_%']].max(axis=1)-0.5
+#     hilton_players['pos_by_tenth']=(hilton_players['diff_to_fifty_fifty'] / hilton_players['max_less_mins_10_not_top_5'])*10
+#     hilton_selection=hilton_players.copy()
+#     # st.write(Hilton_Head_2024)
+#     # hilton_selection=pd.merge(hilton_selection,Hilton_Head_2024.loc[:,['Name','position','AGG']],on='Name',how='left')
+#     hilton_selection['agg_after_handicap'] = hilton_selection['AGG']-hilton_selection['Handicap_Strokes']
+#     hilton_selection['POS_after_handicap'] = hilton_selection['agg_after_handicap'].rank(method='dense', ascending=True)
 
-    hilton_selection['agg_after_handicap_ALT'] = hilton_selection['AGG']+hilton_selection['Handicap_Strokes']
-    hilton_selection['POS_after_handicap_ALT'] = hilton_selection['agg_after_handicap_ALT'].rank(method='dense', ascending=True)
-
-
-    hilton_selection['cover_handicap?'] = np.where(hilton_selection['position']>=hilton_selection['Finishing_Position_2'],-1,1)
-    st.write('Betting Result', hilton_selection.loc[:,['Name','POS_after_handicap','position','Finishing_Position_1',
-    'cover_handicap?','Handicap_Strokes','agg_after_handicap','POS_after_handicap_ALT','agg_after_handicap_ALT']]\
-             .sort_values(by=['POS_after_handicap']).reset_index(drop=True))
+#     hilton_selection['agg_after_handicap_ALT'] = hilton_selection['AGG']+hilton_selection['Handicap_Strokes']
+#     hilton_selection['POS_after_handicap_ALT'] = hilton_selection['agg_after_handicap_ALT'].rank(method='dense', ascending=True)
 
 
-with st.expander('Dallas'):
+#     hilton_selection['cover_handicap?'] = np.where(hilton_selection['position']>=hilton_selection['Finishing_Position_2'],-1,1)
+#     st.write('Betting Result', hilton_selection.loc[:,['Name','POS_after_handicap','position','Finishing_Position_1',
+#     'cover_handicap?','Handicap_Strokes','agg_after_handicap','POS_after_handicap_ALT','agg_after_handicap_ALT']]\
+#              .sort_values(by=['POS_after_handicap']).reset_index(drop=True))
 
-    hilton_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Dallas_Betting')
-    hilton_players['Name']=hilton_players['Name'].str.title()
-    hilton_players['top_5_%']=1/hilton_players['Top_5']
-    hilton_players['top_10_%']=1/hilton_players['Top_10']
-    hilton_players['top_20_%']=1/hilton_players['Top_20']
-    hilton_players['top_30_%']=1/hilton_players['Top_30']
-    hilton_players['top_40_%']=1/hilton_players['Top_40']
-    hilton_players['max_less_mins_10_not_top_5']=hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].max(axis=1)-hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].min(axis=1)
-    hilton_players['diff_to_fifty_fifty']=hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].max(axis=1)-0.5
-    hilton_players['pos_by_tenth']=(hilton_players['diff_to_fifty_fifty'] / hilton_players['max_less_mins_10_not_top_5'])*10
-    hilton_selection=hilton_players.copy()
-    # st.write(Hilton_Head_2024)
-    # st.write(dallas_2024)
-    st.write('Sungjae Im withdrew before Round 1')
-    st.write('A lot of top players covered the handicap something to keep in mind with weak players might be an angle')
-    hilton_selection=pd.merge(hilton_selection,dallas_2024.loc[:,['Name','position','AGG','MC']],on='Name',how='left')
-    hilton_selection['agg_after_handicap'] = (hilton_selection['AGG']*hilton_selection['MC'])-hilton_selection['Handicap_Strokes']
-    hilton_selection['POS_after_handicap'] = hilton_selection['agg_after_handicap'].rank(method='dense', ascending=True)
 
-    hilton_selection['cover_handicap?'] = np.where((hilton_selection['position']>=hilton_selection['Finishing_Position_2']),-1,1)
-    hilton_selection=hilton_selection[~hilton_selection['Name'].isin(['Sungjae Im'])]
-    # hilton_selection['combine_diffs']=hilton_selection['diff_last_3']+hilton_selection['diff_last_1']
-    st.write('Betting Result', hilton_selection.loc[:,['Name','POS_after_handicap','position','Finishing_Position_1',
-    'cover_handicap?','Handicap_Strokes','agg_after_handicap']]\
-             .sort_values(by=['POS_after_handicap']).reset_index(drop=True))
-    # groupby_result_diff_3=hilton_selection.groupby(['diff_last_3']).agg(diff_3_result=('cover_handicap?','sum'),diff_3_count=('cover_handicap?','count'))
-    # groupby_result_diff_1=hilton_selection.groupby(['diff_last_1']).agg(diff_1_result=('cover_handicap?','sum'),diff_1_count=('cover_handicap?','count'))
-    # groupby_result_diff_comb=hilton_selection.groupby(['combine_diffs']).agg(diff_1_result=('cover_handicap?','sum'),diff_1_count=('cover_handicap?','count'))
-    # st.write('groupby result diff 3',groupby_result_diff_3)
-    # st.write('groupby result diff 1',groupby_result_diff_1)
-    # st.write('groupby result diff combine',groupby_result_diff_comb)
-    st.write('Handicap Betting All Columns', hilton_selection.reset_index(drop=True))
+# with st.expander('Dallas'):
 
-with st.expander('Quail Hollow'):
+#     hilton_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Dallas_Betting')
+#     hilton_players['Name']=hilton_players['Name'].str.title()
+#     hilton_players['top_5_%']=1/hilton_players['Top_5']
+#     hilton_players['top_10_%']=1/hilton_players['Top_10']
+#     hilton_players['top_20_%']=1/hilton_players['Top_20']
+#     hilton_players['top_30_%']=1/hilton_players['Top_30']
+#     hilton_players['top_40_%']=1/hilton_players['Top_40']
+#     hilton_players['max_less_mins_10_not_top_5']=hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].max(axis=1)-hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].min(axis=1)
+#     hilton_players['diff_to_fifty_fifty']=hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].max(axis=1)-0.5
+#     hilton_players['pos_by_tenth']=(hilton_players['diff_to_fifty_fifty'] / hilton_players['max_less_mins_10_not_top_5'])*10
+#     hilton_selection=hilton_players.copy()
+#     # st.write(Hilton_Head_2024)
+#     # st.write(dallas_2024)
+#     st.write('Sungjae Im withdrew before Round 1')
+#     st.write('A lot of top players covered the handicap something to keep in mind with weak players might be an angle')
+#     hilton_selection=pd.merge(hilton_selection,dallas_2024.loc[:,['Name','position','AGG','MC']],on='Name',how='left')
+#     hilton_selection['agg_after_handicap'] = (hilton_selection['AGG']*hilton_selection['MC'])-hilton_selection['Handicap_Strokes']
+#     hilton_selection['POS_after_handicap'] = hilton_selection['agg_after_handicap'].rank(method='dense', ascending=True)
 
-    hilton_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Charlotte_Betting')
-    hilton_players['Name']=hilton_players['Name'].str.title()
-    hilton_players['top_5_%']=1/hilton_players['Top_5']
-    hilton_players['top_10_%']=1/hilton_players['Top_10']
-    hilton_players['top_20_%']=1/hilton_players['Top_20']
-    hilton_players['top_30_%']=1/hilton_players['Top_30']
-    hilton_players['top_40_%']=1/hilton_players['Top_40']
-    hilton_players['max_less_mins_10_not_top_5']=hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].max(axis=1)-hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].min(axis=1)
-    hilton_players['diff_to_fifty_fifty']=hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].max(axis=1)-0.5
-    hilton_players['pos_by_tenth']=(hilton_players['diff_to_fifty_fifty'] / hilton_players['max_less_mins_10_not_top_5'])*10
-    hilton_selection=hilton_players.copy()
-    # st.write(Hilton_Head_2024)
-    # st.write(dallas_2024)
-    # st.write('Sungjae Im withdrew before Round 1')
-    # st.write('A lot of top players covered the handicap something to keep in mind with weak players might be an angle')
-    hilton_selection=pd.merge(hilton_selection,quail_hollow_2024.loc[:,['Name','position','AGG','MC']],on='Name',how='left')
-    hilton_selection['agg_after_handicap'] = (hilton_selection['AGG']*hilton_selection['MC'])-hilton_selection['Handicap_Strokes']
-    hilton_selection['POS_after_handicap'] = hilton_selection['agg_after_handicap'].rank(method='dense', ascending=True)
+#     hilton_selection['cover_handicap?'] = np.where((hilton_selection['position']>=hilton_selection['Finishing_Position_2']),-1,1)
+#     hilton_selection=hilton_selection[~hilton_selection['Name'].isin(['Sungjae Im'])]
+#     # hilton_selection['combine_diffs']=hilton_selection['diff_last_3']+hilton_selection['diff_last_1']
+#     st.write('Betting Result', hilton_selection.loc[:,['Name','POS_after_handicap','position','Finishing_Position_1',
+#     'cover_handicap?','Handicap_Strokes','agg_after_handicap']]\
+#              .sort_values(by=['POS_after_handicap']).reset_index(drop=True))
+#     # groupby_result_diff_3=hilton_selection.groupby(['diff_last_3']).agg(diff_3_result=('cover_handicap?','sum'),diff_3_count=('cover_handicap?','count'))
+#     # groupby_result_diff_1=hilton_selection.groupby(['diff_last_1']).agg(diff_1_result=('cover_handicap?','sum'),diff_1_count=('cover_handicap?','count'))
+#     # groupby_result_diff_comb=hilton_selection.groupby(['combine_diffs']).agg(diff_1_result=('cover_handicap?','sum'),diff_1_count=('cover_handicap?','count'))
+#     # st.write('groupby result diff 3',groupby_result_diff_3)
+#     # st.write('groupby result diff 1',groupby_result_diff_1)
+#     # st.write('groupby result diff combine',groupby_result_diff_comb)
+#     st.write('Handicap Betting All Columns', hilton_selection.reset_index(drop=True))
 
-    hilton_selection['cover_handicap?'] = np.where((hilton_selection['position']>=hilton_selection['Finishing_Position_2']),-1,1)
-    # hilton_selection['position'].isna
-    hilton_selection=hilton_selection[~hilton_selection['position'].isna()]
-    hilton_selection=hilton_selection[~hilton_selection['Finishing_Position_1'].isna()]
-    # hilton_selection['combine_diffs']=hilton_selection['diff_last_3']+hilton_selection['diff_last_1']
-    st.write('Betting Result', hilton_selection.loc[:,['Name','POS_after_handicap','position','Finishing_Position_1',
-    'cover_handicap?','Handicap_Strokes','agg_after_handicap']]\
-             .sort_values(by=['POS_after_handicap']).reset_index(drop=True))
-    st.write('Handicap Betting All Columns', hilton_selection.reset_index(drop=True))
+# with st.expander('Quail Hollow'):
 
-with st.expander('Valhalla'):
+#     hilton_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Charlotte_Betting')
+#     hilton_players['Name']=hilton_players['Name'].str.title()
+#     hilton_players['top_5_%']=1/hilton_players['Top_5']
+#     hilton_players['top_10_%']=1/hilton_players['Top_10']
+#     hilton_players['top_20_%']=1/hilton_players['Top_20']
+#     hilton_players['top_30_%']=1/hilton_players['Top_30']
+#     hilton_players['top_40_%']=1/hilton_players['Top_40']
+#     hilton_players['max_less_mins_10_not_top_5']=hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].max(axis=1)-hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].min(axis=1)
+#     hilton_players['diff_to_fifty_fifty']=hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].max(axis=1)-0.5
+#     hilton_players['pos_by_tenth']=(hilton_players['diff_to_fifty_fifty'] / hilton_players['max_less_mins_10_not_top_5'])*10
+#     hilton_selection=hilton_players.copy()
+#     # st.write(Hilton_Head_2024)
+#     # st.write(dallas_2024)
+#     # st.write('Sungjae Im withdrew before Round 1')
+#     # st.write('A lot of top players covered the handicap something to keep in mind with weak players might be an angle')
+#     hilton_selection=pd.merge(hilton_selection,quail_hollow_2024.loc[:,['Name','position','AGG','MC']],on='Name',how='left')
+#     hilton_selection['agg_after_handicap'] = (hilton_selection['AGG']*hilton_selection['MC'])-hilton_selection['Handicap_Strokes']
+#     hilton_selection['POS_after_handicap'] = hilton_selection['agg_after_handicap'].rank(method='dense', ascending=True)
 
-    hilton_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Valhalla_Betting')
-    hilton_players['Name']=hilton_players['Name'].str.title()
-    hilton_players['top_5_%']=1/hilton_players['Top_5']
-    hilton_players['top_10_%']=1/hilton_players['Top_10']
-    hilton_players['top_20_%']=1/hilton_players['Top_20']
-    hilton_players['top_30_%']=1/hilton_players['Top_30']
-    hilton_players['top_40_%']=1/hilton_players['Top_40']
-    hilton_players['max_less_mins_10_not_top_5']=hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].max(axis=1)-hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].min(axis=1)
-    hilton_players['diff_to_fifty_fifty']=hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].max(axis=1)-0.5
-    hilton_players['pos_by_tenth']=(hilton_players['diff_to_fifty_fifty'] / hilton_players['max_less_mins_10_not_top_5'])*10
-    hilton_selection=hilton_players.copy()
-    st.write(valhalla_2024)
-    # st.write(dallas_2024)
-    # st.write('Sungjae Im withdrew before Round 1')
-    # st.write('A lot of top players covered the handicap something to keep in mind with weak players might be an angle')
-    hilton_selection=pd.merge(hilton_selection,valhalla_2024.loc[:,['Name','position','AGG','MC']],on='Name',how='left')
-    hilton_selection['agg_after_handicap'] = (hilton_selection['AGG']*hilton_selection['MC'])-hilton_selection['Handicap_Strokes']
-    hilton_selection['POS_after_handicap'] = hilton_selection['agg_after_handicap'].rank(method='dense', ascending=True)
+#     hilton_selection['cover_handicap?'] = np.where((hilton_selection['position']>=hilton_selection['Finishing_Position_2']),-1,1)
+#     # hilton_selection['position'].isna
+#     hilton_selection=hilton_selection[~hilton_selection['position'].isna()]
+#     hilton_selection=hilton_selection[~hilton_selection['Finishing_Position_1'].isna()]
+#     # hilton_selection['combine_diffs']=hilton_selection['diff_last_3']+hilton_selection['diff_last_1']
+#     st.write('Betting Result', hilton_selection.loc[:,['Name','POS_after_handicap','position','Finishing_Position_1',
+#     'cover_handicap?','Handicap_Strokes','agg_after_handicap']]\
+#              .sort_values(by=['POS_after_handicap']).reset_index(drop=True))
+#     st.write('Handicap Betting All Columns', hilton_selection.reset_index(drop=True))
 
-    hilton_selection['cover_handicap?'] = np.where((hilton_selection['position']>=hilton_selection['Finishing_Position_2']),-1,1)
-    # hilton_selection['position'].isna
-    hilton_selection=hilton_selection[~hilton_selection['position'].isna()]
-    hilton_selection=hilton_selection[~hilton_selection['Finishing_Position_1'].isna()]
-    # hilton_selection['combine_diffs']=hilton_selection['diff_last_3']+hilton_selection['diff_last_1']
-    st.write('Betting Result', hilton_selection.loc[:,['Name','POS_after_handicap','position','Finishing_Position_1',
-    'cover_handicap?','Handicap_Strokes','agg_after_handicap']]\
-             .sort_values(by=['POS_after_handicap']).reset_index(drop=True))
-    st.write('Handicap Betting All Columns', hilton_selection.reset_index(drop=True))
+# with st.expander('Valhalla'):
+
+#     hilton_players=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Valhalla_Betting')
+#     hilton_players['Name']=hilton_players['Name'].str.title()
+#     hilton_players['top_5_%']=1/hilton_players['Top_5']
+#     hilton_players['top_10_%']=1/hilton_players['Top_10']
+#     hilton_players['top_20_%']=1/hilton_players['Top_20']
+#     hilton_players['top_30_%']=1/hilton_players['Top_30']
+#     hilton_players['top_40_%']=1/hilton_players['Top_40']
+#     hilton_players['max_less_mins_10_not_top_5']=hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].max(axis=1)-hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].min(axis=1)
+#     hilton_players['diff_to_fifty_fifty']=hilton_players[['top_10_%','top_20_%','top_30_%','top_40_%']].max(axis=1)-0.5
+#     hilton_players['pos_by_tenth']=(hilton_players['diff_to_fifty_fifty'] / hilton_players['max_less_mins_10_not_top_5'])*10
+#     hilton_selection=hilton_players.copy()
+#     st.write(valhalla_2024)
+#     # st.write(dallas_2024)
+#     # st.write('Sungjae Im withdrew before Round 1')
+#     # st.write('A lot of top players covered the handicap something to keep in mind with weak players might be an angle')
+#     hilton_selection=pd.merge(hilton_selection,valhalla_2024.loc[:,['Name','position','AGG','MC']],on='Name',how='left')
+#     hilton_selection['agg_after_handicap'] = (hilton_selection['AGG']*hilton_selection['MC'])-hilton_selection['Handicap_Strokes']
+#     hilton_selection['POS_after_handicap'] = hilton_selection['agg_after_handicap'].rank(method='dense', ascending=True)
+
+#     hilton_selection['cover_handicap?'] = np.where((hilton_selection['position']>=hilton_selection['Finishing_Position_2']),-1,1)
+#     # hilton_selection['position'].isna
+#     hilton_selection=hilton_selection[~hilton_selection['position'].isna()]
+#     hilton_selection=hilton_selection[~hilton_selection['Finishing_Position_1'].isna()]
+#     # hilton_selection['combine_diffs']=hilton_selection['diff_last_3']+hilton_selection['diff_last_1']
+#     st.write('Betting Result', hilton_selection.loc[:,['Name','POS_after_handicap','position','Finishing_Position_1',
+#     'cover_handicap?','Handicap_Strokes','agg_after_handicap']]\
+#              .sort_values(by=['POS_after_handicap']).reset_index(drop=True))
+#     st.write('Handicap Betting All Columns', hilton_selection.reset_index(drop=True))
 
 
 with st.expander('All Betting Analysis'):
@@ -480,7 +483,7 @@ with st.expander('All Betting Analysis'):
     df_betting_raw['Name']=df_betting_raw['Name'].str.title()
     # st.write(df_betting_raw[df_betting_raw['Name'].str.contains('ory')])
     df_betting_results=pd.merge(df_betting_raw,combined_data,on=['date','Name'],how='left',indicator=True)
-    # df_betting_results.to_parquet('C:/Users/Darragh/Documents/Python/Golf/golf_odds_results_combined.parq')
+    df_betting_results.to_parquet('C:/Users/Darragh/Documents/Python/Golf/golf_odds_results_combined.parq')
     st.write('Check the indicator to see if anything missing after merge',df_betting_results[df_betting_results['_merge'].str.contains('left')].sort_values(by='date'))
     df_betting_results=df_betting_results[~df_betting_results['position'].isna()]
     df_betting_results=df_betting_results.sort_values(by=['date','Winner_odds'],ascending=[False,True])
@@ -602,6 +605,7 @@ with st.expander('Season Cover Factor'):
 with st.expander('Season to Date Cover Graph'):
     # df_stdc_1=canada.loc[:,['date','Name','cover_handicap?']].copy()
     df_stdc_1=df_betting_results.loc[:,['date','Name','cover_handicap?','surplus_pos_result']].copy()
+    # st.write(df_stdc_1)
     # st.write(pd.pivot_table(df_stdc_1,values=['cover_handicap?'],index=['Name'],columns=['date']))
     def pivot_generation(df_stdc_1,col_selection='cover_handicap?'):
         test_pivot=pd.pivot(df_stdc_1,values=[col_selection],index=['Name'],columns=['date']).reset_index()
@@ -824,21 +828,34 @@ with st.expander('Median Round Score'):
 
     st.write('median full round difference',compute_round_median_score(df,first_golfer_name='Scottie Scheffler', second_golfer_name='Jordan Spieth'))
     # st.write('hilton head', hilton_head_results_betting)
-    full_names=hilton_head_results_betting['Name']
-    first_player=hilton_head_results_betting.sort_values(by='Handicap_Strokes',ascending=True)['Name'].to_list()
+    full_names=df_1['Name'].unique()
+
+    # first_player=full_names.to_list()
+    first_player=list(set(df_1['Name'].to_list()))    
+    # st.write(len(first_player))
+    # st.write(len(set(first_player)))
     # st.write('first', first_player[0])
     # st.write('first player', first_player['Name'].to_list()[0])
     # st.write('first player', first_player)
     st.write('median full round difference',compute_round_median_score(df,first_golfer_name=first_player[0], second_golfer_name='Jordan Spieth'))
     # st.write(len(first_player))
     # for x in range(1,len(first_player)):
-        # st.write(compute_round_median_score(df,first_golfer_name=first_player[0], second_golfer_name=first_player[x]))
+    #     st.write(compute_round_median_score(df,first_golfer_name=first_player[0], second_golfer_name=first_player[x]))
 
+    result=[]
+    result_1=[]
     for x,i in enumerate(first_player[1:],start=1):
-        # st.write('this is first player list sliced from 1 onwards', first_player[1:])
-        # st.write('this is player x', first_player[x])
-        st.write(i,compute_round_median_score(df,first_golfer_name=first_player[0], second_golfer_name=first_player[x]))
-
+        result.append(i)
+        result_1.append(compute_round_median_score(df,first_golfer_name=first_player[0], second_golfer_name=first_player[x]))
+        # st.write(i,compute_round_median_score(df,first_golfer_name=first_player[0], second_golfer_name=first_player[x]))
+    st.write(result)
+    st.write(result_1)
+    update_1 = pd.concat(result).reset_index()
+    update_2 = pd.concat(result_1).reset_index()
+    st.write(update_1)
+    st.write(update_2)
+    update_3=pd.concat(update_1,update_2,axis=1)
+    st.wrie(update_3)
     # st.write('Scheffler Spieth',snapshot_compute_round_median_score(df=df_1,first_golfer_name='Scottie Scheffler', second_golfer_name='Jordan Spieth'))
 
     # st.write('Scheffler Cantlay',snapshot_compute_round_median_score(df=df_1,first_golfer_name='Scottie Scheffler', second_golfer_name='Patrick Cantlay'))
