@@ -3,12 +3,15 @@ import pandas as pd
 import numpy as np
 import pathlib
 import altair as alt
+from itertools import product
 st.set_page_config(layout="wide")
 
 # a=(pd.DataFrame(pd.read_html('https://www.pgatour.com/tournaments/2024/the-players-championship/R2024011.html')))
 # st.write(a)
 
 # st.write('')
+
+st.write('look at will zalatoris to see why not picking up in handicap graph????')
 
 with st.expander('World Rankings'):
     def ogwr_file_csv_save(url_comp,filename_ext):
@@ -28,17 +31,22 @@ with st.expander('World Rankings'):
         df['date']=pd.to_datetime(date)        
         df=df.dropna(subset=['Finish Pos.'])
         df['NAME']=df['NAME'].str.title()
-        df['MC']=np.where(df['Finish Pos.']=='MC',np.NaN,1)
+        df['MC']=np.where(df['Finish Pos.'].isin(['MC', 'WD']),np.NaN,1)
+
         df['miss_cut']=np.where(df['Finish Pos.']=='MC',1,np.NaN)
         df=df.loc[:,~df.columns.str.contains("Unnamed: 0|POINTS WON|RANK FROM|RANK TO|CTRY", case=False)]
+        # df=df.loc[:,~(df['Finish Pos.'].str.contains("WD", case=False))]
+        # df=df[~df['Finish Pos.'].str.contains("WD")].copy()    
         # df=df.drop(df.columns.str.contains("Unnamed: 0|R1|R2|R3|R4|CTRY",axis=1, na=False))
         # df=df.drop(['Unnamed: 0',"R1","R2","R3","R4",'CTRY'],axis=1)
         df['AGG']=pd.to_numeric(df['AGG'],errors='ignore')
 
         return df
     
-    # ogwr_file_csv_save("https://www.owgr.com/events/u-s--open-10425",'pinehurst_2024.csv')
+    # ogwr_file_csv_save("https://www.owgr.com/events/rocket-mortgage-classic-10456",'detroit_2024.csv')
     # ogwr_file_csv_save("https://www.owgr.com/events/the-memorial-tournament-presented-by-workday-10419",'memorial_2024.csv')
+    detroit_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/detroit_2024.csv','detroit',2024,pd.to_datetime('30-06-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
+    tpc_river_highlands_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/tpc_river_highlands_2024.csv','tpc_river_highlands',2024,pd.to_datetime('23-06-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
     pinehurst_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/pinehurst_2024.csv','pinehurst',2024,pd.to_datetime('16-06-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
     memorial_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/memorial_2024.csv','memorial',2024,pd.to_datetime('06-06-2024',dayfirst=True)).rename(columns={'NAME':'Name'})     
     canada_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/canada_2024.csv','canada',2024,pd.to_datetime('30-05-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
@@ -61,7 +69,7 @@ with st.expander('World Rankings'):
     torrey_pines=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/torrey_pines_2024.csv','torrey_pines',2024,'27-01-2024').rename(columns={'NAME':'Name'})
     hawaii=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/hawaii_2024.csv','hawaii',2024,'14-01-2024').rename(columns={'NAME':'Name'})
     kapalua=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/kapalua_2024.csv','kapalua',2024,pd.to_datetime('07-01-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
-    combined_data=pd.concat([pinehurst_2024,memorial_2024,canada_2024,colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
+    combined_data=pd.concat([detroit_2024,tpc_river_highlands_2024,pinehurst_2024,memorial_2024,canada_2024,colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
                              pebble_beach,torrey_pines,hawaii,kapalua])
     combined_data["R1"]=pd.to_numeric(combined_data["R1"],errors='coerce')
     combined_data["R2"]=pd.to_numeric(combined_data["R2"],errors='coerce')
@@ -694,33 +702,52 @@ with st.expander('Power Ranking'):
     # count_players_min_3.columns = pd.MultiIndex.from_tuples(cols)
     st.write(count_players_min_3.reset_index())
 
-    handicap_df=df_betting_results.loc[:,['date','Name','Handicap_Strokes','Tour_Name']].copy()
-    handicap_df=handicap_df[handicap_df['Handicap_Strokes'].notna()].copy().sort_values(by=['date','Handicap_Strokes']).reset_index(drop=True)
+    handicap_df=df_betting_results.loc[:,['date','Name','Handicap_Strokes_Adj','Tour_Name']].copy()
+    handicap_df=handicap_df[handicap_df['Handicap_Strokes_Adj'].notna()].copy().sort_values(by=['date','Handicap_Strokes_Adj']).reset_index(drop=True)
     
     # exclude Dallas Colonial Canada as just not enough players to compare against
     # handicap_df=handicap_df[handicap_df['Tour_Name']!='Dallas'].copy()
     handicap_df=handicap_df[~handicap_df['Tour_Name'].isin({'Dallas','canada','Colonial'})].copy()
     # https://stackoverflow.com/questions/41594703/pandas-assign-an-index-to-each-group-identified-by-groupby
     handicap_df['week'] = handicap_df.groupby(['Tour_Name']).ngroup()-3
-    handicap_df['count']=handicap_df.groupby('Name')['Handicap_Strokes'].transform('count')
+    handicap_df['count']=handicap_df.groupby('Name')['Handicap_Strokes_Adj'].transform('count')
     # st.write(handicap_df)
-    handicap_df=handicap_df[handicap_df['count']>2].reset_index(drop=True).set_index('date')
-    
-    # handicap_df['week_number'] = pd.to_numeric(handicap_df.index.isocalendar().week)
-    # handicap_df['week_number'] =handicap_df['week_number'].astype(int)
-    # st.write(handicap_df.dtypes)
-    # handicap_df['week_number'] =handicap_df['week_number'] - 19
-    handicap_df['count_players']=handicap_df.groupby('week')['Handicap_Strokes'].transform('count')
-
-    
-
+    handicap_df=handicap_df[handicap_df['count']>3].reset_index(drop=True).set_index('date')
+    handicap_df['count_players']=handicap_df.groupby('week')['Handicap_Strokes_Adj'].transform('count')
     st.write(handicap_df)
     st.write(handicap_df.groupby('Name')['week'].count().reset_index().sort_values(by='week',ascending=False).reset_index(drop=True))
 
-    # test_pivot=pivot_generation(df_betting_results.loc[:,['date','Name','cover_handicap?','surplus_pos_result']].copy(),col_selection='Handicap_Strokes')
-    # st.write(test_pivot)
-    # # test_pivot=test_pivot.drop('total_cover',axis=1)
+    df_data=pd.DataFrame({'Name':['Scottie','Rory','Rahm','Scottie','Rory','Rahm','Scottie','Rory','Rahm',],'Week':[1,1,1,2,2,2,3,3,3],
+                          'Handicap':[0,2,3,0,1,4,0,3,4]})
+    st.write(df_data)
+
+    result_data = []
+
+    for week in df_data['Week'].unique():
+        week_data = df_data[df_data['Week'] == week]
+        players = week_data['Name'].tolist()
+        handicaps = week_data['Handicap'].tolist()
+        
+        for i, j in product(range(len(players)), repeat=2):
+            if i != j:
+                result_data.append({
+                    'Name': players[i],
+                    'Opponent': players[j],
+                    'Week': week,
+                    'Handicap': handicaps[i] - handicaps[j]
+                })
+
+    # Create the resulting DataFrame
+    df_result_data_1 = pd.DataFrame(result_data)
+
+    st.write('chat gpt result',df_result_data_1.sort_values(by=['Name','Week','Opponent']))
     
+    df_result_data=pd.DataFrame({'Name':['Scottie','Scottie','Scottie','Scottie','Scottie','Scottie','Rory','Rory','Rory','Rory','Rory','Rory','Rahm','Rahm','Rahm','Rahm','Rahm','Rahm'],
+                                 'Opponent':['Rory','Rahm','Rory','Rahm','Rory','Rahm','Scottie','Rahm','Scottie','Rahm','Scottie','Rahm','Scottie','Rory','Scottie','Rory','Scottie','Rory'],
+                                 'Week':[1,1,2,2,3,3,1,1,2,2,3,3,1,1,2,2,3,3],
+                          'Handicap':[-2,-3,-1,-4,-3,-4,2,-1,1,-3,3,-1,3,1,4,3,4,1]})
+    st.write('result by hand', df_result_data.sort_values(by=['Name','Week','Opponent']))
+    # assert df_result_data==df_result_data_1
 
 
 with st.expander('Data PGA Tour SG'):
