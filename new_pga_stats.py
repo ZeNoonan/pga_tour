@@ -11,7 +11,7 @@ st.set_page_config(layout="wide")
 
 # st.write('')
 
-st.write('look at will zalatoris to see why not picking up in handicap graph????')
+# st.write('look at will zalatoris to see why not picking up in handicap graph????')
 
 with st.expander('World Rankings'):
     def ogwr_file_csv_save(url_comp,filename_ext):
@@ -33,7 +33,7 @@ with st.expander('World Rankings'):
         df['NAME']=df['NAME'].str.title()
         df['MC']=np.where(df['Finish Pos.'].isin(['MC', 'WD']),np.NaN,1)
 
-        df['miss_cut']=np.where(df['Finish Pos.']=='MC',1,np.NaN)
+        df['miss_cut']=np.where(df['Finish Pos.'].isin(['MC', 'WD']),1,np.NaN)
         df=df.loc[:,~df.columns.str.contains("Unnamed: 0|POINTS WON|RANK FROM|RANK TO|CTRY", case=False)]
         # df=df.loc[:,~(df['Finish Pos.'].str.contains("WD", case=False))]
         # df=df[~df['Finish Pos.'].str.contains("WD")].copy()    
@@ -76,6 +76,7 @@ with st.expander('World Rankings'):
     combined_data["R3"]=pd.to_numeric(combined_data["R3"],errors='coerce')
     combined_data["R4"]=pd.to_numeric(combined_data["R4"],errors='coerce')
     combined_data["AGG"]=pd.to_numeric(combined_data["AGG"],errors='coerce')
+    # st.write('zala detroit', detroit_2024)
     # st.write(combined_data.dtypes)
     # st.write(combined_data)
     # st.write(pinehurst_2024)
@@ -707,7 +708,7 @@ with st.expander('Power Ranking'):
     
     # exclude Dallas Colonial Canada as just not enough players to compare against
     # handicap_df=handicap_df[handicap_df['Tour_Name']!='Dallas'].copy()
-    handicap_df=handicap_df[~handicap_df['Tour_Name'].isin({'Dallas','canada','Colonial'})].copy()
+    handicap_df=handicap_df[~handicap_df['Tour_Name'].isin({'Dallas','canada','Colonial','detroit'})].copy()
     # https://stackoverflow.com/questions/41594703/pandas-assign-an-index-to-each-group-identified-by-groupby
     handicap_df['week'] = handicap_df.groupby(['Tour_Name']).ngroup()-3
     handicap_df['count']=handicap_df.groupby('Name')['Handicap_Strokes_Adj'].transform('count')
@@ -717,9 +718,65 @@ with st.expander('Power Ranking'):
     st.write(handicap_df)
     st.write(handicap_df.groupby('Name')['week'].count().reset_index().sort_values(by='week',ascending=False).reset_index(drop=True))
 
+    df_data=handicap_df.loc[:,['Name','week','Handicap_Strokes_Adj']].rename(columns={'Handicap_Strokes_Adj':'adj_spread','Name':'ID','week':'Week'}).reset_index(drop=True)
+    # st.write('df', df_data)
+    
+    result_data = []
+
+    for week in df_data['Week'].unique():
+        week_data = df_data[df_data['Week'] == week]
+        players = week_data['ID'].tolist()
+        handicaps = week_data['adj_spread'].tolist()
+        
+        for i, j in product(range(len(players)), repeat=2):
+            if i != j:
+                result_data.append({
+                    'ID': players[i],
+                    'Opponent': players[j],
+                    'Week': week,
+                    'adj_spread': handicaps[i] - handicaps[j]
+                })
+                # st.write('week_data', week_data)
+                # st.write('i:',i,'j:',j)
+                # st.write('results',pd.DataFrame(result_data))
+
+
+    # Create the resulting DataFrame
+    df_result_data_1 = pd.DataFrame(result_data).drop('Opponent',axis=1)
+    # st.write(df_result_data_1)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     df_data=pd.DataFrame({'Name':['Scottie','Rory','Rahm','Scottie','Rory','Rahm','Scottie','Rory','Rahm',],'Week':[1,1,1,2,2,2,3,3,3],
                           'Handicap':[0,2,3,0,1,4,0,3,4]})
-    st.write(df_data)
+    # st.write(df_data)
+
+    # st.write('range')
+    # for i, j in product(range(len(df_data['Name'].unique())), repeat=2):
+    #     st.write('i:',i,'j:',j)
+
+    # st.write('no repeat')
+    # for i in product(range(len(df_data['Name'].unique())), repeat=1):
+    #         # st.write('i:',i)
+    #         pass
+
+    # st.write('manual')
+    # for i,j in product([0,1,2],[0,1,2]):
+    #         # st.write('i:',i,'j',j)
+    #         pass
 
     result_data = []
 
@@ -736,6 +793,10 @@ with st.expander('Power Ranking'):
                     'Week': week,
                     'Handicap': handicaps[i] - handicaps[j]
                 })
+                # st.write('week_data', week_data)
+                # st.write('i:',i,'j:',j)
+                # st.write('results',pd.DataFrame(result_data))
+
 
     # Create the resulting DataFrame
     df_result_data_1 = pd.DataFrame(result_data)
@@ -746,7 +807,7 @@ with st.expander('Power Ranking'):
                                  'Opponent':['Rory','Rahm','Rory','Rahm','Rory','Rahm','Scottie','Rahm','Scottie','Rahm','Scottie','Rahm','Scottie','Rory','Scottie','Rory','Scottie','Rory'],
                                  'Week':[1,1,2,2,3,3,1,1,2,2,3,3,1,1,2,2,3,3],
                           'Handicap':[-2,-3,-1,-4,-3,-4,2,-1,1,-3,3,-1,3,1,4,3,4,1]})
-    st.write('result by hand', df_result_data.sort_values(by=['Name','Week','Opponent']))
+    # st.write('result by hand', df_result_data.sort_values(by=['Name','Week','Opponent']))
     # assert df_result_data==df_result_data_1
 
 
