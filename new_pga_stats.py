@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import pathlib
 import altair as alt
-from itertools import product
+from itertools import product, combinations
 st.set_page_config(layout="wide")
 
 # a=(pd.DataFrame(pd.read_html('https://www.pgatour.com/tournaments/2024/the-players-championship/R2024011.html')))
@@ -742,7 +742,7 @@ with st.expander('Power Ranking'):
 
 
     # Create the resulting DataFrame
-    df_result_data_1 = pd.DataFrame(result_data).drop('Opponent',axis=1)
+    df_result_data_1 = pd.DataFrame(result_data)
     # st.write(df_result_data_1)
     
     
@@ -760,8 +760,8 @@ with st.expander('Power Ranking'):
     
     
     
-    df_data=pd.DataFrame({'Name':['Scottie','Rory','Rahm','Scottie','Rory','Rahm','Scottie','Rory','Rahm',],'Week':[1,1,1,2,2,2,3,3,3],
-                          'Handicap':[0,2,3,0,1,4,0,3,4]})
+    df_data=pd.DataFrame({'Name':['Scottie','Rory','Rahm','Scottie','Rory','Rahm','Scottie','Rory','Rahm','Scottie','Rory','Rahm','Scottie','Rory','Rahm','Scottie','Rory','Rahm','Scottie','Rory','Rahm',],'Week':[-3,-3,-3,-2,-2,-2,-1,-1,-1,0,0,0,1,1,1,2,2,2,3,3,3],
+                          'Handicap':[0,3,2,0,4,4,0,2,2,0,1,1,0,2,3,0,1,4,0,3,4]})
     # st.write(df_data)
 
     # st.write('range')
@@ -778,37 +778,159 @@ with st.expander('Power Ranking'):
     #         # st.write('i:',i,'j',j)
     #         pass
 
+
     result_data = []
 
+    # Determine relevant combinations dynamically
     for week in df_data['Week'].unique():
-        week_data = df_data[df_data['Week'] == week]
-        players = week_data['Name'].tolist()
-        handicaps = week_data['Handicap'].tolist()
+        week_data = df_data[df_data['Week'] == week].reset_index(drop=True)
         
-        for i, j in product(range(len(players)), repeat=2):
-            if i != j:
+        for i, j in combinations(range(len(week_data)), 2):
+            name_i, name_j = week_data.loc[i, 'Name'], week_data.loc[j, 'Name']
+            handicap_i, handicap_j = week_data.loc[i, 'Handicap'], week_data.loc[j, 'Handicap']
+            
+            # Determine relevant pairs based on unique combinations
+            if name_i != name_j:
                 result_data.append({
-                    'Name': players[i],
-                    'Opponent': players[j],
+                    'Name': name_i,
+                    'Opponent': name_j,
                     'Week': week,
-                    'Handicap': handicaps[i] - handicaps[j]
+                    'Handicap': handicap_i - handicap_j
                 })
-                # st.write('week_data', week_data)
-                # st.write('i:',i,'j:',j)
-                # st.write('results',pd.DataFrame(result_data))
-
+                # result_data.append({
+                #     'Name': name_j,
+                #     'Opponent': name_i,
+                #     'Week': week,
+                #     'Handicap': handicap_j - handicap_i
+                # })
 
     # Create the resulting DataFrame
-    df_result_data_1 = pd.DataFrame(result_data)
+    df_result_data = pd.DataFrame(result_data).drop_duplicates(subset=['Name', 'Opponent', 'Week', 'Handicap'])
 
-    st.write('chat gpt result',df_result_data_1.sort_values(by=['Name','Week','Opponent']))
+    # Sort and reset index to match the expected format
+    df_result_data = df_result_data.sort_values(by=['Week', 'Name', 'Opponent']).reset_index(drop=True).rename(columns={'Name':'Home ID', 'Opponent':'Away ID','Handicap':'adj_spread'})
+
+
+
+    st.write('chat gpt result',df_result_data.sort_values(by=['Home ID','Week','Away ID']))
+    # st.write('sum of above handicaps', df_result_data['Handicap'].sum())
+
+    games_df=df_result_data.copy()
+    st.write('games df', games_df)
+    last_week=3
+    first=list(range(-3,last_week-3))
+    last=list(range(0,last_week))
+
+    # df_result_data=pd.DataFrame({'Home ID':['Scottie','Scottie','Rory','Scottie','Scottie','Rory','Scottie','Scottie','Rory'],
+    #                              'Away ID':['Rory','Rahm','Rahm','Rory','Rahm','Rahm','Rory','Rahm','Rahm'],
+    #                              'Week':[1,1,1,2,2,2,3,3,3],
+    #                       'Handicap':[-2,-3,-1,-1,-4,-3,-3,-4,-1]})
+    # games_df=df_result_data.copy()
+
+    def games_matrix_workings(first_4):
+        group_week = first_4.groupby('Week')
+        raw_data_2=[]
+        game_weights = iter([-0.125, -0.25,-0.5,-1])
+        for name, group in group_week:
+            group['game_adj']=next(game_weights)
+            # st.write('looking at for loop',group)
+            raw_data_2.append(group)
+
+        df3 = pd.concat(raw_data_2, ignore_index=True)
+        st.write('df3', df3)
+        adj_df3=df3.loc[:,['Home ID', 'Away ID', 'game_adj']].copy()
+        test_adj_df3 = adj_df3.rename(columns={'Home ID':'Away ID', 'Away ID':'Home ID'})
+        concat_df_test=pd.concat([adj_df3,test_adj_df3]).sort_values(by=['Home ID', 'game_adj'],ascending=[True,False])
+        test_concat_df_test=concat_df_test.groupby('Home ID')['game_adj'].sum().abs().reset_index()
+        test_concat_df_test['Away ID']=test_concat_df_test['Home ID']
+        st.write('concat df test',concat_df_test,'test concat df test', test_concat_df_test)
+        full=pd.concat([concat_df_test,test_concat_df_test]).sort_values(by=['Home ID', 'game_adj'],ascending=[True,False])
+        st.write('after concat', full)
+        full_stack=pd.pivot_table(full,index='Away ID', columns='Home ID',aggfunc='sum')
+        st.write('Check sum looks good all zero', full_stack.sum())
+        st.write('Check sum looks good all zero', full_stack)
+        full_stack=full_stack.fillna(0)
+        full_stack.columns = full_stack.columns.droplevel(0)
+        return full_stack
+
+    st.write(games_matrix_workings(games_df[games_df['Week'].between(-3,0)]))
+
+    # for first,last in zip(first,last):
+    #     first_section=games_df[games_df['Week'].between(first,last)]
+    #     # st.write('first section', first_section)
+    #     full_game_matrix=games_matrix_workings(first_section)
+    #     # st.write('full game matrix', full_game_matrix)
+    #     adjusted_matrix=full_game_matrix.loc[0:(number_of_teams-2),0:(number_of_teams-2)]
+    #     # st.write('adjusted matrix', adjusted_matrix)
+    #     df_inv = pd.DataFrame(np.linalg.pinv(adjusted_matrix.values), adjusted_matrix.columns, adjusted_matrix.index)
+    #     # st.write('df inv', df_inv)
+    #     power_df_week=power_df[power_df['Week']==last].drop_duplicates(subset=['ID'],keep='last').set_index('ID')\
+    #     .drop('Week',axis=1).rename(columns={'adj_spread':0}).loc[:(number_of_teams-2),:]
+    #     # st.write('power_df_week', power_df_week,'first', first, 'last', last)
+    #     result = df_inv.dot(pd.DataFrame(power_df_week))
+    #     # st.write('result', result)
+    #     result.columns=['power']
+    #     avg=(result['power'].sum())/number_of_teams
+    #     result['avg_pwr_rank']=(result['power'].sum())/number_of_teams
+    #     result['final_power']=result['avg_pwr_rank']-result['power']
+    #     df_pwr=pd.DataFrame(columns=['final_power'],data=[avg])
+    #     result=pd.concat([result,df_pwr],ignore_index=True)
+    #     result['week']=last+1
+    #     power_ranking.append(result)
+    # power_ranking_combined = pd.concat(power_ranking).reset_index().rename(columns={'index':'ID'})
+
+
+
+
     
-    df_result_data=pd.DataFrame({'Name':['Scottie','Scottie','Scottie','Scottie','Scottie','Scottie','Rory','Rory','Rory','Rory','Rory','Rory','Rahm','Rahm','Rahm','Rahm','Rahm','Rahm'],
-                                 'Opponent':['Rory','Rahm','Rory','Rahm','Rory','Rahm','Scottie','Rahm','Scottie','Rahm','Scottie','Rahm','Scottie','Rory','Scottie','Rory','Scottie','Rory'],
-                                 'Week':[1,1,2,2,3,3,1,1,2,2,3,3,1,1,2,2,3,3],
-                          'Handicap':[-2,-3,-1,-4,-3,-4,2,-1,1,-3,3,-1,3,1,4,3,4,1]})
-    # st.write('result by hand', df_result_data.sort_values(by=['Name','Week','Opponent']))
-    # assert df_result_data==df_result_data_1
+    # below is small code and sense checked
+    df_data=pd.DataFrame({'Name':['Scottie','Rory','Rahm','Scottie','Rory','Rahm','Scottie','Rory','Rahm',],'Week':[1,1,1,2,2,2,3,3,3],
+                          'Handicap':[0,2,3,0,1,4,0,3,4]})
+
+
+    df_result_data=pd.DataFrame({'Name':['Scottie','Scottie','Rory','Scottie','Scottie','Rory','Scottie','Scottie','Rory'],
+                                 'Opponent':['Rory','Rahm','Rahm','Rory','Rahm','Rahm','Rory','Rahm','Rahm'],
+                                 'Week':[1,1,1,2,2,2,3,3,3],
+                          'Handicap':[-2,-3,-1,-1,-4,-3,-3,-4,-1]})
+
+    st.write('check result', df_result_data.sort_values(by=['Week', 'Name', 'Opponent']).reset_index(drop=True))
+
+    result_data = []
+
+    # Determine relevant combinations dynamically
+    for week in df_data['Week'].unique():
+        week_data = df_data[df_data['Week'] == week].reset_index(drop=True)
+        
+        for i, j in combinations(range(len(week_data)), 2):
+            name_i, name_j = week_data.loc[i, 'Name'], week_data.loc[j, 'Name']
+            handicap_i, handicap_j = week_data.loc[i, 'Handicap'], week_data.loc[j, 'Handicap']
+            
+            # Determine relevant pairs based on unique combinations
+            if name_i != name_j:
+                result_data.append({
+                    'Name': name_i,
+                    'Opponent': name_j,
+                    'Week': week,
+                    'Handicap': handicap_i - handicap_j
+                })
+                # result_data.append({
+                #     'Name': name_j,
+                #     'Opponent': name_i,
+                #     'Week': week,
+                #     'Handicap': handicap_j - handicap_i
+                # })
+
+    # Create the resulting DataFrame
+    df_result_data = pd.DataFrame(result_data).drop_duplicates(subset=['Name', 'Opponent', 'Week', 'Handicap'])
+
+    # Sort and reset index to match the expected format
+    df_result_data = df_result_data.sort_values(by=['Week', 'Name', 'Opponent']).reset_index(drop=True)
+
+    st.write('chat gpt result',df_result_data)    
+    # df_result_data=pd.DataFrame({'Name':['Scottie','Scottie','Scottie','Scottie','Scottie','Scottie','Rory','Rory','Rory','Rory','Rory','Rory','Rahm','Rahm','Rahm','Rahm','Rahm','Rahm'],
+    #                              'Opponent':['Rory','Rahm','Rory','Rahm','Rory','Rahm','Scottie','Rahm','Scottie','Rahm','Scottie','Rahm','Scottie','Rory','Scottie','Rory','Scottie','Rory'],
+    #                              'Week':[1,1,2,2,3,3,1,1,2,2,3,3,1,1,2,2,3,3],
+    #                       'Handicap':[-2,-3,-1,-4,-3,-4,2,-1,1,-3,3,-1,3,1,4,3,4,1]})
 
 
 with st.expander('Data PGA Tour SG'):
