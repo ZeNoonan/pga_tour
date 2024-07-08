@@ -43,8 +43,9 @@ with st.expander('World Rankings'):
 
         return df
     
-    # ogwr_file_csv_save("https://www.owgr.com/events/rocket-mortgage-classic-10456",'detroit_2024.csv')
+    # ogwr_file_csv_save("https://www.owgr.com/events/john-deere-classic-10466",'chicago_2024.csv')
     # ogwr_file_csv_save("https://www.owgr.com/events/the-memorial-tournament-presented-by-workday-10419",'memorial_2024.csv')
+    chicago_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/chicago_2024.csv','chicago',2024,pd.to_datetime('07-07-2024',dayfirst=True)).rename(columns={'NAME':'Name'})     
     detroit_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/detroit_2024.csv','detroit',2024,pd.to_datetime('30-06-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
     tpc_river_highlands_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/tpc_river_highlands_2024.csv','tpc_river_highlands',2024,pd.to_datetime('23-06-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
     pinehurst_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/pinehurst_2024.csv','pinehurst',2024,pd.to_datetime('16-06-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
@@ -69,7 +70,7 @@ with st.expander('World Rankings'):
     torrey_pines=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/torrey_pines_2024.csv','torrey_pines',2024,'27-01-2024').rename(columns={'NAME':'Name'})
     hawaii=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/hawaii_2024.csv','hawaii',2024,'14-01-2024').rename(columns={'NAME':'Name'})
     kapalua=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/kapalua_2024.csv','kapalua',2024,pd.to_datetime('07-01-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
-    combined_data=pd.concat([detroit_2024,tpc_river_highlands_2024,pinehurst_2024,memorial_2024,canada_2024,colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
+    combined_data=pd.concat([chicago_2024,detroit_2024,tpc_river_highlands_2024,pinehurst_2024,memorial_2024,canada_2024,colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
                              pebble_beach,torrey_pines,hawaii,kapalua])
     combined_data["R1"]=pd.to_numeric(combined_data["R1"],errors='coerce')
     combined_data["R2"]=pd.to_numeric(combined_data["R2"],errors='coerce')
@@ -779,6 +780,28 @@ with st.expander('Power Ranking'):
     #         pass
 
 
+    result_data_product = []
+
+    for week in df_data['Week'].unique():
+        week_data = df_data[df_data['Week'] == week]
+        players = week_data['Name'].tolist()
+        handicaps = week_data['Handicap'].tolist()
+        
+        for i, j in product(range(len(players)), repeat=2):
+            if i != j:
+                result_data_product.append({
+                    'Name': players[i],
+                    'Opponent': players[j],
+                    'Week': week,
+                    'Handicap': handicaps[i] - handicaps[j]
+                })
+
+    # Create the resulting DataFrame
+    df_result_data_product = pd.DataFrame(result_data_product)
+
+
+
+
     result_data = []
 
     # Determine relevant combinations dynamically
@@ -808,11 +831,16 @@ with st.expander('Power Ranking'):
     df_result_data = pd.DataFrame(result_data).drop_duplicates(subset=['Name', 'Opponent', 'Week', 'Handicap'])
 
     # Sort and reset index to match the expected format
-    df_result_data = df_result_data.sort_values(by=['Week', 'Name', 'Opponent']).reset_index(drop=True).rename(columns={'Name':'Home ID', 'Opponent':'Away ID','Handicap':'adj_spread'})
+    df_result_data = df_result_data.sort_values(by=['Week', 'Name', 'Opponent']).reset_index(drop=True).rename(columns={'Name':'Home ID', 'Opponent':'Away ID'})
+    st.write('product data is working', df_result_data_product)
+    df_result_data_product=df_result_data_product.drop('Opponent',axis=1).reset_index(drop=True).rename(columns={'Name':'ID'})
 
-
-
+    st.write('product data', df_result_data_product)
     st.write('chat gpt result',df_result_data.sort_values(by=['Home ID','Week','Away ID']))
+    df_result_data_product['adj_spread']=df_result_data_product['Handicap'].rolling(window=4, center=False).apply(lambda x: np.sum((np.array([0.125, 0.25,0.5,1]))*x), raw=False)
+    # st.write('result data', df_result_data)
+    df_seq_1 = df_result_data_product.groupby(['Week','ID'])['adj_spread'].sum().reset_index()
+    st.write('after', df_seq_1)
     # st.write('sum of above handicaps', df_result_data['Handicap'].sum())
 
     games_df=df_result_data.copy()
@@ -820,6 +848,15 @@ with st.expander('Power Ranking'):
     last_week=3
     first=list(range(-3,last_week-3))
     last=list(range(0,last_week))
+    number_of_teams=3
+
+    def test_4(matrix_df_1):
+        weights = np.array([0.125, 0.25,0.5,1])
+        sum_weights = np.sum(weights)
+        matrix_df_1['adj_spread']=matrix_df_1['spread_with_home_adv'].rolling(window=4, center=False).apply(lambda x: np.sum(weights*x), raw=False)
+        return matrix_df_1
+
+
 
     # df_result_data=pd.DataFrame({'Home ID':['Scottie','Scottie','Rory','Scottie','Scottie','Rory','Scottie','Scottie','Rory'],
     #                              'Away ID':['Rory','Rahm','Rahm','Rory','Rahm','Rahm','Rory','Rahm','Rahm'],
@@ -837,47 +874,48 @@ with st.expander('Power Ranking'):
             raw_data_2.append(group)
 
         df3 = pd.concat(raw_data_2, ignore_index=True)
-        st.write('df3', df3)
+        # st.write('df3', df3)
         adj_df3=df3.loc[:,['Home ID', 'Away ID', 'game_adj']].copy()
         test_adj_df3 = adj_df3.rename(columns={'Home ID':'Away ID', 'Away ID':'Home ID'})
         concat_df_test=pd.concat([adj_df3,test_adj_df3]).sort_values(by=['Home ID', 'game_adj'],ascending=[True,False])
         test_concat_df_test=concat_df_test.groupby('Home ID')['game_adj'].sum().abs().reset_index()
         test_concat_df_test['Away ID']=test_concat_df_test['Home ID']
-        st.write('concat df test',concat_df_test,'test concat df test', test_concat_df_test)
+        # st.write('concat df test',concat_df_test,'test concat df test', test_concat_df_test)
         full=pd.concat([concat_df_test,test_concat_df_test]).sort_values(by=['Home ID', 'game_adj'],ascending=[True,False])
-        st.write('after concat', full)
+        # st.write('after concat', full)
         full_stack=pd.pivot_table(full,index='Away ID', columns='Home ID',aggfunc='sum')
-        st.write('Check sum looks good all zero', full_stack.sum())
-        st.write('Check sum looks good all zero', full_stack)
+        # st.write('Check sum looks good all zero', full_stack.sum())
+        # st.write('Check sum looks good all zero', full_stack)
         full_stack=full_stack.fillna(0)
         full_stack.columns = full_stack.columns.droplevel(0)
         return full_stack
 
+    st.write('dont think i need the below as its in the function below but good to sense check')
     st.write(games_matrix_workings(games_df[games_df['Week'].between(-3,0)]))
 
-    # for first,last in zip(first,last):
-    #     first_section=games_df[games_df['Week'].between(first,last)]
-    #     # st.write('first section', first_section)
-    #     full_game_matrix=games_matrix_workings(first_section)
-    #     # st.write('full game matrix', full_game_matrix)
-    #     adjusted_matrix=full_game_matrix.loc[0:(number_of_teams-2),0:(number_of_teams-2)]
-    #     # st.write('adjusted matrix', adjusted_matrix)
-    #     df_inv = pd.DataFrame(np.linalg.pinv(adjusted_matrix.values), adjusted_matrix.columns, adjusted_matrix.index)
-    #     # st.write('df inv', df_inv)
-    #     power_df_week=power_df[power_df['Week']==last].drop_duplicates(subset=['ID'],keep='last').set_index('ID')\
-    #     .drop('Week',axis=1).rename(columns={'adj_spread':0}).loc[:(number_of_teams-2),:]
-    #     # st.write('power_df_week', power_df_week,'first', first, 'last', last)
-    #     result = df_inv.dot(pd.DataFrame(power_df_week))
-    #     # st.write('result', result)
-    #     result.columns=['power']
-    #     avg=(result['power'].sum())/number_of_teams
-    #     result['avg_pwr_rank']=(result['power'].sum())/number_of_teams
-    #     result['final_power']=result['avg_pwr_rank']-result['power']
-    #     df_pwr=pd.DataFrame(columns=['final_power'],data=[avg])
-    #     result=pd.concat([result,df_pwr],ignore_index=True)
-    #     result['week']=last+1
-    #     power_ranking.append(result)
-    # power_ranking_combined = pd.concat(power_ranking).reset_index().rename(columns={'index':'ID'})
+    for first,last in zip(first,last):
+        first_section=games_df[games_df['Week'].between(first,last)]
+        # st.write('first section', first_section)
+        full_game_matrix=games_matrix_workings(first_section)
+        st.write('full game matrix', full_game_matrix)
+        adjusted_matrix=full_game_matrix.loc[0:(number_of_teams-2),0:(number_of_teams-2)]
+        # st.write('adjusted matrix', adjusted_matrix)
+        df_inv = pd.DataFrame(np.linalg.pinv(adjusted_matrix.values), adjusted_matrix.columns, adjusted_matrix.index)
+        # st.write('df inv', df_inv)
+        power_df_week=power_df[power_df['Week']==last].drop_duplicates(subset=['ID'],keep='last').set_index('ID')\
+        .drop('Week',axis=1).rename(columns={'adj_spread':0}).loc[:(number_of_teams-2),:]
+        # st.write('power_df_week', power_df_week,'first', first, 'last', last)
+        result = df_inv.dot(pd.DataFrame(power_df_week))
+        # st.write('result', result)
+        result.columns=['power']
+        avg=(result['power'].sum())/number_of_teams
+        result['avg_pwr_rank']=(result['power'].sum())/number_of_teams
+        result['final_power']=result['avg_pwr_rank']-result['power']
+        df_pwr=pd.DataFrame(columns=['final_power'],data=[avg])
+        result=pd.concat([result,df_pwr],ignore_index=True)
+        result['week']=last+1
+        power_ranking.append(result)
+    power_ranking_combined = pd.concat(power_ranking).reset_index().rename(columns={'index':'ID'})
 
 
 
