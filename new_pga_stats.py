@@ -763,21 +763,9 @@ with st.expander('Power Ranking'):
     
     df_data=pd.DataFrame({'Name':['Scottie','Rory','Rahm','Scottie','Rory','Rahm','Scottie','Rory','Rahm','Scottie','Rory','Rahm','Scottie','Rory','Rahm','Scottie','Rory','Rahm','Scottie','Rory','Rahm',],'Week':[-3,-3,-3,-2,-2,-2,-1,-1,-1,0,0,0,1,1,1,2,2,2,3,3,3],
                           'Handicap':[0,3,2,0,4,4,0,2,2,0,1,1,0,2,3,0,1,4,0,3,4]})
-    # st.write(df_data)
-
-    # st.write('range')
-    # for i, j in product(range(len(df_data['Name'].unique())), repeat=2):
-    #     st.write('i:',i,'j:',j)
-
-    # st.write('no repeat')
-    # for i in product(range(len(df_data['Name'].unique())), repeat=1):
-    #         # st.write('i:',i)
-    #         pass
-
-    # st.write('manual')
-    # for i,j in product([0,1,2],[0,1,2]):
-    #         # st.write('i:',i,'j',j)
-    #         pass
+    
+    # df_data=pd.DataFrame({'Name':[0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2,0,1,2],'Week':[-3,-3,-3,-2,-2,-2,-1,-1,-1,0,0,0,1,1,1,2,2,2,3,3,3],
+    #                       'Handicap':[0,3,2,0,4,4,0,2,2,0,1,1,0,2,3,0,1,4,0,3,4]})
 
 
     result_data_product = []
@@ -796,7 +784,6 @@ with st.expander('Power Ranking'):
                     'Handicap': handicaps[i] - handicaps[j]
                 })
 
-    # Create the resulting DataFrame
     df_result_data_product = pd.DataFrame(result_data_product)
 
 
@@ -832,23 +819,25 @@ with st.expander('Power Ranking'):
 
     # Sort and reset index to match the expected format
     df_result_data = df_result_data.sort_values(by=['Week', 'Name', 'Opponent']).reset_index(drop=True).rename(columns={'Name':'Home ID', 'Opponent':'Away ID'})
-    st.write('product data is working', df_result_data_product)
+    # st.write('product data is working', df_result_data_product)
     df_result_data_product=df_result_data_product.drop('Opponent',axis=1).reset_index(drop=True).rename(columns={'Name':'ID'})
 
-    st.write('product data', df_result_data_product)
-    st.write('chat gpt result',df_result_data.sort_values(by=['Home ID','Week','Away ID']))
+    # st.write('product data', df_result_data_product)
+    # st.write('chat gpt result',df_result_data.sort_values(by=['Home ID','Week','Away ID']))
     df_result_data_product['adj_spread']=df_result_data_product['Handicap'].rolling(window=4, center=False).apply(lambda x: np.sum((np.array([0.125, 0.25,0.5,1]))*x), raw=False)
     # st.write('result data', df_result_data)
-    df_seq_1 = df_result_data_product.groupby(['Week','ID'])['adj_spread'].sum().reset_index()
-    st.write('after', df_seq_1)
+    power_df = df_result_data_product.groupby(['Week','ID'])['adj_spread'].sum().reset_index()
+    # st.write('after power df', power_df)
     # st.write('sum of above handicaps', df_result_data['Handicap'].sum())
 
     games_df=df_result_data.copy()
-    st.write('games df', games_df)
+    # st.write('games df', games_df)
     last_week=3
     first=list(range(-3,last_week-3))
+# sourcery skip: remove-zero-from-range
     last=list(range(0,last_week))
-    number_of_teams=3
+    number_of_teams=df_result_data_product['ID'].nunique()
+    # st.write('teams', number_of_teams)
 
     def test_4(matrix_df_1):
         weights = np.array([0.125, 0.25,0.5,1])
@@ -890,20 +879,21 @@ with st.expander('Power Ranking'):
         full_stack.columns = full_stack.columns.droplevel(0)
         return full_stack
 
-    st.write('dont think i need the below as its in the function below but good to sense check')
-    st.write(games_matrix_workings(games_df[games_df['Week'].between(-3,0)]))
-
+    # st.write('dont think i need the below as its in the function below but good to sense check')
+    # st.write(games_matrix_workings(games_df[games_df['Week'].between(-3,0)]))
+    power_ranking=[]
     for first,last in zip(first,last):
         first_section=games_df[games_df['Week'].between(first,last)]
         # st.write('first section', first_section)
         full_game_matrix=games_matrix_workings(first_section)
-        st.write('full game matrix', full_game_matrix)
-        adjusted_matrix=full_game_matrix.loc[0:(number_of_teams-2),0:(number_of_teams-2)]
+        # st.write('full game matrix', full_game_matrix)
+        # st.write('full game matrix indexer', full_game_matrix.iloc[0:2,0:2])
+        adjusted_matrix=full_game_matrix.iloc[:-1,:-1] # drop last column and last row of the Adjusted Games Played Matrix
         # st.write('adjusted matrix', adjusted_matrix)
         df_inv = pd.DataFrame(np.linalg.pinv(adjusted_matrix.values), adjusted_matrix.columns, adjusted_matrix.index)
         # st.write('df inv', df_inv)
         power_df_week=power_df[power_df['Week']==last].drop_duplicates(subset=['ID'],keep='last').set_index('ID')\
-        .drop('Week',axis=1).rename(columns={'adj_spread':0}).loc[:(number_of_teams-2),:]
+        .drop('Week',axis=1).rename(columns={'adj_spread':0}).iloc[:-1,:]
         # st.write('power_df_week', power_df_week,'first', first, 'last', last)
         result = df_inv.dot(pd.DataFrame(power_df_week))
         # st.write('result', result)
@@ -916,7 +906,7 @@ with st.expander('Power Ranking'):
         result['week']=last+1
         power_ranking.append(result)
     power_ranking_combined = pd.concat(power_ranking).reset_index().rename(columns={'index':'ID'})
-
+    st.write('Final Result of Spread', power_ranking_combined)
 
 
 
