@@ -43,8 +43,10 @@ with st.expander('World Rankings'):
 
         return df
     
-    # ogwr_file_csv_save("https://www.owgr.com/events/john-deere-classic-10466",'chicago_2024.csv')
-    # ogwr_file_csv_save("https://www.owgr.com/events/the-memorial-tournament-presented-by-workday-10419",'memorial_2024.csv')
+    # ogwr_file_csv_save("https://www.owgr.com/events/genesis-scottish-open-10469",'scottish_open_2024.csv')
+    # ogwr_file_csv_save("https://www.owgr.com/events/isco-championship-10473",'kentucky_2024.csv')
+    kentucky_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/kentucky_2024.csv','kentucky',2024,pd.to_datetime('14-07-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
+    scottish_open_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/scottish_open_2024.csv','scottish_open',2024,pd.to_datetime('14-07-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
     chicago_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/chicago_2024.csv','chicago',2024,pd.to_datetime('07-07-2024',dayfirst=True)).rename(columns={'NAME':'Name'})     
     detroit_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/detroit_2024.csv','detroit',2024,pd.to_datetime('30-06-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
     tpc_river_highlands_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/tpc_river_highlands_2024.csv','tpc_river_highlands',2024,pd.to_datetime('23-06-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
@@ -70,7 +72,7 @@ with st.expander('World Rankings'):
     torrey_pines=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/torrey_pines_2024.csv','torrey_pines',2024,'27-01-2024').rename(columns={'NAME':'Name'})
     hawaii=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/hawaii_2024.csv','hawaii',2024,'14-01-2024').rename(columns={'NAME':'Name'})
     kapalua=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/kapalua_2024.csv','kapalua',2024,pd.to_datetime('07-01-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
-    combined_data=pd.concat([chicago_2024,detroit_2024,tpc_river_highlands_2024,pinehurst_2024,memorial_2024,canada_2024,colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
+    combined_data=pd.concat([kentucky_2024,scottish_open_2024,chicago_2024,detroit_2024,tpc_river_highlands_2024,pinehurst_2024,memorial_2024,canada_2024,colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
                              pebble_beach,torrey_pines,hawaii,kapalua])
     combined_data["R1"]=pd.to_numeric(combined_data["R1"],errors='coerce')
     combined_data["R2"]=pd.to_numeric(combined_data["R2"],errors='coerce')
@@ -493,6 +495,10 @@ with st.expander('All Betting Analysis'):
     df_betting_raw['Name']=df_betting_raw['Name'].str.title()
     # st.write(df_betting_raw[df_betting_raw['Name'].str.contains('ory')])
     df_betting_results=pd.merge(df_betting_raw,combined_data,on=['date','Name'],how='left',indicator=True)
+    # st.write('Change the ISCO to 13 July')
+    # full_df.loc [ (full_df['full_name']=='heung-min_son'), 'full_name' ]
+    df_betting_results.loc[(df_betting_results['Tour_Name']=='isco_kentucky'),'date']=pd.to_datetime('13-07-2024',dayfirst=True)
+    # st.write(df_betting_results.loc['date','Event Name'])
     df_betting_results.to_parquet('C:/Users/Darragh/Documents/Python/Golf/golf_odds_results_combined.parq')
     st.write('Check the indicator to see if anything missing after merge',df_betting_results[df_betting_results['_merge'].str.contains('left')].sort_values(by='date'))
     df_betting_results=df_betting_results[~df_betting_results['position'].isna()]
@@ -615,7 +621,9 @@ with st.expander('Season Cover Factor'):
 with st.expander('Season to Date Cover Graph'):
     # df_stdc_1=canada.loc[:,['date','Name','cover_handicap?']].copy()
     df_stdc_1=df_betting_results.loc[:,['date','Name','cover_handicap?','surplus_pos_result']].copy()
-    # st.write(df_stdc_1)
+    # st.write('is there duplicate index',df_stdc_1)
+    # st.write( df_stdc_1[df_stdc_1.index.duplicated()] )
+    # st.write( df_stdc_1[df_stdc_1.duplicated()] )
     # st.write(pd.pivot_table(df_stdc_1,values=['cover_handicap?'],index=['Name'],columns=['date']))
     def pivot_generation(df_stdc_1,col_selection='cover_handicap?'):
         test_pivot=pd.pivot(df_stdc_1,values=[col_selection],index=['Name'],columns=['date']).reset_index()
@@ -666,7 +674,9 @@ with st.expander('Handicap Results Graph'):
     test_pivot=test_pivot.drop('total_cover',axis=1)
     count_players=test_pivot.copy()
     date_event=df_betting_results.loc[:,['Tour_Name','date']].drop_duplicates().reset_index(drop=True)
+    st.write('date event', date_event)
     cols = list(zip(date_event['date'], date_event['Tour_Name']))
+    # st.write
     test_pivot.columns = pd.MultiIndex.from_tuples(cols)
     test_pivot['top_3']=test_pivot.isin({1,2,3}).sum(axis=1)
     
