@@ -498,6 +498,7 @@ with st.expander('All Betting Analysis'):
     # st.write('Change the ISCO to 13 July')
     # full_df.loc [ (full_df['full_name']=='heung-min_son'), 'full_name' ]
     df_betting_results.loc[(df_betting_results['Tour_Name']=='isco_kentucky'),'date']=pd.to_datetime('13-07-2024',dayfirst=True)
+    # df_betting_results.loc[(df_betting_results['Tour_Name']=='barracuda'),'date']=pd.to_datetime('20-07-2024',dayfirst=True)
     # st.write(df_betting_results.loc['date','Event Name'])
     df_betting_results.to_parquet('C:/Users/Darragh/Documents/Python/Golf/golf_odds_results_combined.parq')
     st.write('Check the indicator to see if anything missing after merge',df_betting_results[df_betting_results['_merge'].str.contains('left')].sort_values(by='date'))
@@ -649,6 +650,11 @@ with st.expander('Season to Date Cover Graph'):
     st.write(test_pivot_1.sort_values(by=['total_cover'],ascending=False).style.format(precision=0).applymap(highlight_max))
     st.write(test_pivot.sort_values(by=['total_cover'],ascending=True).style.format(precision=0).applymap(highlight_max))
     st.write(test_pivot_1.sort_values(by=['total_cover'],ascending=True).style.format(precision=0).applymap(highlight_max))
+
+
+    # st.write('Filter by specific name', test_pivot.loc[['Davis Thompson','Sam Burns'],:]) # this works
+    # st.write('Filter by partial name', test_pivot.loc[test_pivot.index.str.contains('Burns|Spieth'),:]) #this works and i prefer it
+    # st.write(test_pivot.loc[test_pivot.index.str.contains('Burns|Spieth'),:].sort_values(by=['total_cover'],ascending=False).style.format(precision=0).applymap(highlight_max))
 
     # st.write(test_pivot.sort_values(by=['total_cover'],ascending=False))
     df_stdc_1['average']=df_stdc_1.groupby('Name')['cover_handicap?'].transform(np.mean)
