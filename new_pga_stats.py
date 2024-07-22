@@ -43,8 +43,33 @@ with st.expander('World Rankings'):
 
         return df
     
-    # ogwr_file_csv_save("https://www.owgr.com/events/genesis-scottish-open-10469",'scottish_open_2024.csv')
-    # ogwr_file_csv_save("https://www.owgr.com/events/isco-championship-10473",'kentucky_2024.csv')
+    # using this for Barracuda as its stableford competition
+    def clean_results_stableford(file_location,name_of_tournament,year,date):
+        df=pd.read_csv(file_location)
+        df['Event Name']=name_of_tournament
+        df['year']=int(year)
+        df['position']=df['Finish Pos.'].str.extract('(\d+)')
+        df['position']=df['position'].fillna(999)
+        df['position']=pd.to_numeric(df['position'])
+        df['date']=pd.to_datetime(date)        
+        df=df.dropna(subset=['Finish Pos.'])
+        df['NAME']=df['NAME'].str.title()
+        df['MC']=np.where(df['Finish Pos.'].isin(['MC', 'WD']),np.NaN,1)
+
+        df['miss_cut']=np.where(df['Finish Pos.'].isin(['MC', 'WD']),1,np.NaN)
+        df=df.loc[:,~df.columns.str.contains("Unnamed: 0|POINTS WON|RANK FROM|RANK TO|CTRY", case=False)]
+        # df=df.loc[:,~(df['Finish Pos.'].str.contains("WD", case=False))]
+        # df=df[~df['Finish Pos.'].str.contains("WD")].copy()    
+        # df=df.drop(df.columns.str.contains("Unnamed: 0|R1|R2|R3|R4|CTRY",axis=1, na=False))
+        # df=df.drop(['Unnamed: 0',"R1","R2","R3","R4",'CTRY'],axis=1)
+        # df['AGG']=pd.to_numeric(df['AGG'],errors='ignore')
+
+        return df
+
+    # ogwr_file_csv_save("https://www.owgr.com/events/the-152nd-open-10479",'troon_2024.csv')
+    # ogwr_file_csv_save("https://www.owgr.com/events/barracuda-championship-10480",'barracuda_2024.csv')
+    troon_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/troon_2024.csv','troon',2024,pd.to_datetime('21-07-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
+    barracuda_2024=clean_results_stableford('C:/Users/Darragh/Documents/Python/Golf/rankings_data/barracuda_2024.csv','barracuda',2024,pd.to_datetime('21-07-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
     kentucky_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/kentucky_2024.csv','kentucky',2024,pd.to_datetime('14-07-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
     scottish_open_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/scottish_open_2024.csv','scottish_open',2024,pd.to_datetime('14-07-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
     chicago_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/chicago_2024.csv','chicago',2024,pd.to_datetime('07-07-2024',dayfirst=True)).rename(columns={'NAME':'Name'})     
@@ -72,7 +97,7 @@ with st.expander('World Rankings'):
     torrey_pines=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/torrey_pines_2024.csv','torrey_pines',2024,'27-01-2024').rename(columns={'NAME':'Name'})
     hawaii=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/hawaii_2024.csv','hawaii',2024,'14-01-2024').rename(columns={'NAME':'Name'})
     kapalua=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/kapalua_2024.csv','kapalua',2024,pd.to_datetime('07-01-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
-    combined_data=pd.concat([kentucky_2024,scottish_open_2024,chicago_2024,detroit_2024,tpc_river_highlands_2024,pinehurst_2024,memorial_2024,canada_2024,colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
+    combined_data=pd.concat([troon_2024,barracuda_2024,kentucky_2024,scottish_open_2024,chicago_2024,detroit_2024,tpc_river_highlands_2024,pinehurst_2024,memorial_2024,canada_2024,colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
                              pebble_beach,torrey_pines,hawaii,kapalua])
     combined_data["R1"]=pd.to_numeric(combined_data["R1"],errors='coerce')
     combined_data["R2"]=pd.to_numeric(combined_data["R2"],errors='coerce')
@@ -498,7 +523,7 @@ with st.expander('All Betting Analysis'):
     # st.write('Change the ISCO to 13 July')
     # full_df.loc [ (full_df['full_name']=='heung-min_son'), 'full_name' ]
     df_betting_results.loc[(df_betting_results['Tour_Name']=='isco_kentucky'),'date']=pd.to_datetime('13-07-2024',dayfirst=True)
-    # df_betting_results.loc[(df_betting_results['Tour_Name']=='barracuda'),'date']=pd.to_datetime('20-07-2024',dayfirst=True)
+    df_betting_results.loc[(df_betting_results['Tour_Name']=='barracuda'),'date']=pd.to_datetime('20-07-2024',dayfirst=True)
     # st.write(df_betting_results.loc['date','Event Name'])
     df_betting_results.to_parquet('C:/Users/Darragh/Documents/Python/Golf/golf_odds_results_combined.parq')
     st.write('Check the indicator to see if anything missing after merge',df_betting_results[df_betting_results['_merge'].str.contains('left')].sort_values(by='date'))
