@@ -28,7 +28,7 @@ with st.expander('World Rankings'):
         df['position']=df['Finish Pos.'].str.extract('(\d+)')
         df['position']=df['position'].fillna(999)
         df['position']=pd.to_numeric(df['position'])
-        df['date']=pd.to_datetime(date)        
+        df['date']=pd.to_datetime(date, dayfirst=True) # KEEP AN EYE ON THIS, DATES WERE NOT BEING READ IN CORRECTLY DUE TO EURO/US Format date        
         df=df.dropna(subset=['Finish Pos.'])
         df['NAME']=df['NAME'].str.title()
         df['MC']=np.where(df['Finish Pos.'].isin(['MC', 'WD']),np.NaN,1)
@@ -66,8 +66,11 @@ with st.expander('World Rankings'):
 
         return df
 
-    # ogwr_file_csv_save("https://www.owgr.com/events/wyndham-championship-10507",'wyndham_2024.csv')
-    # ogwr_file_csv_save("https://www.owgr.com/events/fedex-st--jude-championship-10520",'memphis_2024.csv')
+    # ogwr_file_csv_save("https://www.owgr.com/events/the-sentry-10690",'kapalua_2025.csv')
+    # ogwr_file_csv_save("https://www.owgr.com/events/sony-open-in-hawaii-10691",'hawaii_2025.csv')
+    # ogwr_file_csv_save("https://www.owgr.com/events/the-american-express-10692",'palm_springs_2025.csv')    
+    # ogwr_file_csv_save("https://www.owgr.com/events/mexico-open-at-vidantaworld-10724",'mexico_2025.csv')    
+    # ogwr_file_csv_save("https://www.owgr.com/events/the-genesis-invitational-10719",'torrey_riviera_2025.csv')    
     memphis_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/memphis_2024.csv','memphis',2024,pd.to_datetime('18-08-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
     wyndham_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/wyndham_2024.csv','wyndham',2024,pd.to_datetime('11-08-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
     olympics_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/olympics_2024.csv','olympics',2024,pd.to_datetime('04-08-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
@@ -95,19 +98,35 @@ with st.expander('World Rankings'):
     api=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/api_2024.csv','api',2024,pd.to_datetime('10-03-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
     west_palm_beach=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/west_palm_beach_2024.csv','west_palm_beach',2024,pd.to_datetime('03-03-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
     mexico=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/mexico_2024.csv','mexico',2024,pd.to_datetime('25-02-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
+    mexico_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/mexico_2025.csv','mexico_2025',2025,pd.to_datetime('23-02-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
     riviera=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/riviera_2024.csv','riviera',2024,'18-02-2024').rename(columns={'NAME':'Name'})
+    torrey_riviera_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/torrey_riviera_2025.csv','torrey_riviera_2025',2025,'16-02-2025').rename(columns={'NAME':'Name'})
     phoenix=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/phoenix_2024.csv','phoenix',2024,pd.to_datetime('11-02-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
+    phoenix_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/phoenix_2025.csv','phoenix_2025',2025,pd.to_datetime('09-02-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
     pebble_beach=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/pebble_beach_2024.csv','pebble_beach',2024,pd.to_datetime('04-02-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
+    pebble_beach_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/pebble_beach_2025.csv','pebble_beach',2025,pd.to_datetime('02-02-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
     torrey_pines=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/torrey_pines_2024.csv','torrey_pines',2024,'27-01-2024').rename(columns={'NAME':'Name'})
+    torrey_pines_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/torrey_pines_farmers_2025.csv','torrey_pines_farmers',2025,'26-01-2025').rename(columns={'NAME':'Name'})
+    palm_springs_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/palm_springs_2025.csv','palm_springs',2025,'19-01-2025').rename(columns={'NAME':'Name'})
     hawaii=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/hawaii_2024.csv','hawaii',2024,'14-01-2024').rename(columns={'NAME':'Name'})
+    hawaii_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/hawaii_2025.csv','hawaii',2025,'12-01-2025').rename(columns={'NAME':'Name'})
     kapalua=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/kapalua_2024.csv','kapalua',2024,pd.to_datetime('07-01-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
+    kapalua_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/kapalua_2025.csv','kapalua',2025,pd.to_datetime('05-01-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
+    dubai_desert_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/dubai_desert_2025.csv','dubai_desert',2025,pd.to_datetime('19-01-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
     combined_data=pd.concat([memphis_2024,wyndham_2024,olympics_2024,minnesota_2024,troon_2024,barracuda_2024,kentucky_2024,scottish_open_2024,chicago_2024,detroit_2024,tpc_river_highlands_2024,pinehurst_2024,memorial_2024,canada_2024,colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
-                             pebble_beach,torrey_pines,hawaii,kapalua])
-    combined_data["R1"]=pd.to_numeric(combined_data["R1"],errors='coerce')
-    combined_data["R2"]=pd.to_numeric(combined_data["R2"],errors='coerce')
-    combined_data["R3"]=pd.to_numeric(combined_data["R3"],errors='coerce')
-    combined_data["R4"]=pd.to_numeric(combined_data["R4"],errors='coerce')
-    combined_data["AGG"]=pd.to_numeric(combined_data["AGG"],errors='coerce')
+                             pebble_beach,torrey_pines,hawaii,kapalua,kapalua_2025,hawaii_2025,palm_springs_2025,pebble_beach_2025,
+                             phoenix_2025,torrey_pines_2025,dubai_desert_2025,torrey_riviera_2025,mexico_2025])
+    # combined_data_2025=pd.concat([kapalua_2025,hawaii_2025,palm_springs_2025])
+    def round(combined_data):
+        combined_data["R1"]=pd.to_numeric(combined_data["R1"],errors='coerce')
+        combined_data["R2"]=pd.to_numeric(combined_data["R2"],errors='coerce')
+        combined_data["R3"]=pd.to_numeric(combined_data["R3"],errors='coerce')
+        combined_data["R4"]=pd.to_numeric(combined_data["R4"],errors='coerce')
+        combined_data["AGG"]=pd.to_numeric(combined_data["AGG"],errors='coerce')
+        return combined_data
+    
+    combined_data=round(combined_data)
+    # combined_data_2025=round(combined_data_2025)
     # st.write('zala detroit', detroit_2024)
     # st.write(combined_data.dtypes)
     # st.write(combined_data)
@@ -118,44 +137,44 @@ with st.expander('World Rankings'):
     # st.write('hil', masters_2024)
     # df['var']=df[]
 
-with st.expander('sawgrass detail perf'):
-    sawgrass_par_3_performance=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_par_3_performance.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_par_3'}).set_index('PLAYER')
+# with st.expander('sawgrass detail perf'):
+#     sawgrass_par_3_performance=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_par_3_performance.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_par_3'}).set_index('PLAYER')
 
-    sawgrass_bogey_avoidance=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_bogey_avoidance.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_bogey_avoid'}).set_index('PLAYER')
-    sawgrass_gir_fringe=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_gir_fringe.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_gir'}).set_index('PLAYER')
-    # st.write('sawgrass_gir_fringe',sawgrass_gir_fringe)
-    # sawgrass_gir=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_gir.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_gir'}).set_index('PLAYER')
-    # st.write('sawgrass_gir',sawgrass_gir)
-    sawgrass_sg_approach=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_sg_approach.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_sg_app'}).set_index('PLAYER')
-    st.write('sawgrass_sg_approach',sawgrass_sg_approach)
-    sawgrass_distance_edge_fairway=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_distance_edge_fairway.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_dist_edge_fwy'}).set_index('PLAYER')
+#     sawgrass_bogey_avoidance=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_bogey_avoidance.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_bogey_avoid'}).set_index('PLAYER')
+#     sawgrass_gir_fringe=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_gir_fringe.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_gir'}).set_index('PLAYER')
+#     # st.write('sawgrass_gir_fringe',sawgrass_gir_fringe)
+#     # sawgrass_gir=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_gir.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_gir'}).set_index('PLAYER')
+#     # st.write('sawgrass_gir',sawgrass_gir)
+#     sawgrass_sg_approach=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_sg_approach.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_sg_app'}).set_index('PLAYER')
+#     st.write('sawgrass_sg_approach',sawgrass_sg_approach)
+#     sawgrass_distance_edge_fairway=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_distance_edge_fairway.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_dist_edge_fwy'}).set_index('PLAYER')
 
-    sawgrass_driving_distance=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_driving_distance.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_driv_dist'}).set_index('PLAYER')
-    sawgrass_ball_striking=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_ball_striking.csv')
-    sawgrasss_total_driving=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrasss_total_driving.csv')
-    # sawgrass_dist_fairway_centre=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_dist_fairway_centre.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_dist_centre_fwy'}).set_index('PLAYER')
-    sawgrass_fairway_percent = pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_fairway_%.csv').loc[:,['PLAYER','RANK','FAIRWAYS HIT','POSSIBLE FAIRWAYS','%']]\
-        .rename(columns={'RANK':'rank_fwy_percent','%':'fwy_%'}).set_index('PLAYER')
-    sawgrass_fairway_percent['fwy_%'] = sawgrass_fairway_percent['FAIRWAYS HIT'] / sawgrass_fairway_percent['POSSIBLE FAIRWAYS']
-    sawgrass_sg_tee=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_sg_tee.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_sg_tee'}).set_index('PLAYER')
+#     sawgrass_driving_distance=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_driving_distance.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_driv_dist'}).set_index('PLAYER')
+#     sawgrass_ball_striking=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_ball_striking.csv')
+#     sawgrasss_total_driving=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrasss_total_driving.csv')
+#     # sawgrass_dist_fairway_centre=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_dist_fairway_centre.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_dist_centre_fwy'}).set_index('PLAYER')
+#     sawgrass_fairway_percent = pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_fairway_%.csv').loc[:,['PLAYER','RANK','FAIRWAYS HIT','POSSIBLE FAIRWAYS','%']]\
+#         .rename(columns={'RANK':'rank_fwy_percent','%':'fwy_%'}).set_index('PLAYER')
+#     sawgrass_fairway_percent['fwy_%'] = sawgrass_fairway_percent['FAIRWAYS HIT'] / sawgrass_fairway_percent['POSSIBLE FAIRWAYS']
+#     sawgrass_sg_tee=pd.read_csv('C:/Users/Darragh/Documents/Python/golf/sawgrass_sg_tee.csv').loc[:,['PLAYER','RANK']].rename(columns={'RANK':'rank_sg_tee'}).set_index('PLAYER')
 
-    # st.write('sawgrass fairway',sawgrass_fairway_percent)
-    # st.write('sawgrass fairway',sawgrass_fairway_percent['fwy_%'].max())
-    sawgrass_ranks=pd.concat([sawgrass_par_3_performance,sawgrass_bogey_avoidance,sawgrass_gir_fringe,sawgrass_sg_approach,
-                            sawgrass_distance_edge_fairway,sawgrass_driving_distance,sawgrass_fairway_percent,
-                            sawgrass_sg_tee],axis=1)
+#     # st.write('sawgrass fairway',sawgrass_fairway_percent)
+#     # st.write('sawgrass fairway',sawgrass_fairway_percent['fwy_%'].max())
+#     sawgrass_ranks=pd.concat([sawgrass_par_3_performance,sawgrass_bogey_avoidance,sawgrass_gir_fringe,sawgrass_sg_approach,
+#                             sawgrass_distance_edge_fairway,sawgrass_driving_distance,sawgrass_fairway_percent,
+#                             sawgrass_sg_tee],axis=1)
 
-    # idea behind this is to reward fairways hit proportionaly with left over being the missed fairway and how much it was missed by
-    sawgrass_ranks['fwy_plus_missed'] = ( ((sawgrass_ranks['rank_fwy_percent']* ( sawgrass_ranks['fwy_%'].max() )) + (sawgrass_ranks['rank_dist_edge_fwy']* ( 1-(sawgrass_ranks['fwy_%'].max()) ))).\
-                                        rank(method='dense', ascending=True) )
-    off_tee_perf = sawgrass_ranks.loc[:,['rank_sg_tee','fwy_plus_missed','rank_driv_dist','rank_fwy_percent','rank_dist_edge_fwy','FAIRWAYS HIT','POSSIBLE FAIRWAYS']]
-    st.write('off tee perf',off_tee_perf)
+#     # idea behind this is to reward fairways hit proportionaly with left over being the missed fairway and how much it was missed by
+#     sawgrass_ranks['fwy_plus_missed'] = ( ((sawgrass_ranks['rank_fwy_percent']* ( sawgrass_ranks['fwy_%'].max() )) + (sawgrass_ranks['rank_dist_edge_fwy']* ( 1-(sawgrass_ranks['fwy_%'].max()) ))).\
+#                                         rank(method='dense', ascending=True) )
+#     off_tee_perf = sawgrass_ranks.loc[:,['rank_sg_tee','fwy_plus_missed','rank_driv_dist','rank_fwy_percent','rank_dist_edge_fwy','FAIRWAYS HIT','POSSIBLE FAIRWAYS']]
+#     st.write('off tee perf',off_tee_perf)
 
-    appr_perf = sawgrass_ranks.loc[:,['rank_par_3','rank_sg_app']]
+#     appr_perf = sawgrass_ranks.loc[:,['rank_par_3','rank_sg_app']]
 
-    st.write("sawgrass_approach_performance",appr_perf)
+#     st.write("sawgrass_approach_performance",appr_perf)
 
-    st.write('general',sawgrass_ranks)
+#     st.write('general',sawgrass_ranks)
 with st.expander('Masters Analysis Historical'):
 
     def highlight_max(cell): 
@@ -226,51 +245,51 @@ with st.expander('Masters Analysis Historical'):
     st.write(return_data.style.applymap(highlight_max))
     st.write(pd.DataFrame(ott_data).style.applymap(highlight_max))
 
-with st.expander('current'):
-    current_data=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Current')
-    tournie_id=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Tournament_Listing_Chrono')
-    current_data=pd.merge(current_data,tournie_id,how='left',on='Tour_Name').sort_values(by=['Name','Tournament'],ascending=[True,True]).reset_index()
-    current_data['Name']=current_data['Name'].str.title()
-    current_data['Tournament']=pd.to_numeric(current_data['Tournament'])
-    current_data_before_rank=current_data.copy()
-    current_data['event_tracker']=current_data.groupby('Name')['Tournament'].rank(method='first', ascending=True)
-    # st.write('after concat', current_data)
-    # st.write(current_data)
-    def analysis_data(current_data):
-        not_equal_zero_approx = current_data['Amount']>0.05
-        not_equal_zero_approx_1 = current_data['Amount']<-0.05
-        current_data['amount_last_3'] = current_data['Amount'].where(not_equal_zero_approx | not_equal_zero_approx_1).where(current_data['event_tracker']<10)
-        current_data['amount_last_4'] = current_data['Amount'].where(not_equal_zero_approx | not_equal_zero_approx_1).where(current_data['event_tracker']<13)
-        current_data['amount_last_1'] = current_data['Amount'].where(not_equal_zero_approx | not_equal_zero_approx_1).where(current_data['event_tracker']<4)
-        # current_data['amount_last_3_test'] = current_data['Amount'].where(not_equal_zero_approx | not_equal_zero_approx_1).where(current_data['Tournament']<4)
-        # st.write('FIX THIS HERE')
-        # st.write(current_data)
-        # st.write(golf_historical.dtypes)
+# with st.expander('current'):
+#     current_data=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Current')
+#     tournie_id=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='Tournament_Listing_Chrono')
+#     current_data=pd.merge(current_data,tournie_id,how='left',on='Tour_Name').sort_values(by=['Name','Tournament'],ascending=[True,True]).reset_index()
+#     current_data['Name']=current_data['Name'].str.title()
+#     current_data['Tournament']=pd.to_numeric(current_data['Tournament'])
+#     current_data_before_rank=current_data.copy()
+#     current_data['event_tracker']=current_data.groupby('Name')['Tournament'].rank(method='first', ascending=True)
+#     # st.write('after concat', current_data)
+#     # st.write(current_data)
+#     def analysis_data(current_data):
+#         not_equal_zero_approx = current_data['Amount']>0.05
+#         not_equal_zero_approx_1 = current_data['Amount']<-0.05
+#         current_data['amount_last_3'] = current_data['Amount'].where(not_equal_zero_approx | not_equal_zero_approx_1).where(current_data['event_tracker']<10)
+#         current_data['amount_last_4'] = current_data['Amount'].where(not_equal_zero_approx | not_equal_zero_approx_1).where(current_data['event_tracker']<13)
+#         current_data['amount_last_1'] = current_data['Amount'].where(not_equal_zero_approx | not_equal_zero_approx_1).where(current_data['event_tracker']<4)
+#         # current_data['amount_last_3_test'] = current_data['Amount'].where(not_equal_zero_approx | not_equal_zero_approx_1).where(current_data['Tournament']<4)
+#         # st.write('FIX THIS HERE')
+#         # st.write(current_data)
+#         # st.write(golf_historical.dtypes)
 
-        # golf_historical['sum_factors']=np.where( ((golf_historical['Amount']>=-0.05) & (golf_historical['Amount'] <= 0.05)),0
-        #                                         ,np.where(golf_historical['Amount']>0.05,1,np.where(golf_historical['Amount']<0.05,-1,np.NaN)))
-        current_data['positive_factors_last_4']=np.where(current_data['amount_last_4']>0.05,1,np.NaN)
-        current_data['positive_factors_last_3']=np.where(current_data['amount_last_3']>0.05,1,np.NaN)
-        current_data['positive_factors_last_1']=np.where(current_data['amount_last_1']>0.05,1,np.NaN)
-        # st.write(golf_historical)
-        groupby_factors=current_data.groupby('Name').agg(positive_factors_last_3=('positive_factors_last_3','sum'),count_factors_last_3=('amount_last_3','count'),
-                        positive_factors_last_4=('positive_factors_last_4','sum'),count_factors_last_4=('amount_last_4','count'),
-                        positive_factors_last_1=('positive_factors_last_1','sum'),count_factors_last_1=('amount_last_1','count'),
-                        )
+#         # golf_historical['sum_factors']=np.where( ((golf_historical['Amount']>=-0.05) & (golf_historical['Amount'] <= 0.05)),0
+#         #                                         ,np.where(golf_historical['Amount']>0.05,1,np.where(golf_historical['Amount']<0.05,-1,np.NaN)))
+#         current_data['positive_factors_last_4']=np.where(current_data['amount_last_4']>0.05,1,np.NaN)
+#         current_data['positive_factors_last_3']=np.where(current_data['amount_last_3']>0.05,1,np.NaN)
+#         current_data['positive_factors_last_1']=np.where(current_data['amount_last_1']>0.05,1,np.NaN)
+#         # st.write(golf_historical)
+#         groupby_factors=current_data.groupby('Name').agg(positive_factors_last_3=('positive_factors_last_3','sum'),count_factors_last_3=('amount_last_3','count'),
+#                         positive_factors_last_4=('positive_factors_last_4','sum'),count_factors_last_4=('amount_last_4','count'),
+#                         positive_factors_last_1=('positive_factors_last_1','sum'),count_factors_last_1=('amount_last_1','count'),
+#                         )
 
-        # groupby_factors['%_coverage']=groupby_factors['sum_factors'] / groupby_factors['count_factors']
-        groupby_factors['diff_last_3']=groupby_factors['positive_factors_last_3'] - groupby_factors['count_factors_last_3']
-        groupby_factors['diff_last_4']=groupby_factors['positive_factors_last_4'] - groupby_factors['count_factors_last_4']
-        groupby_factors['diff_last_1']=groupby_factors['positive_factors_last_1'] - groupby_factors['count_factors_last_1']
-        groupby_factors['%_positive_last_3']=groupby_factors['positive_factors_last_3'] / groupby_factors['count_factors_last_3']
-        groupby_factors['%_positive_last_4']=groupby_factors['positive_factors_last_4'] / groupby_factors['count_factors_last_4']
-        return groupby_factors
+#         # groupby_factors['%_coverage']=groupby_factors['sum_factors'] / groupby_factors['count_factors']
+#         groupby_factors['diff_last_3']=groupby_factors['positive_factors_last_3'] - groupby_factors['count_factors_last_3']
+#         groupby_factors['diff_last_4']=groupby_factors['positive_factors_last_4'] - groupby_factors['count_factors_last_4']
+#         groupby_factors['diff_last_1']=groupby_factors['positive_factors_last_1'] - groupby_factors['count_factors_last_1']
+#         groupby_factors['%_positive_last_3']=groupby_factors['positive_factors_last_3'] / groupby_factors['count_factors_last_3']
+#         groupby_factors['%_positive_last_4']=groupby_factors['positive_factors_last_4'] / groupby_factors['count_factors_last_4']
+#         return groupby_factors
 
 
-    groupby_factors=analysis_data(current_data)
-    st.write('Last 3',groupby_factors.sort_values(by='diff_last_3',ascending=False).reset_index())
-    st.write('Last 1',groupby_factors.sort_values(by=['diff_last_1','diff_last_3'],ascending=[False,False]).reset_index())
-    st.write('Bottom of the Pack',groupby_factors.sort_values(by='diff_last_3',ascending=True))
+#     groupby_factors=analysis_data(current_data)
+#     st.write('Last 3',groupby_factors.sort_values(by='diff_last_3',ascending=False).reset_index())
+#     st.write('Last 1',groupby_factors.sort_values(by=['diff_last_1','diff_last_3'],ascending=[False,False]).reset_index())
+#     st.write('Bottom of the Pack',groupby_factors.sort_values(by='diff_last_3',ascending=True))
 
 # with st.expander('Houston'):
 #     updated_groupby_factors=groupby_factors.reset_index()
@@ -518,16 +537,31 @@ with st.expander('current'):
 
 with st.expander('All Betting Analysis'):
 
-    df_betting_raw=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='betting_data',converters= {'date': pd.to_datetime})
+    df_betting_raw=pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx',sheet_name='betting_data',
+                                 date_parser=lambda x: pd.to_datetime(x, format='%m/%d/%Y'),
+                                #  converters= {'date': pd.to_datetime}
+                                 )
     
     # st.write(combined_data[combined_data['Name'].str.contains('ory')])
     df_betting_raw['Name']=df_betting_raw['Name'].str.title()
     # st.write(df_betting_raw[df_betting_raw['Name'].str.contains('ory')])
+    # st.write('hawaii 2025', hawaii_2025)
+    # st.write('hawaii date',hawaii_2025['date'][0].strftime('%B %d, %Y'))
+    # issue with date time of 12 Jan on betting versus OGWR, need to fix 
+    # filter on hawaii in 2025
+    # how to make sure that the dates are american dates and not european dates
+    # st.write('betting raw', df_betting_raw[(df_betting_raw['year']==2025) & (df_betting_raw['Tour_Name']=='hawaii')].sort_values(by='date'))
+    hawaii_test_df=df_betting_raw[(df_betting_raw['year']==2025) & (df_betting_raw['Tour_Name']=='hawaii')].sort_values(by='date')
+    # st.write('betting odds spreadsheet date',hawaii_test_df['date'][0].strftime('%B %d, %Y'))
+    # extract the month from date column
+    # st.write(hawaii_test_df['date'].dt.month)
     df_betting_results=pd.merge(df_betting_raw,combined_data,on=['date','Name'],how='left',indicator=True)
     # st.write('Change the ISCO to 13 July')
     # full_df.loc [ (full_df['full_name']=='heung-min_son'), 'full_name' ]
     df_betting_results.loc[(df_betting_results['Tour_Name']=='isco_kentucky'),'date']=pd.to_datetime('13-07-2024',dayfirst=True)
     df_betting_results.loc[(df_betting_results['Tour_Name']=='barracuda'),'date']=pd.to_datetime('20-07-2024',dayfirst=True)
+    # st.write('tour name',df_betting_results['Tour_Name'].unique())
+    df_betting_results.loc[(df_betting_results['Tour_Name']=='dubai_desert'),'date']=pd.to_datetime('18-01-2025',dayfirst=True)    
     # st.write(df_betting_results.loc['date','Event Name'])
     df_betting_results.to_parquet('C:/Users/Darragh/Documents/Python/Golf/golf_odds_results_combined.parq')
     st.write('Check the indicator to see if anything missing after merge',df_betting_results[df_betting_results['_merge'].str.contains('left')].sort_values(by='date'))
@@ -697,41 +731,64 @@ with st.expander('Season to Date Cover Graph'):
 with st.expander('Handicap Results Graph'):
     # df_stdc_1=canada.loc[:,['date','Name','cover_handicap?']].copy()
     df_stdc_1=df_betting_results.loc[:,['date','Name','cover_handicap?','POS_after_handicap']].copy()
-    # st.write(df_stdc_1[df_stdc_1['date']>'06-05-24'])
-    df_stdc_1=df_stdc_1.dropna(subset=['POS_after_handicap'])
-    
-    
-    test_pivot=pivot_generation(df_stdc_1,col_selection='POS_after_handicap')
-
-    # st.write(test_pivot.sort_values(by=['total_cover'],ascending=True).style.format(precision=0).background_gradient(axis=0, cmap='bwr')) #bwr
-    # https://matplotlib.org/stable/users/explain/colors/colormaps.html
-
-    test_pivot=test_pivot.drop('total_cover',axis=1)
-    count_players=test_pivot.copy()
-    date_event=df_betting_results.loc[:,['Tour_Name','date']].drop_duplicates().reset_index(drop=True)
-    st.write('date event', date_event)
-    cols = list(zip(date_event['date'], date_event['Tour_Name']))
-    # st.write
-    test_pivot.columns = pd.MultiIndex.from_tuples(cols)
-    test_pivot['top_3']=test_pivot.isin({1,2,3}).sum(axis=1)
-    
-    # st.write(test_pivot.sort_values(by=['top_3'],ascending=False).style.format(precision=0).background_gradient(axis=0, cmap='bwr')) #bwr
-    # https://matplotlib.org/stable/gallery/color/named_colors.html
-    def highlight_custom(cell):   # sourcery skip: assign-if-exp
-        if cell ==1: 
-            return 'background-color:lime'
-        if cell == 2 : 
-            return 'background-color:green'
-        if cell == 3 : 
-            return 'background-color:green'
-        if cell > 3 : 
-            return 'background-color:lightgrey'
-        else: 
-            return ''
+    df_2025=df_stdc_1.loc[df_stdc_1['date']>'01-01-25']
+    def run_code_1(df_stdc_1):
+        # st.write(df_stdc_1[df_stdc_1['date']>'06-05-24'])
+        df_stdc_1=df_stdc_1.dropna(subset=['POS_after_handicap'])
         
+        
+        test_pivot=pivot_generation(df_stdc_1,col_selection='POS_after_handicap')
+
+        # st.write(test_pivot.sort_values(by=['total_cover'],ascending=True).style.format(precision=0).background_gradient(axis=0, cmap='bwr')) #bwr
+        # https://matplotlib.org/stable/users/explain/colors/colormaps.html
+
+        test_pivot=test_pivot.drop('total_cover',axis=1)
+        return test_pivot
+    
+    test_pivot=run_code_1(df_stdc_1)
+    test_pivot_2025=run_code_1(df_2025)
+    # st.write('df 2025', df_2025)
+    # st.write('test piv', test_pivot_2025)
+    # st.write('betting',df_betting_results.loc[df_betting_results['date']>'01-01-25'])
+    count_players=test_pivot.copy()
+    def run_code_2(test_pivot,df_betting_results):
+        
+        date_event=df_betting_results.loc[:,['Tour_Name','date']].drop_duplicates().reset_index(drop=True)
+        # st.write('date event', date_event)
+        cols = list(zip(date_event['date'], date_event['Tour_Name']))
+        # st.write
+        test_pivot.columns = pd.MultiIndex.from_tuples(cols)
+        test_pivot['top_3']=test_pivot.isin({1,2,3}).sum(axis=1)
+        
+        # st.write(test_pivot.sort_values(by=['top_3'],ascending=False).style.format(precision=0).background_gradient(axis=0, cmap='bwr')) #bwr
+        # https://matplotlib.org/stable/gallery/color/named_colors.html
+        def highlight_custom(cell):   # sourcery skip: assign-if-exp
+            if cell ==1: 
+                return 'background-color:lime'
+            if cell == 2 : 
+                return 'background-color:green'
+            if cell == 3 : 
+                return 'background-color:green'
+            if cell > 3 : 
+                return 'background-color:lightgrey'
+            else: 
+                return ''
+            
 
 
-    st.write(test_pivot.sort_values(by=['top_3'],ascending=False).style.format(precision=0).applymap(highlight_custom)) 
+        return st.write(test_pivot.sort_values(by=['top_3'],ascending=False).style.format(precision=0).applymap(highlight_custom)) 
+    
+    run_code_2(test_pivot_2025,df_betting_results.loc[df_betting_results['date']>'01-01-25'])
+    run_code_2(test_pivot,df_betting_results)
+    # betting_2025_data=df_betting_results.loc[df_betting_results['date']>'01-01-25']
+    # # st.write('filtered 2025', betting_2025_data)
+    # date_event=betting_2025_data.loc[:,['Tour_Name','date']].drop_duplicates().reset_index(drop=True)
+    # # st.write('date event 2025', date_event)
+    # cols = list(zip(date_event['date'], date_event['Tour_Name']))
+    # # st.write('cols of 2025', cols)
+    # st.write('test pivot before error', test_pivot_2025)
+    # # test_pivot_2025.columns = pd.MultiIndex.from_tuples(cols)
+    # st.write('test pivot', test_pivot_2025)
 
 with st.expander('Power Ranking'):
     # https://stackoverflow.com/questions/37364859/pandas-add-header-row-for-multiindex
