@@ -69,8 +69,8 @@ with st.expander('World Rankings'):
     # ogwr_file_csv_save("https://www.owgr.com/events/the-sentry-10690",'kapalua_2025.csv')
     # ogwr_file_csv_save("https://www.owgr.com/events/sony-open-in-hawaii-10691",'hawaii_2025.csv')
     # ogwr_file_csv_save("https://www.owgr.com/events/the-american-express-10692",'palm_springs_2025.csv')    
-    # ogwr_file_csv_save("https://www.owgr.com/events/mexico-open-at-vidantaworld-10724",'mexico_2025.csv')    
-    # ogwr_file_csv_save("https://www.owgr.com/events/the-genesis-invitational-10719",'torrey_riviera_2025.csv')    
+    # ogwr_file_csv_save("https://www.owgr.com/events/arnold-palmer-invitational-presented-by-mastercard-10745",'bay_hill_2025.csv')    
+    ogwr_file_csv_save("https://www.owgr.com/events/valspar-championship-10760",'innisbrook_2025.csv')    
     memphis_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/memphis_2024.csv','memphis',2024,pd.to_datetime('18-08-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
     wyndham_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/wyndham_2024.csv','wyndham',2024,pd.to_datetime('11-08-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
     olympics_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/olympics_2024.csv','olympics',2024,pd.to_datetime('04-08-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
@@ -97,6 +97,7 @@ with st.expander('World Rankings'):
     sawgrass=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/sawgrass_2024.csv','sawgrass',2024,'24-03-2024').rename(columns={'NAME':'Name'})
     api=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/api_2024.csv','api',2024,pd.to_datetime('10-03-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
     west_palm_beach=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/west_palm_beach_2024.csv','west_palm_beach',2024,pd.to_datetime('03-03-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
+    west_palm_beach_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/west_palm_beach_2025.csv','west_palm_beach_2025',2024,pd.to_datetime('02-03-2025',dayfirst=True)).rename(columns={'NAME':'Name'})    
     mexico=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/mexico_2024.csv','mexico',2024,pd.to_datetime('25-02-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
     mexico_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/mexico_2025.csv','mexico_2025',2025,pd.to_datetime('23-02-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
     riviera=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/riviera_2024.csv','riviera',2024,'18-02-2024').rename(columns={'NAME':'Name'})
@@ -113,9 +114,16 @@ with st.expander('World Rankings'):
     kapalua=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/kapalua_2024.csv','kapalua',2024,pd.to_datetime('07-01-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
     kapalua_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/kapalua_2025.csv','kapalua',2025,pd.to_datetime('05-01-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
     dubai_desert_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/dubai_desert_2025.csv','dubai_desert',2025,pd.to_datetime('19-01-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
+    bay_hill_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/bay_hill_2025.csv','bay_hill_2025',2025,pd.to_datetime('09-03-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
+    puerto_rico_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/puerto_rico_2025.csv','puerto_rico_2025',2025,pd.to_datetime('10-03-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
+    players_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/players_2025.csv','players_2025',2025,pd.to_datetime('16-03-2025',dayfirst=True)).rename(columns={'NAME':'Name'})    
+    innisbrook_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/innisbrook_2025.csv','innisbrook_2025',2025,pd.to_datetime('23-03-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
     combined_data=pd.concat([memphis_2024,wyndham_2024,olympics_2024,minnesota_2024,troon_2024,barracuda_2024,kentucky_2024,scottish_open_2024,chicago_2024,detroit_2024,tpc_river_highlands_2024,pinehurst_2024,memorial_2024,canada_2024,colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
                              pebble_beach,torrey_pines,hawaii,kapalua,kapalua_2025,hawaii_2025,palm_springs_2025,pebble_beach_2025,
-                             phoenix_2025,torrey_pines_2025,dubai_desert_2025,torrey_riviera_2025,mexico_2025])
+                             phoenix_2025,torrey_pines_2025,dubai_desert_2025,torrey_riviera_2025,mexico_2025,west_palm_beach_2025, puerto_rico_2025,
+                               bay_hill_2025,players_2025,
+                               innisbrook_2025,
+                               ])
     # combined_data_2025=pd.concat([kapalua_2025,hawaii_2025,palm_springs_2025])
     def round(combined_data):
         combined_data["R1"]=pd.to_numeric(combined_data["R1"],errors='coerce')
@@ -685,6 +693,7 @@ with st.expander('Season Cover Factor'):
 with st.expander('Season to Date Cover Graph'):
     # df_stdc_1=canada.loc[:,['date','Name','cover_handicap?']].copy()
     df_stdc_1=df_betting_results.loc[:,['date','Name','cover_handicap?','surplus_pos_result']].copy()
+    df_2025=df_stdc_1.loc[df_stdc_1['date']>'01-01-25']
     # st.write('is there duplicate index',df_stdc_1)
     # st.write( df_stdc_1[df_stdc_1.index.duplicated()] )
     # st.write( df_stdc_1[df_stdc_1.duplicated()] )
@@ -698,6 +707,9 @@ with st.expander('Season to Date Cover Graph'):
         return test_pivot
     test_pivot=pivot_generation(df_stdc_1,col_selection='cover_handicap?')
     test_pivot_1=pivot_generation(df_stdc_1,col_selection='surplus_pos_result')
+    test_pivot_2025=pivot_generation(df_2025,col_selection='cover_handicap?')
+    test_pivot_1_2025=pivot_generation(df_2025,col_selection='surplus_pos_result')
+
     # st.write(test_pivot.columns)
     # https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html
     def highlight_max(cell):   # sourcery skip: assign-if-exp
@@ -709,6 +721,14 @@ with st.expander('Season to Date Cover Graph'):
             return ''
   
     # st.write(test_pivot.sort_values(by=['total_cover'],ascending=False).style.applymap(highlight_max))
+
+    st.write(test_pivot_2025.sort_values(by=['total_cover'],ascending=False).style.format(precision=0).applymap(highlight_max))
+    st.write(test_pivot_1_2025.sort_values(by=['total_cover'],ascending=False).style.format(precision=0).applymap(highlight_max))
+    st.write(test_pivot_2025.sort_values(by=['total_cover'],ascending=True).style.format(precision=0).applymap(highlight_max))
+    st.write(test_pivot_1_2025.sort_values(by=['total_cover'],ascending=True).style.format(precision=0).applymap(highlight_max))
+
+
+
     st.write(test_pivot.sort_values(by=['total_cover'],ascending=False).style.format(precision=0).applymap(highlight_max))
     st.write(test_pivot_1.sort_values(by=['total_cover'],ascending=False).style.format(precision=0).applymap(highlight_max))
     st.write(test_pivot.sort_values(by=['total_cover'],ascending=True).style.format(precision=0).applymap(highlight_max))
