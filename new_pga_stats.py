@@ -70,7 +70,7 @@ with st.expander('World Rankings'):
     # ogwr_file_csv_save("https://www.owgr.com/events/sony-open-in-hawaii-10691",'hawaii_2025.csv')
     # ogwr_file_csv_save("https://www.owgr.com/events/valero-texas-open-10777",'san_antonio_2025.csv')    
     # ogwr_file_csv_save("https://www.owgr.com/events/rbc-heritage-10793",'harbour_town_2025.csv')    
-    # ogwr_file_csv_save("https://www.owgr.com/events/masters-tournament-10785",'masters_2025.csv')    
+    # ogwr_file_csv_save("https://www.owgr.com/events/the-cj-cup-byron-nelson-10814",'craig_ranch_2025.csv')    
     memphis_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/memphis_2024.csv','memphis',2024,pd.to_datetime('18-08-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
     wyndham_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/wyndham_2024.csv','wyndham',2024,pd.to_datetime('11-08-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
     olympics_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/olympics_2024.csv','olympics',2024,pd.to_datetime('04-08-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
@@ -122,11 +122,12 @@ with st.expander('World Rankings'):
     san_antonio_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/san_antonio_2025.csv','san_antonio_2025',2025,pd.to_datetime('06-04-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
     masters_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/masters_2025.csv','masters_2025',2025,pd.to_datetime('13-04-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
     harbour_town_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/harbour_town_2025.csv','harbour_town_2025',2025,pd.to_datetime('20-04-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
+    craig_ranch_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/craig_ranch_2025.csv','craig_ranch_2025',2025,pd.to_datetime('04-05-2025',dayfirst=True)).rename(columns={'NAME':'Name'})    
     combined_data=pd.concat([memphis_2024,wyndham_2024,olympics_2024,minnesota_2024,troon_2024,barracuda_2024,kentucky_2024,scottish_open_2024,chicago_2024,detroit_2024,tpc_river_highlands_2024,pinehurst_2024,memorial_2024,canada_2024,colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
                              pebble_beach,torrey_pines,hawaii,kapalua,kapalua_2025,hawaii_2025,palm_springs_2025,pebble_beach_2025,
                              phoenix_2025,torrey_pines_2025,dubai_desert_2025,torrey_riviera_2025,mexico_2025,west_palm_beach_2025, puerto_rico_2025,
                                bay_hill_2025,players_2025,masters_2025,harbour_town_2025,san_antonio_2025,
-                               innisbrook_2025,houston_2025,
+                               innisbrook_2025,houston_2025,craig_ranch_2025,
                                ])
     # combined_data_2025=pd.concat([kapalua_2025,hawaii_2025,palm_springs_2025])
     def round(combined_data):
