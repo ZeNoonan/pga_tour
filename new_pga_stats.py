@@ -16,7 +16,7 @@ st.set_page_config(layout="wide")
 with st.expander('World Rankings'):
     def ogwr_file_csv_save(url_comp,filename_ext):
         table=pd.read_html(url_comp)
-        p=pathlib.Path.cwd().joinpath('golf','rankings_data')
+        p=pathlib.Path.cwd().joinpath('rankings_data')
         return table[0].to_csv(p.joinpath(filename_ext))
 
     
@@ -31,9 +31,9 @@ with st.expander('World Rankings'):
         df['date']=pd.to_datetime(date, dayfirst=True) # KEEP AN EYE ON THIS, DATES WERE NOT BEING READ IN CORRECTLY DUE TO EURO/US Format date        
         df=df.dropna(subset=['Finish Pos.'])
         df['NAME']=df['NAME'].str.title()
-        df['MC']=np.where(df['Finish Pos.'].isin(['MC', 'WD']),np.NaN,1)
+        df['MC']=np.where(df['Finish Pos.'].isin(['MC', 'WD']),np.nan,1)
 
-        df['miss_cut']=np.where(df['Finish Pos.'].isin(['MC', 'WD']),1,np.NaN)
+        df['miss_cut']=np.where(df['Finish Pos.'].isin(['MC', 'WD']),1,np.nan)
         df=df.loc[:,~df.columns.str.contains("Unnamed: 0|POINTS WON|RANK FROM|RANK TO|CTRY", case=False)]
         # df=df.loc[:,~(df['Finish Pos.'].str.contains("WD", case=False))]
         # df=df[~df['Finish Pos.'].str.contains("WD")].copy()    
@@ -54,9 +54,9 @@ with st.expander('World Rankings'):
         df['date']=pd.to_datetime(date)        
         df=df.dropna(subset=['Finish Pos.'])
         df['NAME']=df['NAME'].str.title()
-        df['MC']=np.where(df['Finish Pos.'].isin(['MC', 'WD']),np.NaN,1)
+        df['MC']=np.where(df['Finish Pos.'].isin(['MC', 'WD']),np.nan,1)
 
-        df['miss_cut']=np.where(df['Finish Pos.'].isin(['MC', 'WD']),1,np.NaN)
+        df['miss_cut']=np.where(df['Finish Pos.'].isin(['MC', 'WD']),1,np.nan)
         df=df.loc[:,~df.columns.str.contains("Unnamed: 0|POINTS WON|RANK FROM|RANK TO|CTRY", case=False)]
         # df=df.loc[:,~(df['Finish Pos.'].str.contains("WD", case=False))]
         # df=df[~df['Finish Pos.'].str.contains("WD")].copy()    
@@ -68,9 +68,9 @@ with st.expander('World Rankings'):
 
     # ogwr_file_csv_save("https://www.owgr.com/events/the-sentry-10690",'kapalua_2025.csv')
     # ogwr_file_csv_save("https://www.owgr.com/events/sony-open-in-hawaii-10691",'hawaii_2025.csv')
-    # ogwr_file_csv_save("https://www.owgr.com/events/valero-texas-open-10777",'san_antonio_2025.csv')    
-    # ogwr_file_csv_save("https://www.owgr.com/events/rbc-heritage-10793",'harbour_town_2025.csv')    
-    ogwr_file_csv_save("https://www.owgr.com/events/truist-championship-10825",'philadelphia_2025.csv')    
+    # ogwr_file_csv_save("https://www.owgr.com/events/u-s--pga-championship-10834",'uspga_quail_hollow_2025.csv')    
+    # ogwr_file_csv_save("https://www.owgr.com/events/charles-schwab-challenge-10852",'colonial_2025.csv')    
+    # ogwr_file_csv_save("https://www.owgr.com/events/the-memorial-tournament-presented-by-workday-10866",'memorial_2025.csv')    
     memphis_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/memphis_2024.csv','memphis',2024,pd.to_datetime('18-08-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
     wyndham_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/wyndham_2024.csv','wyndham',2024,pd.to_datetime('11-08-2024',dayfirst=True)).rename(columns={'NAME':'Name'})
     olympics_2024=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/olympics_2024.csv','olympics',2024,pd.to_datetime('04-08-2024',dayfirst=True)).rename(columns={'NAME':'Name'})    
@@ -124,11 +124,15 @@ with st.expander('World Rankings'):
     harbour_town_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/harbour_town_2025.csv','harbour_town_2025',2025,pd.to_datetime('20-04-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
     craig_ranch_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/craig_ranch_2025.csv','craig_ranch_2025',2025,pd.to_datetime('04-05-2025',dayfirst=True)).rename(columns={'NAME':'Name'})    
     philadelphia_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/philadelphia_2025.csv','philadelphia_2025',2025,pd.to_datetime('11-05-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
+    colonial_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/colonial_2025.csv','colonial_2025',2025,pd.to_datetime('25-05-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
+    memorial_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/memorial_2025.csv','memorial_2025',2025,pd.to_datetime('01-06-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
+    uspga_quail_hollow_2025=clean_results('C:/Users/Darragh/Documents/Python/Golf/rankings_data/uspga_quail_hollow_2025.csv','uspga_quail_hollow_2025',2025,pd.to_datetime('18-05-2025',dayfirst=True)).rename(columns={'NAME':'Name'})
+
     combined_data=pd.concat([memphis_2024,wyndham_2024,olympics_2024,minnesota_2024,troon_2024,barracuda_2024,kentucky_2024,scottish_open_2024,chicago_2024,detroit_2024,tpc_river_highlands_2024,pinehurst_2024,memorial_2024,canada_2024,colonial_2024,valhalla_2024,quail_hollow_2024,dallas_2024,Hilton_Head_2024,masters_2024,san_antonio_2024,houston_2024,tampa_bay_2024,sawgrass,api,west_palm_beach,mexico,riviera,phoenix,
                              pebble_beach,torrey_pines,hawaii,kapalua,kapalua_2025,hawaii_2025,palm_springs_2025,pebble_beach_2025,
                              phoenix_2025,torrey_pines_2025,dubai_desert_2025,torrey_riviera_2025,mexico_2025,west_palm_beach_2025, puerto_rico_2025,
                                bay_hill_2025,players_2025,masters_2025,harbour_town_2025,san_antonio_2025,
-                               innisbrook_2025,houston_2025,craig_ranch_2025,philadelphia_2025,
+                               innisbrook_2025,houston_2025,craig_ranch_2025,philadelphia_2025,colonial_2025,memorial_2025,uspga_quail_hollow_2025
                                ])
     # combined_data_2025=pd.concat([kapalua_2025,hawaii_2025,palm_springs_2025])
     def round(combined_data):
@@ -204,9 +208,9 @@ with st.expander('Masters Analysis Historical'):
             return 'color: green'
 
     golf_historical = pd.read_excel('C:/Users/Darragh/Documents/Python/golf/golf_masters_historical.xlsx')
-    golf_historical['Amount']=golf_historical['Amount'].replace({'np.NaN':np.NaN})
-    golf_historical['Amount']=golf_historical['Amount'].replace({'np.nan':np.NaN})
-    golf_historical['Amount']=golf_historical['Amount'].replace({'np.NAN':np.NaN})
+    golf_historical['Amount']=golf_historical['Amount'].replace({'np.nan':np.nan})
+    golf_historical['Amount']=golf_historical['Amount'].replace({'np.nan':np.nan})
+    golf_historical['Amount']=golf_historical['Amount'].replace({'np.nan':np.nan})
     golf_historical['Amount']=pd.to_numeric(golf_historical['Amount'])
 
 
@@ -221,9 +225,9 @@ with st.expander('Masters Analysis Historical'):
     # st.write(golf_historical.dtypes)
 
     # golf_historical['sum_factors']=np.where( ((golf_historical['Amount']>=-0.05) & (golf_historical['Amount'] <= 0.05)),0
-    #                                         ,np.where(golf_historical['Amount']>0.05,1,np.where(golf_historical['Amount']<0.05,-1,np.NaN)))
-    golf_historical['positive_factors_last_4']=np.where(golf_historical['amount_last_4']>0.05,1,np.NaN)
-    golf_historical['positive_factors_last_3']=np.where(golf_historical['amount_last_3']>0.05,1,np.NaN)
+    #                                         ,np.where(golf_historical['Amount']>0.05,1,np.where(golf_historical['Amount']<0.05,-1,np.nan)))
+    golf_historical['positive_factors_last_4']=np.where(golf_historical['amount_last_4']>0.05,1,np.nan)
+    golf_historical['positive_factors_last_3']=np.where(golf_historical['amount_last_3']>0.05,1,np.nan)
     # st.write(golf_historical)
     groupby_factors=golf_historical.groupby('Year').agg(positive_factors_last_3=('positive_factors_last_3','sum'),count_factors_last_3=('amount_last_3','count'),
                     positive_factors_last_4=('positive_factors_last_4','sum'),count_factors_last_4=('amount_last_4','count'),
@@ -238,10 +242,10 @@ with st.expander('Masters Analysis Historical'):
     data={'Rahm_2023_app':[-1.18,2.19,.59,3.15],'Rahm_2023_arg':[0.36,1.34,.67,-.05],
         'Scheffler_2022_app':[-.72,2.18,1.66,-.26],'Scheffler_2022_arg':[.19,.36,.61,.75],
         'Hideki_2021_app':[.82,1.33,1.14,.74],'Hideki_2021_arg':[1.09,.28,-.14,1.69],
-        'Dustin_2020_app':[.83,1.99,np.NaN,np.NaN],'Dustin_2020_arg':[.47,.52,np.NaN,np.NaN],
+        'Dustin_2020_app':[.83,1.99,np.nan,np.nan],'Dustin_2020_arg':[.47,.52,np.nan,np.nan],
         'Tiger_2019_app':[-.82,2.35,.52,1.43],'Tiger_2019_arg':[.66,1.06,.34,.35],
         'Reed_2018_app':[-.01,2.15,.29,-1.85],'Reed_2018_arg':[.96,.61,.75,.72],
-        'Sergio_2017_app':[.46,.47,.24,np.NAN],'Sergio_2017_arg':[.18,.48,.73,np.NAN],
+        'Sergio_2017_app':[.46,.47,.24,np.nan],'Sergio_2017_arg':[.18,.48,.73,np.nan],
         'Willett_2016_app':[.74,.77,np.nan,np.nan],'Willett_2016_arg':[.77,1.02,np.nan,np.nan],
         'Spieth_2015_app':[1.21,.74,1.14,-1.15],'Spieth_2015_arg':[.48,.25,1.19,.64],
         'Bubba_2014_app':[.28,-.03,1.11,.08],'Bubba_2014_arg':[-.86,.4,.19,.37],
@@ -281,10 +285,10 @@ with st.expander('Masters Analysis Historical'):
 #         # st.write(golf_historical.dtypes)
 
 #         # golf_historical['sum_factors']=np.where( ((golf_historical['Amount']>=-0.05) & (golf_historical['Amount'] <= 0.05)),0
-#         #                                         ,np.where(golf_historical['Amount']>0.05,1,np.where(golf_historical['Amount']<0.05,-1,np.NaN)))
-#         current_data['positive_factors_last_4']=np.where(current_data['amount_last_4']>0.05,1,np.NaN)
-#         current_data['positive_factors_last_3']=np.where(current_data['amount_last_3']>0.05,1,np.NaN)
-#         current_data['positive_factors_last_1']=np.where(current_data['amount_last_1']>0.05,1,np.NaN)
+#         #                                         ,np.where(golf_historical['Amount']>0.05,1,np.where(golf_historical['Amount']<0.05,-1,np.nan)))
+#         current_data['positive_factors_last_4']=np.where(current_data['amount_last_4']>0.05,1,np.nan)
+#         current_data['positive_factors_last_3']=np.where(current_data['amount_last_3']>0.05,1,np.nan)
+#         current_data['positive_factors_last_1']=np.where(current_data['amount_last_1']>0.05,1,np.nan)
 #         # st.write(golf_historical)
 #         groupby_factors=current_data.groupby('Name').agg(positive_factors_last_3=('positive_factors_last_3','sum'),count_factors_last_3=('amount_last_3','count'),
 #                         positive_factors_last_4=('positive_factors_last_4','sum'),count_factors_last_4=('amount_last_4','count'),
@@ -583,7 +587,7 @@ with st.expander('All Betting Analysis'):
     df_betting_results=df_betting_results.sort_values(by=['date','Winner_odds'],ascending=[False,True])
 
     # in_handicap_betting=df_betting_results['Handicap_Payout']>1
-    df_betting_results['in_handicap_betting']=np.where(df_betting_results['Handicap_Payout']>1,1,np.NaN)
+    df_betting_results['in_handicap_betting']=np.where(df_betting_results['Handicap_Payout']>1,1,np.nan)
     df_betting_results['agg_after_handicap'] = (df_betting_results['AGG']*df_betting_results['MC'])-df_betting_results['Handicap_Strokes']
     
     # df_betting_results['agg_after_handicap']=df_betting_results['agg_after_handicap'].where(df_betting_results['Handicap_Payout']>1)
@@ -1152,7 +1156,7 @@ with st.expander('Data PGA Tour SG'):
 with st.expander('Median Round Score'):
     # with st.expander('Golf Rankings'):
     cols=['R1','R2','R3','R4']
-    combined_data[cols]=combined_data[cols].replace(0,np.NaN)
+    combined_data[cols]=combined_data[cols].replace(0,np.nan)
 
 
     # below is my manual attempt and have also the chat gpt attempt which is less code
